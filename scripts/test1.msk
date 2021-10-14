@@ -1,0 +1,9 @@
+
+import log
+import os
+
+func main() {
+   log.print("hello")
+
+   log.print(os.args)
+}
