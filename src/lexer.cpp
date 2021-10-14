@@ -1,6 +1,13 @@
 #include "lexer.h"
 #include <algorithm>
 
+namespace {
+
+std::string beginChars = "([{";
+std::string endChars = ")]}";
+
+} // namespace
+
 Tokens tokenize(std::shared_ptr<Buffer> buffer) {
     auto tokens = Tokens{};
     tokens.reserve(buffer->size());
@@ -49,11 +56,24 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
         }
     }
 
+    // Remove empty tokens
     auto it = std::remove_if(tokens.begin(), tokens.end(), [](auto &token) {
         return token.content.empty();
     });
 
     tokens.erase(it, tokens.end());
+
+    // Find parenthtesis and such
+    for (auto &token : tokens) {
+        if (beginChars.find(token.content.front()) != std::string_view::npos) {
+            token.type = Token::BeginGroup;
+        }
+        else if (endChars.find(token.content.front()) !=
+                 std::string_view::npos) {
+            token.type = Token::EndGroup;
+        }
+    }
+
     tokens.shrink_to_fit();
     return tokens;
 }

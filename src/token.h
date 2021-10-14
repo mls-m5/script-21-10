@@ -17,8 +17,8 @@ struct Token {
 
         // More moture values
         Word,
-        GroupBegin,
-        GroupEnd,
+        BeginGroup,
+        EndGroup,
         IntLiteral,
         FloatLiteral,
         String,

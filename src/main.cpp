@@ -18,6 +18,6 @@ int main(int argc, char **argv) {
     auto tokens = tokenize(buffer);
 
     for (auto &token : tokens) {
-        log(token.content);
+        log(token.content, " ", token.type);
     }
 }
