@@ -21,19 +21,20 @@ TEST_CASE("Basic parentheses") {
     }
 }
 
-TEST_CASE("Multiple parentheses") {
-    {
-        auto ast = parse("(hello)(there)");
+// This is in practice a function call
+// TEST_CASE("Multiple parentheses") {
+//     {
+//         auto ast = parse("(hello)(there)");
 
-        EXPECT_EQ(ast.size(), 2);
+//        EXPECT_EQ(ast.size(), 2);
 
-        EXPECT_EQ(ast.front().type, Token::Parentheses);
-        EXPECT_EQ(ast.front().size(), 1);
+//        EXPECT_EQ(ast.front().type, Token::Parentheses);
+//        EXPECT_EQ(ast.front().size(), 1);
 
-        EXPECT_EQ(ast.back().type, Token::Parentheses);
-        EXPECT_EQ(ast.back().size(), 1);
-    }
-}
+//        EXPECT_EQ(ast.back().type, Token::Parentheses);
+//        EXPECT_EQ(ast.back().size(), 1);
+//    }
+//}
 
 TEST_CASE("Nested parentheses") {
     {
@@ -52,6 +53,24 @@ TEST_CASE("Empty parentheses") {
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::Parentheses);
         EXPECT_EQ(ast.front().size(), 0);
+    }
+}
+
+TEST_CASE("Functions") {
+    {
+        auto ast = parse("func hello() {\n"
+                         "  there\n"
+                         "}");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::FunctionDeclaration);
+    }
+
+    {
+        auto ast = parse("hello()");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::FunctionCall);
     }
 }
 

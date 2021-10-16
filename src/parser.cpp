@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "scriptexceptions.h"
+#include "standardpatterns.h"
 #include <algorithm>
 
 namespace {
@@ -92,7 +93,7 @@ Ast parse(Tokens tokens) {
     });
     ast.type = Token::Module;
     ast = groupParenthesis(std::move(ast));
-    // .. other stuff...
+    ast = group(std::move(ast), getStandardPatterns());
     return ast;
 }
 

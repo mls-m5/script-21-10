@@ -35,13 +35,15 @@ struct Token {
         //
         ValueMemberAccessor,
         PointerMemberAccessor,
+        MemberName,
         FunctionDeclaration,
         FunctionCall,
 
         Module,
 
         // Matchers
-        Any, // used for matching
+        Any,  // used for matching
+        Keep, // do not replace with new type when matched
         TypeCount,
     };
 

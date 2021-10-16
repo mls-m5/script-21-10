@@ -37,6 +37,7 @@ std::string_view name(Token::Type t) {
         CASE(Module)
 
         CASE(Any)
+        CASE(Keep)
         CASE(TypeCount)
     }
 
