@@ -32,6 +32,7 @@ std::string_view name(Token::Type t) {
         CASE(Brackets)
         CASE(Braces)
 
+        CASE(Name)
         CASE(ValueMemberAccessor)
         CASE(PointerMemberAccessor)
         CASE(MemberName)

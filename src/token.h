@@ -36,6 +36,7 @@ struct Token {
         Braces,
 
         //
+        Name,
         ValueMemberAccessor,
         PointerMemberAccessor,
         MemberName,
