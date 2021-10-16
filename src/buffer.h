@@ -4,7 +4,7 @@
 #include <string>
 
 // An immutable, unmovable buffer
-struct Buffer : public std::enable_shared_from_this<Buffer> {
+struct Buffer {
     Buffer(std::string data)
         : _data(std::move(data)) {}
 

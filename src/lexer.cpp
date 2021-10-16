@@ -38,8 +38,7 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
             back = std::string_view{back.data(), back.size() + 1};
         }
         else {
-            auto token = Token{buffer->shared_from_this(),
-                               {(buffer->begin() + i).base(), 1}};
+            auto token = Token{buffer, {(buffer->begin() + i).base(), 1}};
             token.type = type;
             tokens.emplace_back(std::move(token));
         }
@@ -54,6 +53,11 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
             tokens.at(i + 1).before = token.content;
             token.content = {};
         }
+    }
+
+    if (tokens.back().type == Token::Space) {
+        tokens.at(tokens.size() - 2).after = tokens.back().content;
+        tokens.pop_back();
     }
 
     // Remove empty tokens

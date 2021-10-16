@@ -3,12 +3,12 @@
 
 TEST_SUIT_BEGIN
 
-TEST_CASE("Basic parenthesis") {
+TEST_CASE("Basic parentheses") {
     {
         auto ast = parse("(hello)");
 
         EXPECT_EQ(ast.size(), 1);
-        EXPECT_EQ(ast.front().type, Token::Parenthesis);
+        EXPECT_EQ(ast.front().type, Token::Parentheses);
         EXPECT_EQ(ast.front().size(), 1);
     }
 
@@ -21,27 +21,37 @@ TEST_CASE("Basic parenthesis") {
     }
 }
 
-TEST_CASE("Multiple parenthesis") {
+TEST_CASE("Multiple parentheses") {
     {
         auto ast = parse("(hello)(there)");
 
         EXPECT_EQ(ast.size(), 2);
 
-        EXPECT_EQ(ast.front().type, Token::Parenthesis);
+        EXPECT_EQ(ast.front().type, Token::Parentheses);
         EXPECT_EQ(ast.front().size(), 1);
 
-        EXPECT_EQ(ast.back().type, Token::Parenthesis);
+        EXPECT_EQ(ast.back().type, Token::Parentheses);
         EXPECT_EQ(ast.back().size(), 1);
     }
 }
 
-TEST_CASE("Nested paranthesis") {
+TEST_CASE("Nested parentheses") {
     {
-        auto ast = parse("(hello)");
+        auto ast = parse("({hello})");
 
         EXPECT_EQ(ast.size(), 1);
-        EXPECT_EQ(ast.front().type, Token::Parenthesis);
+        EXPECT_EQ(ast.front().type, Token::Parentheses);
         EXPECT_EQ(ast.front().size(), 1);
+    }
+}
+
+TEST_CASE("Empty parentheses") {
+    {
+        auto ast = parse("()");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::Parentheses);
+        EXPECT_EQ(ast.front().size(), 0);
     }
 }
 

@@ -23,11 +23,12 @@ struct Token {
         FloatLiteral,
         String,
 
-        Parenthesis,
+        Parentheses,
         Brackets,
         Braces,
 
         Module,
+        TypeCount,
     };
 
     std::shared_ptr<Buffer> buffer;
@@ -43,3 +44,5 @@ struct Token {
 };
 
 using Tokens = std::vector<Token>;
+
+std::string_view name(Token::Type);

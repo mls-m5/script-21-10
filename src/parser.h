@@ -5,3 +5,4 @@
 
 Ast parse(Tokens tokens);
 Ast parse(std::string code);
+Ast parse(std::shared_ptr<Buffer> buffer);

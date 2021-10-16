@@ -1,9 +1,7 @@
 
 
-#include "buffer.h"
-#include "lexer.h"
 #include "log.h"
-#include "token.h"
+#include "parser.h"
 #include <iostream>
 
 int main(int argc, char **argv) {
@@ -15,9 +13,6 @@ int main(int argc, char **argv) {
 
     log(buffer->data());
 
-    auto tokens = tokenize(buffer);
-
-    for (auto &token : tokens) {
-        log(token.content, " ", token.type);
-    }
+    auto ast = parse(buffer);
+    log(ast);
 }
