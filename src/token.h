@@ -22,6 +22,12 @@ struct Token {
         IntLiteral,
         FloatLiteral,
         String,
+
+        Parenthesis,
+        Brackets,
+        Braces,
+
+        Module,
     };
 
     std::shared_ptr<Buffer> buffer;

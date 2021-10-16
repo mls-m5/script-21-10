@@ -7,6 +7,5 @@ struct Ast {
     Token end;
 
     Token::Type type = Token::Type::None;
+    std::vector<Ast> children;
 };
-
-using Asts = std::vector<Ast>;

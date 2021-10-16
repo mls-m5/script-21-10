@@ -3,8 +3,8 @@
 
 namespace {
 
-std::string beginChars = "([{";
-std::string endChars = ")]}";
+const std::string_view beginChars = "([{";
+const std::string_view endChars = ")]}";
 
 } // namespace
 
@@ -76,4 +76,8 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
 
     tokens.shrink_to_fit();
     return tokens;
+}
+
+Tokens tokenize(std::string source) {
+    return tokenize(std::make_shared<Buffer>(std::move(source)));
 }

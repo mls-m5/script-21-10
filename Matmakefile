@@ -1,19 +1,43 @@
-
 # using matmake2: https://github.com/laserskold/matmake2
 
-main
-  out = main
+core
+  out = core
+  command = [static]
   src =
     src/*.cpp
-  config =
-    c++17
-    Wall
+
+parser_test
+  out = parser_test
+  src = test/parser_test.cpp
+  in = @core
+  command = [test]
+
+lexer_test
+  out = lexer_test
+  src = test/lexer_test.cpp
+  in = @core
+  command = [test]
+
+main
+  in =
+    @core
+  out =
+    main
+  src =
+    src/main/*.cpp
   command = [exe]
 
 all
-  in = @main
+  in =
+    @main
+    @parser_test
+    @lexer_test
+  config =
+    c++17
+    Wall
   includes =
     include
+    src
   copy =
     scripts
 

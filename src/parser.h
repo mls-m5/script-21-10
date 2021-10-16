@@ -1,7 +1,7 @@
 #pragma once
 
+#include "ast.h"
 #include "token.h"
 
-Tokens groupParenthesis(Tokens tokens);
-
-Tokens parse(Tokens tokens);
+Ast parse(Tokens tokens);
+Ast parse(std::string code);
