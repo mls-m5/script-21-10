@@ -22,6 +22,8 @@ struct Token {
         IntLiteral,
         FloatLiteral,
         String,
+        Period,
+        RightArrow,
 
         // Keywords
         FuncKeyword,
@@ -31,7 +33,8 @@ struct Token {
         Braces,
 
         //
-        MemberAccessor,
+        ValueMemberAccessor,
+        PointerMemberAccessor,
         FunctionDeclaration,
         FunctionCall,
 

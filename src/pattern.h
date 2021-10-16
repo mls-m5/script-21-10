@@ -40,10 +40,42 @@ struct Pattern {
         , context(std::move(context)) {}
 };
 
-using Patterns = std::vector<Pattern>;
+// Some patterns should not take priority over another
+// For example "x.y" and "x->y" should be matched with the same priority
+struct EqualPriorityPatterns {
+    std::vector<Pattern> patterns;
+
+    EqualPriorityPatterns(std::vector<Matcher> matchers,
+                          Token::Type result,
+                          Matcher context = {Token::Any})
+        : patterns{
+              std::move(matchers), result(result), context(std::move(context))};
+
+    EqualPriorityPatterns(std::vector<Pattern> patterns)
+        : patterns{std::move(patterns)} {}
+};
+
+using Patterns = std::vector<EqualPriorityPatterns>;
 
 inline const auto test = Patterns{
-    {{Token::Any, Token::Parentheses, Token::Braces},
-     Token::FunctionDeclaration},
-    {{Token::Any, Token::Parentheses}, Token::FunctionCall},
+    {
+        EqualPriorityPatterns{{
+            {
+                {Token::Any, Token::Period, Token::Any},
+                Token::ValueMemberAccessor,
+            },
+            {
+                {Token::Any, Token::RightArrow, Token::Any},
+                Token::PointerMemberAccessor,
+            },
+        }},
+    },
+    {
+        {Token::Any, Token::Parentheses, Token::Braces},
+        Token::FunctionDeclaration,
+    },
+    {
+        {Token::Any, Token::Parentheses},
+        Token::FunctionCall,
+    },
 };
