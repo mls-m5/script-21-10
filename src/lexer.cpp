@@ -2,10 +2,20 @@
 #include <algorithm>
 #include <map>
 
+using namespace std::literals;
+
 namespace {
 
-const std::string_view beginChars = "([{";
-const std::string_view endChars = ")]}";
+constexpr auto beginChars = "([{"sv;
+constexpr auto endChars = ")]}"sv;
+constexpr auto singleCharOperators = ".+-/*<>"sv;
+constexpr auto multiCharOperators = std::array{
+    "->"sv,
+    "=="sv,
+    "!="sv,
+    "<="sv,
+    ">="sv,
+};
 
 } // namespace
 
@@ -23,7 +33,36 @@ Token::Type getKeyword(std::string_view str) {
     return Token::None;
 }
 
-Tokens tokenize(std::shared_ptr<Buffer> buffer) {
+Token::Type getOperator(std::string_view str) {
+    static const auto operators = std::map<std::string_view, Token::Type>{
+        {".", Token::Period},
+    };
+
+    if (auto f = operators.find(str); f != operators.end()) {
+        return f->second;
+    }
+
+    return Token::None;
+}
+
+Tokens moveSpaces(Tokens tokens) {
+    for (auto i = 0; i < tokens.size(); ++i) {
+        auto &token = tokens.at(i);
+        if (token.type == Token::Space && i < tokens.size() - 1) {
+            tokens.at(i + 1).before = token.content;
+            token.content = {};
+        }
+    }
+
+    if (tokens.back().type == Token::Space) {
+        tokens.at(tokens.size() - 2).after = tokens.back().content;
+        tokens.pop_back();
+    }
+    return tokens;
+};
+
+// First pass of creating tokens
+Tokens splitBufferIntoRawTokens(std::shared_ptr<Buffer> buffer) {
     auto tokens = Tokens{};
     tokens.reserve(buffer->size());
 
@@ -61,28 +100,26 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
         currentType = type;
     }
 
-    //     Move spaces to the next token
-    for (auto i = 0; i < tokens.size(); ++i) {
-        auto &token = tokens.at(i);
-        if (token.type == Token::Space && i < tokens.size() - 1) {
-            tokens.at(i + 1).before = token.content;
-            token.content = {};
-        }
-    }
+    return tokens;
+};
 
-    if (tokens.back().type == Token::Space) {
-        tokens.at(tokens.size() - 2).after = tokens.back().content;
-        tokens.pop_back();
-    }
-
-    // Remove empty tokens
+Tokens removeEmptyTokens(Tokens tokens) {
     auto it = std::remove_if(tokens.begin(), tokens.end(), [](auto &token) {
         return token.content.empty();
     });
 
     tokens.erase(it, tokens.end());
+    tokens.shrink_to_fit();
 
-    // Find parenthtesis and such
+    return tokens;
+};
+
+Tokens tokenize(std::shared_ptr<Buffer> buffer) {
+    auto tokens = splitBufferIntoRawTokens(buffer);
+    tokens = moveSpaces(std::move(tokens));
+    tokens = removeEmptyTokens(std::move(tokens));
+
+    // Find parenthteses and such
     for (auto &token : tokens) {
         if (beginChars.find(token.content.front()) != std::string_view::npos) {
             token.type = Token::BeginGroup;
@@ -93,8 +130,6 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
         }
     }
 
-    tokens.shrink_to_fit();
-
     for (auto &token : tokens) {
         if (token.type == Token::Alpha) {
             if (auto keyword = getKeyword(token.content);
@@ -103,6 +138,25 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
             }
             else {
                 token.type = Token::Word;
+            }
+        }
+    }
+
+    for (auto &token : tokens) {
+        if (token.type == Token::Other && token.content.size() == 1) {
+            if (auto f = singleCharOperators.find(token.content);
+                f != std::string_view::npos) {
+                token.type = Token::Operator;
+            }
+        }
+    }
+
+    // Todo: Group and handle multi char tokens...
+
+    for (auto &token : tokens) {
+        if (token.type == Token::Operator) {
+            if (auto op = getOperator(token.content); op != Token::None) {
+                token.type = op;
             }
         }
     }

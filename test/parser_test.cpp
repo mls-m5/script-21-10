@@ -101,13 +101,13 @@ TEST_CASE("Export") {
     }
 }
 
-// TEST_CASE("Member accessor") {
-//     {
-//         auto ast = parse("apa.x");
+TEST_CASE("Member accessor") {
+    {
+        auto ast = parse("apa.x");
 
-//        EXPECT_EQ(ast.size(), 1);
-//        EXPECT_EQ(ast.front().type, Token::ValueMemberAccessor);
-//    }
-//}
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::ValueMemberAccessor);
+    }
+}
 
 TEST_SUIT_END

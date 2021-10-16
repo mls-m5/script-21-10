@@ -22,6 +22,7 @@ std::string_view name(Token::Type t) {
         CASE(String)
         CASE(Period)
         CASE(RightArrow)
+        CASE(Operator)
 
         CASE(FuncKeyword)
         CASE(ImportKeyword)

@@ -24,6 +24,7 @@ struct Token {
         String,
         Period,
         RightArrow,
+        Operator,
 
         // Keywords
         FuncKeyword,
