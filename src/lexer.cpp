@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include <algorithm>
+#include <map>
 
 namespace {
 
@@ -7,6 +8,18 @@ const std::string_view beginChars = "([{";
 const std::string_view endChars = ")]}";
 
 } // namespace
+
+Token::Type getKeyword(std::string_view str) {
+    static const auto keywords = std::map<std::string_view, Token::Type>{
+        {"func", Token::FuncKeyword},
+    };
+
+    if (auto f = keywords.find(str); f != keywords.end()) {
+        return f->second;
+    }
+
+    return Token::None;
+}
 
 Tokens tokenize(std::shared_ptr<Buffer> buffer) {
     auto tokens = Tokens{};
@@ -79,6 +92,19 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
     }
 
     tokens.shrink_to_fit();
+
+    for (auto &token : tokens) {
+        if (token.type == Token::Alpha) {
+            if (auto keyword = getKeyword(token.content);
+                keyword != Token::None) {
+                token.type = keyword;
+            }
+            else {
+                token.type = Token::Word;
+            }
+        }
+    }
+
     return tokens;
 }
 

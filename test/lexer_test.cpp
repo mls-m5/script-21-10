@@ -12,4 +12,12 @@ TEST_CASE("parenthesis") {
     EXPECT_EQ(tokens[2].content, ")");
 }
 
+TEST_CASE("keyword test") {
+    auto tokens = tokenize("func hello");
+
+    EXPECT_EQ(tokens.size(), 2);
+    EXPECT_EQ(tokens[0].type, Token::FuncKeyword);
+    EXPECT_EQ(tokens[1].type, Token::Word);
+}
+
 TEST_SUIT_END

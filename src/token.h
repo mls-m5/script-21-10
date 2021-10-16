@@ -15,7 +15,7 @@ struct Token {
         NonSpace,
         Other,
 
-        // More moture values
+        // Processed values
         Word,
         BeginGroup,
         EndGroup,
@@ -23,11 +23,22 @@ struct Token {
         FloatLiteral,
         String,
 
+        // Keywords
+        FuncKeyword,
+
         Parentheses,
         Brackets,
         Braces,
 
+        //
+        MemberAccessor,
+        FunctionDeclaration,
+        FunctionCall,
+
         Module,
+
+        // Matchers
+        Any, // used for matching
         TypeCount,
     };
 

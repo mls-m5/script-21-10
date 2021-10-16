@@ -21,12 +21,19 @@ std::string_view name(Token::Type t) {
         CASE(FloatLiteral)
         CASE(String)
 
+        CASE(FuncKeyword)
+
         CASE(Parentheses)
         CASE(Brackets)
         CASE(Braces)
 
+        CASE(MemberAccessor)
+        CASE(FunctionDeclaration)
+        CASE(FunctionCall)
+
         CASE(Module)
 
+        CASE(Any)
         CASE(TypeCount)
     }
 
