@@ -5,7 +5,7 @@ namespace {
 
 bool doesMatch(const Ast &ast, const Pattern &pattern, size_t index) {
     for (auto i = 0_uz; i < pattern.matchers.size(); ++i) {
-        auto &child = ast.at(i);
+        auto &child = ast.at(i + index);
         auto &matcher = pattern.matchers.at(i);
 
         if (!matcher(child)) {
@@ -42,7 +42,7 @@ std::pair<Ast, size_t> group(Ast ast, const Pattern &pattern, size_t index) {
 
     ast.at(index) = std::move(newAst);
 
-    return {std::move(ast), ast.size() - 1}; // Todo: Implement
+    return {std::move(ast), index};
 }
 
 [[nodiscard]] Ast groupFromLeft(Ast ast, const EqualPriorityPatterns &pattern) {

@@ -19,10 +19,22 @@ const Patterns &getStandardPatterns() {
         {
             {Token::FuncKeyword, Token::Any, Token::Parentheses, Token::Braces},
             Token::FunctionDeclaration,
+            {Token::FuncKeyword,
+             Token::Keep,
+             Token::Parentheses,
+             Token::FunctionBody},
         },
         {
             {Token::Any, Token::Parentheses},
             Token::FunctionCall,
+        },
+        {
+            {Token::ImportKeyword, Token::Any},
+            Token::ImportStatement,
+        },
+        {
+            {Token::ExportKeyword, Token::Any},
+            Token::ExportStatement,
         },
     };
 

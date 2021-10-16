@@ -24,6 +24,8 @@ std::string_view name(Token::Type t) {
         CASE(RightArrow)
 
         CASE(FuncKeyword)
+        CASE(ImportKeyword)
+        CASE(ExportKeyword)
 
         CASE(Parentheses)
         CASE(Brackets)
@@ -31,8 +33,12 @@ std::string_view name(Token::Type t) {
 
         CASE(ValueMemberAccessor)
         CASE(PointerMemberAccessor)
+        CASE(MemberName)
         CASE(FunctionDeclaration)
         CASE(FunctionCall)
+        CASE(FunctionBody)
+        CASE(ImportStatement)
+        CASE(ExportStatement)
 
         CASE(Module)
 

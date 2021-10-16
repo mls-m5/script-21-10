@@ -27,6 +27,8 @@ struct Token {
 
         // Keywords
         FuncKeyword,
+        ImportKeyword,
+        ExportKeyword,
 
         Parentheses,
         Brackets,
@@ -38,6 +40,9 @@ struct Token {
         MemberName,
         FunctionDeclaration,
         FunctionCall,
+        FunctionBody,
+        ImportStatement,
+        ExportStatement,
 
         Module,
 

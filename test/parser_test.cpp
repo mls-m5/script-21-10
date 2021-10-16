@@ -74,4 +74,40 @@ TEST_CASE("Functions") {
     }
 }
 
+TEST_CASE("Import") {
+    {
+        auto ast = parse("import x");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::ImportStatement);
+    }
+
+    {
+        auto ast = parse("import x\n"
+                         "import y");
+
+        EXPECT_EQ(ast.size(), 2);
+        EXPECT_EQ(ast.front().type, Token::ImportStatement);
+        EXPECT_EQ(ast.back().type, Token::ImportStatement);
+    }
+}
+
+TEST_CASE("Export") {
+    {
+        auto ast = parse("export func hello() {}");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::ExportStatement);
+    }
+}
+
+// TEST_CASE("Member accessor") {
+//     {
+//         auto ast = parse("apa.x");
+
+//        EXPECT_EQ(ast.size(), 1);
+//        EXPECT_EQ(ast.front().type, Token::ValueMemberAccessor);
+//    }
+//}
+
 TEST_SUIT_END

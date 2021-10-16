@@ -12,6 +12,8 @@ const std::string_view endChars = ")]}";
 Token::Type getKeyword(std::string_view str) {
     static const auto keywords = std::map<std::string_view, Token::Type>{
         {"func", Token::FuncKeyword},
+        {"import", Token::ImportKeyword},
+        {"export", Token::ExportKeyword},
     };
 
     if (auto f = keywords.find(str); f != keywords.end()) {

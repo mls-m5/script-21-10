@@ -2,6 +2,10 @@
 import log
 import os
 
+export func hello() {
+   log.print("hello")
+}
+
 func main() {
    log.print("hello")
 
