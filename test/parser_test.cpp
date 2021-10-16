@@ -21,19 +21,19 @@ TEST_CASE("Basic parenthesis") {
     }
 }
 
-// TEST_CASE("Multiple parenthesis") {
-//     {
-//         auto ast = parse("(hello)(there)");
+TEST_CASE("Multiple parenthesis") {
+    {
+        auto ast = parse("(hello)(there)");
 
-//        EXPECT_EQ(ast.size(), 2);
+        EXPECT_EQ(ast.size(), 2);
 
-//        EXPECT_EQ(ast.front().type, Token::Parenthesis);
-//        EXPECT_EQ(ast.front().size(), 1);
+        EXPECT_EQ(ast.front().type, Token::Parenthesis);
+        EXPECT_EQ(ast.front().size(), 1);
 
-//        EXPECT_EQ(ast.back().type, Token::Parenthesis);
-//        EXPECT_EQ(ast.back().size(), 1);
-//    }
-//}
+        EXPECT_EQ(ast.back().type, Token::Parenthesis);
+        EXPECT_EQ(ast.back().size(), 1);
+    }
+}
 
 TEST_CASE("Nested paranthesis") {
     {
