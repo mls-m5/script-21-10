@@ -39,6 +39,10 @@ const Patterns &getStandardPatterns() {
             {Token::ExportKeyword, Token::Any},
             Token::ExportStatement,
         },
+        {
+            {Token::ModuleKeyword, Token::Any},
+            Token::ModuleStatement,
+        },
     };
 
     return patterns;

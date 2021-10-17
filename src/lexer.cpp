@@ -24,6 +24,7 @@ Token::Type getKeyword(std::string_view str) {
         {"func", Token::FuncKeyword},
         {"import", Token::ImportKeyword},
         {"export", Token::ExportKeyword},
+        {"module", Token::ModuleKeyword},
     };
 
     if (auto f = keywords.find(str); f != keywords.end()) {

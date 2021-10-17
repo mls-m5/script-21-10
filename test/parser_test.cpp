@@ -21,21 +21,6 @@ TEST_CASE("Basic parentheses") {
     }
 }
 
-// This is in practice a function call
-// TEST_CASE("Multiple parentheses") {
-//     {
-//         auto ast = parse("(hello)(there)");
-
-//        EXPECT_EQ(ast.size(), 2);
-
-//        EXPECT_EQ(ast.front().type, Token::Parentheses);
-//        EXPECT_EQ(ast.front().size(), 1);
-
-//        EXPECT_EQ(ast.back().type, Token::Parentheses);
-//        EXPECT_EQ(ast.back().size(), 1);
-//    }
-//}
-
 TEST_CASE("Nested parentheses") {
     {
         auto ast = parse("({hello})");
@@ -107,6 +92,15 @@ TEST_CASE("Member accessor") {
 
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::ValueMemberAccessor);
+    }
+}
+
+TEST_CASE("module statement") {
+    {
+        auto ast = parse("module main");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::ModuleStatement);
     }
 }
 
