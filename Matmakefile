@@ -5,6 +5,7 @@ core
   command = [static]
   src =
     src/*.cpp
+    src/vm/*.cpp
 
 parser_test
   out = parser_test
@@ -15,6 +16,12 @@ parser_test
 lexer_test
   out = lexer_test
   src = test/lexer_test.cpp
+  in = @core
+  command = [test]
+
+vm_test
+  out = vm_test
+  src = test/vm_test.cpp
   in = @core
   command = [test]
 
@@ -32,6 +39,7 @@ all
     @main
     @parser_test
     @lexer_test
+    @vm_test
   config =
     c++17
     Wall

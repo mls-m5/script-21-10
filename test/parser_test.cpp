@@ -25,9 +25,13 @@ TEST_CASE("Nested parentheses") {
     {
         auto ast = parse("({hello})");
 
+        std::cout << ast;
+
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::Parentheses);
         EXPECT_EQ(ast.front().size(), 1);
+        EXPECT_EQ(ast.front().front().type, Token::Braces);
+        EXPECT_EQ(ast.front().front().size(), 1);
     }
 }
 
