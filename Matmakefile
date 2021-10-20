@@ -6,6 +6,7 @@ core
   src =
     src/*.cpp
     src/codegen/*.cpp
+    src/code/*.cpp
 
 parser_test
   out = parser_test

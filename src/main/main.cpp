@@ -1,8 +1,8 @@
 
 
+#include "code/parser.h"
 #include "codegen/codegen.h"
 #include "log.h"
-#include "parser.h"
 #include <iostream>
 
 int main(int argc, char **argv) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "token.h"
+#include "code/token.h"
 #include <stdexcept>
 
 struct SyntaxError : public std::runtime_error {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ast.h"
+#include "code/ast.h"
 #include "codegen.h"
 #include "context.h"
 #include "llvm/IR/IRBuilder.h"
