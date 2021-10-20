@@ -5,6 +5,7 @@ core
   command = [static]
   src =
     src/*.cpp
+    src/codegen/*.cpp
 
 parser_test
   out = parser_test
@@ -27,6 +28,8 @@ main
   src =
     src/main/*.cpp
   command = [exe]
+  ldflags =
+    `llvm-config --ldflags --libs core`
 
 all
   in =
@@ -39,6 +42,9 @@ all
   includes =
     include
     src
+    /usr/include/llvm-14
+    /usr/include/llvm-c-14
   copy =
     scripts
+
 

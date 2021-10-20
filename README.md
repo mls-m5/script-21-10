@@ -83,6 +83,11 @@ func main() {
 }
 ```
 
+## Requirements
+
+* llvm-14
+
 ## References
 
-[https://github.com/ghaiklor/llvm-kaleidoscope/blob/master/ast/](Kaleifoscope example code)
+### Kaleifoscope example code
+https://github.com/ghaiklor/llvm-kaleidoscope/blob/master/ast/ 
