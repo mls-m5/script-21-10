@@ -82,5 +82,7 @@ Ast group(Ast ast, const Patterns &patterns) {
         }
     }
 
+    ast.isGrouped = true;
+
     return ast;
 }

@@ -6,6 +6,7 @@
 struct Ast : std::vector<Ast> {
     Token token;
     Token ending;
+    bool isGrouped = false;
 
     Token::Type type = Token::Type::None;
 
