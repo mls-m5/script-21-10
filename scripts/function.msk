@@ -1,0 +1,21 @@
+
+module main
+
+import log
+import os
+
+// Accessible from other file
+export func hello() {
+   log.print("hello")
+}
+
+func there(string x) {
+   log.print("there")
+   log.print(x)
+}
+
+func main() {
+   hello();
+
+   there(os.args[0])
+}

@@ -1,0 +1,20 @@
+
+test module basic
+
+import test
+
+struct Fixture {
+   var truth = 1
+}
+
+// "test" in global context is builtin function
+test("Assignment should work") {
+   var x = 2
+
+   test.Eq(x, 2);
+}
+
+test(Fixture, "Compare to fixture") {
+   var y = 1
+   test.eq(truth, y)
+}
