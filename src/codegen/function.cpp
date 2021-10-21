@@ -2,11 +2,19 @@
 #include "expression.h"
 
 llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
-    auto argsSize = 1; // Todo: Read from ast
+    auto argsSize = 0; // Todo: Read from ast
+    auto argTypes = std::vector<llvm::Type *>(argsSize);
 
-    //    std::vector<llvm::Type *> ArgTypes()
+    auto functionType =
+        llvm::FunctionType::get(llvm::Type::getVoidTy(context.context), false);
 
-    throw std::runtime_error{"function prototype not implemented"};
+    auto func = llvm::Function::Create(functionType,
+                                       llvm::Function::InternalLinkage,
+                                       ast.get(Token::Name).token.content,
+                                       context.module.get());
+
+    return func;
+    //    throw std::runtime_error{"function prototype not implemented"};
 }
 
 llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
@@ -31,7 +39,7 @@ llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
         context.scope.values[std::string{arg.getName()}] = &arg;
     }
 
-    auto &body = ast.get(Token::Braces);
+    auto &body = ast.get(Token::FunctionBody);
 
     if (auto *retVal = generateExpression(body, context)) {
         context.builder.CreateRet(retVal);

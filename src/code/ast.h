@@ -13,9 +13,9 @@ struct Ast : std::vector<Ast> {
 
     void print(std::ostream &, int indentation = 0) const;
 
-    Ast *find(Token::Type token) {
+    Ast *find(Token::Type type) {
         for (auto &child : *this) {
-            if (child.type == token) {
+            if (child.type == type) {
                 return &child;
             }
         }
