@@ -1,7 +1,6 @@
-
-
 #include "code/parser.h"
 #include "codegen/codegen.h"
+#include "codegen/writeobjectfile.h"
 #include "log.h"
 #include <iostream>
 
@@ -11,13 +10,11 @@ int main(int argc, char **argv) {
     }
 
     auto buffer = loadFile(argv[1]);
-
-    log(buffer->data());
-
     auto ast = parse(buffer);
+
     log(ast);
 
-    log("generate code");
+    log("generating code");
 
     std::cout.flush();
 
@@ -25,4 +22,6 @@ int main(int argc, char **argv) {
     generateModuleCode(std::move(ast), context);
 
     context.module->print(llvm::outs(), nullptr);
+
+    writeObjectFile(context, "testoutput.o");
 }
