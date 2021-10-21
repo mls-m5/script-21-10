@@ -9,7 +9,7 @@ llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
         llvm::FunctionType::get(llvm::Type::getVoidTy(context.context), false);
 
     auto func = llvm::Function::Create(functionType,
-                                       llvm::Function::InternalLinkage,
+                                       llvm::Function::ExternalLinkage,
                                        ast.get(Token::Name).token.content,
                                        context.module.get());
 

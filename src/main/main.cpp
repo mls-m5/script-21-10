@@ -19,7 +19,10 @@ int main(int argc, char **argv) {
 
     log("generate code");
 
-    auto module = generateModuleCode(std::move(ast));
+    std::cout.flush();
 
-    module->print(llvm::outs(), nullptr);
+    auto context = CodegenContext{"modulename"};
+    generateModuleCode(std::move(ast), context);
+
+    context.module->print(llvm::outs(), nullptr);
 }

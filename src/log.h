@@ -8,6 +8,11 @@ void log(Args &&...args) {
 }
 
 template <typename... Args>
+void err(Args &&...args) {
+    ((std::cerr << std::forward<Args>(args)), ...) << "\n";
+}
+
+template <typename... Args>
 void fatal(Args &&...args) {
     ((std::cerr << std::forward<Args>(args)), ...) << "\n";
 

@@ -19,6 +19,9 @@ struct CodegenContext {
 
     Scope scope;
 
+    CodegenContext(std::string id)
+        : module{std::make_unique<llvm::Module>(id, context)} {}
+
     //    inline std::map<std::string, std::unique_ptr<PrototypeAST>>
     //    FunctionProtos;
 };
