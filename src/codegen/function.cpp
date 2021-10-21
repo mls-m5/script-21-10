@@ -22,8 +22,8 @@ llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
     }
 
     llvm::BasicBlock *block =
-        llvm::BasicBlock::Create(*context.context, "entry", function);
-    context.builder->SetInsertPoint(block);
+        llvm::BasicBlock::Create(context.context, "entry", function);
+    context.builder.SetInsertPoint(block);
 
     context.scope.values.clear();
 
@@ -34,7 +34,7 @@ llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
     auto &body = ast.get(Token::Braces);
 
     if (auto *retVal = generateExpression(body, context)) {
-        context.builder->CreateRet(retVal);
+        context.builder.CreateRet(retVal);
 
         // Todo: Verify function... ?
 

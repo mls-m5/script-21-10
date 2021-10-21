@@ -5,13 +5,13 @@
 std::unique_ptr<llvm::Module> generateModuleCode(Ast ast) {
     std::string moduleId = "moduleid";
 
-    auto context = std::make_unique<CodegenContext>();
-    auto module = std::make_unique<llvm::Module>(moduleId, *context->context);
+    auto context = CodegenContext{};
+    context.module = std::make_unique<llvm::Module>(moduleId, context.context);
 
     for (auto &child : ast) {
         switch (child.type) {
         case Token::FunctionDeclaration: {
-            auto ir = generateFunction(ast, *context);
+            auto ir = generateFunction(child, context);
         } break;
         default:
             break;

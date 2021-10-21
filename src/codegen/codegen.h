@@ -4,4 +4,4 @@
 #include "llvm/IR/Module.h"
 #include <memory>
 
-inline std::unique_ptr<llvm::Module> generateModuleCode(Ast);
+std::unique_ptr<llvm::Module> generateModuleCode(Ast);

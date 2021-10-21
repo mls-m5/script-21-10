@@ -16,4 +16,10 @@ int main(int argc, char **argv) {
 
     auto ast = parse(buffer);
     log(ast);
+
+    log("generate code");
+
+    auto module = generateModuleCode(std::move(ast));
+
+    module->print(llvm::outs(), nullptr);
 }

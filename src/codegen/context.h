@@ -13,9 +13,9 @@ struct Scope {
 };
 
 struct CodegenContext {
-    std::unique_ptr<llvm::LLVMContext> context;
+    llvm::LLVMContext context;
+    llvm::IRBuilder<> builder{context};
     std::unique_ptr<llvm::Module> module;
-    std::unique_ptr<llvm::IRBuilder<>> builder;
 
     Scope scope;
 
