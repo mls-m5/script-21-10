@@ -36,4 +36,12 @@ TEST_CASE("int literal") {
     EXPECT_EQ(tokens[0].type, Token::IntLiteral);
 }
 
+TEST_CASE("multiple word operators") {
+    auto tokens = tokenize("->");
+
+    EXPECT_EQ(tokens.size(), 1);
+    EXPECT_EQ(tokens.front().type, Token::Operator);
+    EXPECT_EQ(tokens.front().content.size(), 2);
+}
+
 TEST_SUIT_END

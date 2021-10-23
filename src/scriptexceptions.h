@@ -26,3 +26,9 @@ struct NotImplementedError : public std::runtime_error {
 
     Token token;
 };
+
+inline void scriptExpect(bool condition, Token token, std::string text) {
+    if (!condition) {
+        throw InternalError(token, text);
+    }
+}

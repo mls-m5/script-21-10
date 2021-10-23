@@ -2,7 +2,7 @@
 #include "context.h"
 #include "function.h"
 
-void generateModuleCode(Ast ast, CodegenContext &context) {
+Ast generateModuleCode(Ast ast, CodegenContext &context) {
     std::string moduleId = "moduleid";
 
     for (auto &child : ast) {
@@ -15,4 +15,6 @@ void generateModuleCode(Ast ast, CodegenContext &context) {
             break;
         }
     }
+
+    return ast;
 }

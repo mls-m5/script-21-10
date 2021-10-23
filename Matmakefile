@@ -20,6 +20,12 @@ lexer_test
   in = @core
   command = [test]
 
+matcher_test
+  out = matcher_test
+  src = test/matcher_test.cpp
+  in = @core
+  command = [test]
+
 
 main
   in =
@@ -37,6 +43,7 @@ all
     @main
     @parser_test
     @lexer_test
+    @matcher_test
   config =
     c++17
     Wall

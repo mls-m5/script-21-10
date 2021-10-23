@@ -1,9 +1,13 @@
 #include "function.h"
+#include "code/parser.h"
 #include "expression.h"
+#include "llvm/IR/Verifier.h"
 
 namespace {
 
 llvm::Value *generateFunctionBody(Ast &ast, CodegenContext &context) {
+    ast = groupStandard(ast);
+
     // TODO: Does this only work for one expression?
     auto last = (llvm::Value *){};
     for (auto &child : ast) {
@@ -58,7 +62,7 @@ llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
     if (auto *retVal = generateFunctionBody(body, context)) {
         context.builder.CreateRet(retVal);
 
-        // Todo: Verify function... ?
+        llvm::verifyFunction(*function);
 
         return function;
     }

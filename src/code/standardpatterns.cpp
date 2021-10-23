@@ -1,21 +1,28 @@
 #include "standardpatterns.h"
 
+namespace {
+bool isOp5(const Ast &ast) {
+    auto str = ast.token.content;
+    return ast.type == Token::Operator && str.size() == 1 &&
+           (str == "*" || str == "/" || str == "%");
+}
+
+bool isOp6(const Ast &ast) {
+    auto str = ast.token.content;
+    return ast.type == Token::Operator && str.size() == 1 &&
+           (str == "+" || str == "-");
+}
+
+bool isRightPointer(const Ast &ast) {
+    return ast.type == Token::Operator && ast.token.content == "->";
+}
+
+} // namespace
+
+//! I use the c++ operator precedence
+//! https://en.cppreference.com/w/cpp/language/operator_precedence
 const Patterns &getStandardPatterns() {
     static const auto patterns = Patterns{
-        {
-            EqualPriorityPatterns{{
-                {
-                    {Token::Any, Token::Period, Token::Word},
-                    Token::ValueMemberAccessor,
-                    {Token::Keep, Token::Keep, Token::MemberName},
-                },
-                {
-                    {Token::Any, Token::RightArrow, Token::Word},
-                    Token::PointerMemberAccessor,
-                    {Token::Keep, Token::Keep, Token::MemberName},
-                },
-            }},
-        },
         {
             {Token::FuncKeyword,
              Token::Word,
@@ -27,9 +34,31 @@ const Patterns &getStandardPatterns() {
              Token::Parentheses,
              Token::FunctionBody},
         },
+        EqualPriorityPatterns{
+            {
+                {
+                    {Token::Any, Token::Period, Token::Word},
+                    Token::ValueMemberAccessor,
+                    {Token::Keep, Token::Keep, Token::MemberName},
+                },
+                {
+                    {Token::Any, {isRightPointer}, Token::Word},
+                    Token::PointerMemberAccessor,
+                    {Token::Keep, Token::RightArrow, Token::MemberName},
+                },
+                {
+                    {Token::Any, Token::Parentheses},
+                    Token::FunctionCall,
+                },
+            },
+        },
         {
-            {Token::Any, Token::Parentheses},
-            Token::FunctionCall,
+            {Token::Any, {isOp5}, Token::Any},
+            Token::BinaryOperation,
+        },
+        {
+            {Token::Any, {isOp6}, Token::Any},
+            Token::BinaryOperation,
         },
         {
             {Token::ImportKeyword, Token::Any},

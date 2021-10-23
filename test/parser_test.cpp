@@ -92,6 +92,12 @@ TEST_CASE("Export") {
 
 TEST_CASE("Member accessor") {
     {
+        auto ast = parse("apa->x");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::PointerMemberAccessor);
+    }
+    {
         auto ast = parse("apa.x");
 
         EXPECT_EQ(ast.size(), 1);
@@ -105,6 +111,26 @@ TEST_CASE("module statement") {
 
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::ModuleStatement);
+    }
+}
+
+TEST_CASE("binary operators") {
+    {
+        auto ast = parse("x + y");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::BinaryOperation);
+    }
+
+    {
+        auto ast = parse("x * y");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::BinaryOperation);
     }
 }
 

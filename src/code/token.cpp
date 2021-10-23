@@ -43,6 +43,7 @@ std::string_view name(Token::Type t) {
         CASE(ImportStatement)
         CASE(ExportStatement)
         CASE(ModuleStatement)
+        CASE(BinaryOperation)
 
         CASE(Module)
 

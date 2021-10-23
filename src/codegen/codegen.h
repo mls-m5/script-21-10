@@ -5,4 +5,5 @@
 #include "llvm/IR/Module.h"
 #include <memory>
 
-void generateModuleCode(Ast, CodegenContext &context);
+//! @returns the final ast
+Ast generateModuleCode(Ast, CodegenContext &context);

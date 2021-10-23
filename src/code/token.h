@@ -47,6 +47,7 @@ struct Token {
         ImportStatement,
         ExportStatement,
         ModuleStatement,
+        BinaryOperation,
 
         Module,
 

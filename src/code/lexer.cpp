@@ -8,7 +8,7 @@ namespace {
 
 constexpr auto beginChars = "([{"sv;
 constexpr auto endChars = ")]}"sv;
-constexpr auto singleCharOperators = ".+-/*<>"sv;
+constexpr auto singleCharOperators = ".+-/*<>!"sv;
 constexpr auto multiCharOperators = std::array{
     "->"sv,
     "=="sv,
@@ -16,6 +16,15 @@ constexpr auto multiCharOperators = std::array{
     "<="sv,
     ">="sv,
 };
+
+constexpr bool isMultiCharOperator(std::string_view str) {
+    for (auto op : multiCharOperators) {
+        if (str == op) {
+            return true;
+        }
+    }
+    return false;
+}
 
 } // namespace
 
@@ -161,6 +170,27 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
             }
         }
     }
+
+    for (size_t i = 1; i < tokens.size(); ++i) {
+        auto &a = tokens.at(i - 1);
+        auto &b = tokens.at(i);
+
+        if (a.type == Token::Operator && b.type == Token::Operator &&
+            a.after.empty() && b.before.empty()) {
+            auto str = std::string{a.content};
+            str += b.content;
+
+            if (isMultiCharOperator(str)) {
+                b.content = {a.content.begin(),
+                             a.content.size() + b.content.size()};
+                b.before = a.before;
+
+                a = {};
+            }
+        }
+    }
+
+    tokens = removeEmptyTokens(std::move(tokens));
 
     // TODO: Before this: handle floating point literals
     for (auto &token : tokens) {
