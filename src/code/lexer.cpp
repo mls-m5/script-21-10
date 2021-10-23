@@ -162,6 +162,13 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
         }
     }
 
+    // TODO: Before this: handle floating point literals
+    for (auto &token : tokens) {
+        if (token.type == Token::Numeric) {
+            token.type = Token::IntLiteral;
+        }
+    }
+
     return tokens;
 }
 

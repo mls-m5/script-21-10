@@ -29,4 +29,11 @@ TEST_CASE("operator") {
     EXPECT_EQ(tokens[2].type, Token::Word);
 }
 
+TEST_CASE("int literal") {
+    auto tokens = tokenize("10");
+
+    EXPECT_EQ(tokens.size(), 1);
+    EXPECT_EQ(tokens[0].type, Token::IntLiteral);
+}
+
 TEST_SUIT_END

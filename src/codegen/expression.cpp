@@ -3,7 +3,15 @@
 #include "llvm/IR/Value.h"
 
 llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
-    err("expression not implemented");
+    switch (ast.type) {
+    case Token::IntLiteral:
+        return llvm::ConstantInt::get(
+            context.context,
+            llvm::APInt(32, std::stoll(std::string{ast.token.content}), true));
 
-    return llvm::ConstantInt::get(context.context, llvm::APInt(32, 0, true));
+    default:
+        throw InternalError{ast.token,
+                            "Could not create expression of type " +
+                                std::string{name(ast.token.type)}};
+    }
 }

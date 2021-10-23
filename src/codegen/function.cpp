@@ -1,6 +1,20 @@
 #include "function.h"
 #include "expression.h"
 
+namespace {
+
+llvm::Value *generateFunctionBody(Ast &ast, CodegenContext &context) {
+    // TODO: Does this only work for one expression?
+    auto last = (llvm::Value *){};
+    for (auto &child : ast) {
+        last = generateExpression(child, context);
+    }
+
+    return last;
+}
+
+} // namespace
+
 llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
     auto argsSize = 0; // Todo: Read from ast
     auto argTypes = std::vector<llvm::Type *>(argsSize);
@@ -41,7 +55,7 @@ llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
 
     auto &body = ast.get(Token::FunctionBody);
 
-    if (auto *retVal = generateExpression(body, context)) {
+    if (auto *retVal = generateFunctionBody(body, context)) {
         context.builder.CreateRet(retVal);
 
         // Todo: Verify function... ?
