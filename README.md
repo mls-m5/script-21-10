@@ -1,8 +1,26 @@
 # Script 21-10
 Somtimes a man just needs to create a programming language.
 
-The goal would be something like this
+The goal would be something like this:
 
+```c++
+
+// str is reference type of String
+func printStuff(message str) {
+   log.print(message)
+}
+
+func main() {
+   // String is a owning string
+   // (In this case it would make more sense to just use str,
+   // but the things you do for examples...)
+   let message = String{"hello there!"}
+   printStuff(message);
+}
+
+```
+
+Or a more convoluted example:
 ```c++
 
 import os
@@ -35,14 +53,20 @@ struct Bepa: implement Movable {
    // If the above statement is present this would not be needed
    implement func move -> apa
    
-   function somethingEntirelyDifferent {
+   // This is a function that is not associated to a interface
+   func somethingEntirelyDifferent() {
       log.print("just some other behaviour")
    }
 }
 
+// Possible out of line way to define member variables
+func somethingEvenMoreDifferent(self Bepa) {
+   apa.y = 20;
+}
+
 // Fat pointer dynamic dispatching
 // References const by default
-func doStuff(Movable mut &m, int len) {
+func doStuff(Movable mut &m, len int) {
    m.move(len, len)
 }
 
@@ -58,6 +82,7 @@ func main() {
    
    let bepa = Bepa{}
    bepa.doSomethingEntirelyDifferent()
+   doSomethingEntirelyDifferent(bepa) // Possible more simplistic
    
    log.print("Arguments to main:")
    for (let arg: os.args) {

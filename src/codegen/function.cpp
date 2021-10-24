@@ -30,7 +30,6 @@ llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
                                        llvm::Function::ExternalLinkage,
                                        ast.get(Token::Name).token.content,
                                        context.module.get());
-
     return func;
     //    throw std::runtime_error{"function prototype not implemented"};
 }
