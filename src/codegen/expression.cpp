@@ -35,6 +35,25 @@ llvm::Value *generateBinary(Ast &ast, CodegenContext &context) {
     return createLlvmBinaryExpression(ast[1], l, r, context);
 }
 
+llvm::Value *generateFunctionCall(Ast &ast, CodegenContext &context) {
+    // TODO:
+    // https://github.com/llvm/llvm-project/blob/52f4922ebb7bfe5f9a6c32cf7d637b84e491526a/llvm/examples/Kaleidoscope/Chapter8/toy.cpp#L820
+    std::vector<llvm::Value *> args; // TODO: Implement arguments
+
+    auto name = ast.get(Token::Name);
+    if (auto f = context.scope.definedFunctions.find(
+            std::string{name.token.content});
+        f != context.scope.definedFunctions.end()) {
+        auto function = f->second;
+        return context.builder.CreateCall(function, args, "calltmp");
+    }
+    else {
+        throw InternalError{name.token,
+                            "Could not find function " +
+                                std::string{name.token.content}};
+    }
+}
+
 llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
     switch (ast.type) {
     case Token::IntLiteral:
@@ -45,9 +64,12 @@ llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
     case Token::BinaryOperation:
         return generateBinary(ast, context);
 
+    case Token::FunctionCall:
+        return generateFunctionCall(ast, context);
+
     default:
         throw InternalError{ast.token,
                             "Could not create expression of type " +
-                                std::string{name(ast.token.type)}};
+                                std::string{name(ast.type)}};
     }
 }

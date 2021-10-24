@@ -1,5 +1,6 @@
 #pragma once
 
+#include "code/token.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
@@ -10,6 +11,16 @@ struct Scope {
     const Scope *parent = 0;
 
     std::map<std::string, llvm::Value *> values;
+    std::map<std::string, llvm::Function *> definedFunctions;
+
+    void defineFunction(Token name, llvm::Function *f) {
+        definedFunctions[std::string{name.content}] = f;
+    }
+
+    void clear() {
+        values.clear();
+        definedFunctions.clear();
+    }
 };
 
 struct CodegenContext {

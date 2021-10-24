@@ -19,7 +19,15 @@ int main(int argc, char **argv) {
     std::cout.flush();
 
     auto context = CodegenContext{"modulename"};
-    ast = generateModuleCode(std::move(ast), context);
+
+    try {
+        ast = generateModuleCode(std::move(ast), context);
+    }
+    catch (InternalError &e) {
+        std::cerr << e.what() << "\n";
+        log(ast);
+        return 1;
+    }
 
     log("after codegen:");
     log(ast);

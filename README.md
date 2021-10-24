@@ -66,7 +66,7 @@ func somethingEvenMoreDifferent(self Bepa) {
 
 // Fat pointer dynamic dispatching
 // References const by default
-func doStuff(Movable mut &m, len int) {
+func doStuff(mut Movable &m, len int) {
    m.move(len, len)
 }
 

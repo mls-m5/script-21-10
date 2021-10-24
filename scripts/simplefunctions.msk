@@ -1,0 +1,10 @@
+
+module main
+
+func add() {
+   2 + 4
+}
+
+func main() {
+   add()
+}

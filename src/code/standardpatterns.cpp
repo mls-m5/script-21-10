@@ -49,6 +49,7 @@ const Patterns &getStandardPatterns() {
                 {
                     {Token::Any, Token::Parentheses},
                     Token::FunctionCall,
+                    {Token::Name, Token::Keep},
                 },
             },
         },
@@ -71,6 +72,7 @@ const Patterns &getStandardPatterns() {
         {
             {Token::ModuleKeyword, Token::Any},
             Token::ModuleStatement,
+            {Token::Keep, Token::Name},
         },
     };
 
