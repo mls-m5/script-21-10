@@ -50,6 +50,8 @@ struct Token {
         ModuleStatement,
         BinaryOperation,
         List,
+        TypedVariable,
+        TypeName,
 
         Module,
 

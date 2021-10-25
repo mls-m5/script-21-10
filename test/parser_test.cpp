@@ -166,4 +166,15 @@ TEST_CASE("list") {
     }
 }
 
+TEST_CASE("typed variable") {
+    {
+        auto ast = parse("x int");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::TypedVariable);
+    }
+}
+
 TEST_SUIT_END

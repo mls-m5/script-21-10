@@ -79,6 +79,11 @@ const Patterns &getStandardPatterns() {
             {Token::Keep, Token::Name},
         },
         {
+            {Token::Word, Token::Word},
+            Token::TypedVariable,
+            {Token::Name, Token::TypeName},
+        },
+        {
             {Token::Any, {isComa}, Token::Any},
             Token::List,
         },

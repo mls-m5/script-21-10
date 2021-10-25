@@ -21,6 +21,9 @@ llvm::Type *getType(const Token &typeName, CodegenContext &context) {
     if (typeName.content == "int") {
         return llvm::Type::getInt64Ty(context.context);
     }
+    else if (typeName.content == "float") {
+        return llvm::Type::getFloatTy(context.context);
+    }
 
     throw InternalError{typeName, "not recognized type"};
 }
@@ -43,10 +46,8 @@ llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
         }
 
         for (auto *astArg : astArgs) {
-            // TODO: Implement argument types
-            //            argTypes.push_back(getType(astArg->back().token,
-            //            context));
-            argTypes.push_back(llvm::Type::getInt64Ty(context.context));
+            auto &typeAst = astArg->get(Token::TypeName);
+            argTypes.push_back(getType(typeAst.token, context));
         }
 
         return argTypes;
@@ -68,8 +69,9 @@ llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
         auto *astArg = astArgs.at(i);
         auto arg = func->args().begin() + i;
 
-        arg->setName(
-            astArg->token.content); // Todo: Fix when implementing types
+        auto &name = astArg->get(Token::Name);
+
+        arg->setName(name.token.content);
     }
 
     return func;

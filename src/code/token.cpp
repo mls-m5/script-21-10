@@ -46,6 +46,8 @@ std::string_view name(Token::Type t) {
         CASE(ModuleStatement)
         CASE(BinaryOperation)
         CASE(List)
+        CASE(TypedVariable)
+        CASE(TypeName)
 
         CASE(Module)
 
