@@ -1,6 +1,8 @@
 #include "expression.h"
+#include "code/parser.h"
 #include "log.h"
-#include "llvm/IR/Value.h"
+
+namespace {
 
 llvm::Value *createLlvmBinaryExpression(Ast &op,
                                         llvm::Value *left,
@@ -38,13 +40,34 @@ llvm::Value *generateBinary(Ast &ast, CodegenContext &context) {
 llvm::Value *generateFunctionCall(Ast &ast, CodegenContext &context) {
     // TODO:
     // https://github.com/llvm/llvm-project/blob/52f4922ebb7bfe5f9a6c32cf7d637b84e491526a/llvm/examples/Kaleidoscope/Chapter8/toy.cpp#L820
-    std::vector<llvm::Value *> args; // TODO: Implement arguments
+    std::vector<llvm::Value *> args;
 
-    auto name = ast.get(Token::Name);
+    auto &astArgs = ast.get(Token::FunctionArguments);
+
+    if (!astArgs.empty()) {
+        groupStandard(astArgs);
+
+        auto list = flattenList(astArgs.front());
+        for (auto *arg : list) {
+            args.push_back(generateExpression(*arg, context));
+        }
+    }
+
+    auto &name = ast.get(Token::Name);
     if (auto f = context.scope.definedFunctions.find(
             std::string{name.token.content});
         f != context.scope.definedFunctions.end()) {
         auto function = f->second;
+
+        if (function->arg_size() != args.size()) {
+            throw InternalError{ast.token,
+                                "trying to call function " +
+                                    std::string{function->getName()} +
+                                    " with " + std::to_string(astArgs.size()) +
+                                    " arguments, but it only has " +
+                                    std::to_string(function->arg_size())};
+        }
+
         return context.builder.CreateCall(function, args, "calltmp");
     }
     else {
@@ -54,18 +77,30 @@ llvm::Value *generateFunctionCall(Ast &ast, CodegenContext &context) {
     }
 }
 
+llvm::Value *generateVariableExpression(Ast &ast, CodegenContext &context) {
+    scriptExpect(ast.type == Token::Word,
+                 ast.token,
+                 "could not create variable from non word");
+
+    return context.scope.getVariable(std::string{ast.token.content})->value;
+}
+
+} // namespace
+
 llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
     switch (ast.type) {
     case Token::IntLiteral:
         return llvm::ConstantInt::get(
             context.context,
-            llvm::APInt(32, std::stoll(std::string{ast.token.content}), true));
+            llvm::APInt(64, std::stoll(std::string{ast.token.content}), true));
 
     case Token::BinaryOperation:
         return generateBinary(ast, context);
 
     case Token::FunctionCall:
         return generateFunctionCall(ast, context);
+    case Token::Word:
+        return generateVariableExpression(ast, context);
 
     default:
         throw InternalError{ast.token,

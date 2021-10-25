@@ -43,11 +43,13 @@ struct Token {
         MemberName,
         FunctionDeclaration,
         FunctionCall,
+        FunctionArguments,
         FunctionBody,
         ImportStatement,
         ExportStatement,
         ModuleStatement,
         BinaryOperation,
+        List,
 
         Module,
 

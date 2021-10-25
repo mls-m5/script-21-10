@@ -9,7 +9,9 @@ int main(int argc, char **argv) {
         fatal("to few arguments, please specify file");
     }
 
-    auto buffer = loadFile(argv[1]);
+    auto filename = argv[1];
+
+    auto buffer = loadFile(filename);
     auto ast = parse(buffer);
 
     log(ast);
@@ -18,7 +20,7 @@ int main(int argc, char **argv) {
 
     std::cout.flush();
 
-    auto context = CodegenContext{"modulename"};
+    auto context = CodegenContext{filename};
 
     try {
         ast = generateModuleCode(std::move(ast), context);

@@ -51,7 +51,8 @@ std::pair<Ast, size_t> group(Ast ast, const Pattern &pattern, size_t index) {
         minSize = std::min(minSize, p.matchers.size());
     }
 
-    for (size_t i = 0; i + minSize <= ast.size(); ++i) {
+    for (size_t i = 0; i + minSize <= ast.size();) {
+        bool foundMatch = false;
         for (auto &p : pattern.patterns) {
             if (!(i + p.matchers.size() <= ast.size())) {
                 // If patterns are different size we need to check for length
@@ -60,15 +61,37 @@ std::pair<Ast, size_t> group(Ast ast, const Pattern &pattern, size_t index) {
 
             if (doesMatch(ast, p, i)) {
                 std::tie(ast, i) = group(std::move(ast), p, i);
+                foundMatch = true;
+                break; // All groups will be retested in the right order
             }
+        }
+
+        // If something is grouped that group need to be tested again, to be
+        // able to find nested groups
+        if (!foundMatch) {
+            ++i;
         }
     }
     return ast;
 }
 
+void verify(const Ast &ast) {
+    for (auto &child : ast) {
+        if (!child.token.content.empty() && !child.token.buffer) {
+            throw std::runtime_error{"Invalid ast when grouping"};
+        }
+
+        verify(child);
+    }
+}
+
 } // namespace
 
-Ast group(Ast ast, const Patterns &patterns) {
+void group(Ast &ast, const Patterns &patterns) {
+    if (ast.isGrouped) {
+        return;
+    }
+
     for (auto &pattern : patterns) {
         if (pattern.patterns.empty()) {
             continue;
@@ -82,7 +105,11 @@ Ast group(Ast ast, const Patterns &patterns) {
         }
     }
 
-    ast.isGrouped = true;
+#ifdef VERIFY_EXTRA
 
-    return ast;
+    verify(ast);
+
+#endif
+
+    ast.isGrouped = true;
 }

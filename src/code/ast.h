@@ -11,6 +11,12 @@ struct Ast : std::vector<Ast> {
 
     Token::Type type = Token::Type::None;
 
+    Ast() = default;
+    Ast(const Ast &) = delete;
+    Ast &operator=(const Ast &) = delete;
+    Ast(Ast &&) = default;
+    Ast &operator=(Ast &&) = default;
+
     void print(std::ostream &, int indentation = 0) const;
 
     Ast *find(Token::Type type) {
@@ -41,3 +47,7 @@ struct Ast : std::vector<Ast> {
         return stream;
     }
 };
+
+// Coma separated lists are nested expressions. This gives a flat vector
+// pointing to all actual values
+std::vector<Ast *> flattenList(Ast &root);

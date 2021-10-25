@@ -93,12 +93,12 @@ Ast parse(Tokens tokens) {
     });
     ast.type = Token::Module;
     ast = groupParenthesis(std::move(ast));
-    ast = groupStandard(std::move(ast));
+    groupStandard(ast);
     return ast;
 }
 
-Ast groupStandard(Ast ast) {
-    return group(std::move(ast), getStandardPatterns());
+void groupStandard(Ast &ast) {
+    group(ast, getStandardPatterns());
 }
 
 Ast parse(std::string source) {

@@ -9,7 +9,7 @@ export func hello() {
    log.print("hello")
 }
 
-func there(string x) {
+func there(x string) {
    log.print("there")
    log.print(x)
 }

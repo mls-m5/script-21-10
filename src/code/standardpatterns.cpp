@@ -13,6 +13,10 @@ bool isOp6(const Ast &ast) {
            (str == "+" || str == "-");
 }
 
+bool isComa(const Ast &ast) {
+    return ast.type == Token::Operator && ast.token.content == ",";
+}
+
 bool isRightPointer(const Ast &ast) {
     return ast.type == Token::Operator && ast.token.content == "->";
 }
@@ -31,7 +35,7 @@ const Patterns &getStandardPatterns() {
             Token::FunctionDeclaration,
             {Token::FuncKeyword,
              Token::Name,
-             Token::Parentheses,
+             Token::FunctionArguments,
              Token::FunctionBody},
         },
         EqualPriorityPatterns{
@@ -49,7 +53,7 @@ const Patterns &getStandardPatterns() {
                 {
                     {Token::Any, Token::Parentheses},
                     Token::FunctionCall,
-                    {Token::Name, Token::Keep},
+                    {Token::Name, Token::FunctionArguments},
                 },
             },
         },
@@ -73,6 +77,10 @@ const Patterns &getStandardPatterns() {
             {Token::ModuleKeyword, Token::Any},
             Token::ModuleStatement,
             {Token::Keep, Token::Name},
+        },
+        {
+            {Token::Any, {isComa}, Token::Any},
+            Token::List,
         },
     };
 

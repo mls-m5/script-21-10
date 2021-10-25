@@ -39,11 +39,13 @@ std::string_view name(Token::Type t) {
         CASE(MemberName)
         CASE(FunctionDeclaration)
         CASE(FunctionCall)
+        CASE(FunctionArguments)
         CASE(FunctionBody)
         CASE(ImportStatement)
         CASE(ExportStatement)
         CASE(ModuleStatement)
         CASE(BinaryOperation)
+        CASE(List)
 
         CASE(Module)
 

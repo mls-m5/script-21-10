@@ -54,5 +54,7 @@ all
     /usr/include/llvm-c-14
   copy =
     scripts
+  eflags =
+    -DVERIFY_EXTRA
 
 

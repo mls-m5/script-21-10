@@ -7,14 +7,26 @@
 #include <map>
 #include <memory>
 
+struct Variable {
+    llvm::Value *value;
+    llvm::Type *type = nullptr;
+};
+
 struct Scope {
     const Scope *parent = 0;
 
-    std::map<std::string, llvm::Value *> values;
+    std::map<std::string, Variable> values;
     std::map<std::string, llvm::Function *> definedFunctions;
 
     void defineFunction(Token name, llvm::Function *f) {
         definedFunctions[std::string{name.content}] = f;
+    }
+
+    Variable *getVariable(std::string name) {
+        if (auto f = values.find(name); f != values.end()) {
+            return &f->second;
+        }
+        return nullptr;
     }
 
     void clear() {
@@ -36,3 +48,7 @@ struct CodegenContext {
     //    inline std::map<std::string, std::unique_ptr<PrototypeAST>>
     //    FunctionProtos;
 };
+
+llvm::AllocaInst *createEntryBlockAlloca(llvm::Function &function,
+                                         llvm::StringRef varName,
+                                         llvm::Type *type);

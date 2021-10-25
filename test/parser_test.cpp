@@ -94,6 +94,8 @@ TEST_CASE("Member accessor") {
     {
         auto ast = parse("apa->x");
 
+        std::cout << ast << std::endl;
+
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::PointerMemberAccessor);
     }
@@ -131,6 +133,36 @@ TEST_CASE("binary operators") {
 
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::BinaryOperation);
+    }
+}
+
+TEST_CASE("nested binary operators") {
+    {
+        auto ast = parse("x + y + z");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::BinaryOperation);
+    }
+}
+
+TEST_CASE("list") {
+    {
+        auto ast = parse("x, 2, 3");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::List);
+    }
+    {
+        auto ast = parse("x + y, 2, 3");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::List);
     }
 }
 

@@ -23,3 +23,15 @@ void Ast::print(std::ostream &stream, int indentation) const {
                     "\n";
     }
 }
+
+std::vector<Ast *> flattenList(Ast &root) {
+    if (root.type != Token::List) {
+        return {&root};
+    }
+
+    scriptExpect(root.size() == 3, root.token, "list ast has wrong size");
+
+    auto list = flattenList(root.front());
+    list.push_back(&root.back());
+    return list;
+}
