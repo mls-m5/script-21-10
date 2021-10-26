@@ -126,9 +126,7 @@ llvm::AllocaInst *generateVariableDeclaration(Ast &ast,
     auto function = context.builder.GetInsertBlock()->getParent();
 
     auto alloca = createEntryBlockAlloca(
-        /**context.currentFunction*/ *function,
-        std::string{nameAst->token.content},
-        type);
+        *function, std::string{nameAst->token.content}, type);
 
     context.scope.values[std::string{nameAst->token.content}] = {alloca, type};
 
@@ -152,9 +150,17 @@ llvm::Value *generateAssignment(Ast &ast, CodegenContext &context) {
                                 std::string{name(ast.type)}};
     }
 
-    auto variable = generateVariableExpression(lhs, context);
+    auto alloca = context.scope.getVariable(std::string{lhs.token.content});
+
+    if (!alloca) {
+        throw InternalError{ast.token,
+                            "cannot find variable " +
+                                std::string{lhs.token.content}};
+    }
+    //    auto variable = generateVariableExpression(lhs, context);
     auto value = generateExpression(ast.back(), context);
-    context.builder.CreateStore(value, variable);
+
+    context.builder.CreateStore(value, alloca->alloca);
 
     return value;
 }
