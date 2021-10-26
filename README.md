@@ -29,29 +29,29 @@ interface Movable {
    func move(x int, y int) mut
 }
 
-struct Apa: implement Movable {
+struct Apa: impl Movable {
    var x int
    var y int
    
    // override specifies that this function must be implemented
    // by a interface
-   implement func move(x int, y int) mut {
+   impl func move(x int, y int) mut {
       log.print("Moved")
-      _x += x // Underscore separates member variables
-      _y += y
+      self.x += x // Underscore separates member variables
+      self.y += y
    }
 }
 
-struct Bepa: implement Movable {
+struct Bepa: impl Movable {
    var apa Apa // Will reduce the need for ever inheriting
 
    // Just just call interfaced functions on apa instead of implementing them
-   implement Movable -> apa 
+   impl Movable -> apa 
    
    // Alternative syntax
    // Forward a single function to apa
    // If the above statement is present this would not be needed
-   implement func move -> apa
+   impl func move -> apa
    
    // This is a function that is not associated to a interface
    func somethingEntirelyDifferent() {

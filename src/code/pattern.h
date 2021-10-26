@@ -8,7 +8,7 @@ struct Matcher {
 
     static FuncT createTypeFunction(Token::Type type) {
         if (type == Token::Any) {
-            return [](const Ast &ast) { return true; };
+            return [](const Ast &) { return true; };
         }
 
         return [type](const Ast &ast) { return ast.type == type; };
@@ -39,15 +39,15 @@ struct Pattern {
     };
 
     std::vector<Matcher> matchers;
+    Token::Type result;
 
     // The type to replace the old types with
     // IF you do not want to replace any types, just use a empty vector.
     // IF you want to ignore a specific item, use Token::Keep
     std::vector<Token::Type> newTypes;
-
-    Token::Type result;
-    Matcher context = {Token::Any};
     MatchDirection matchDirection = LeftToRight;
+
+    Matcher context = {Token::Any};
 
     Pattern(std::vector<Matcher> matchers,
             Token::Type result,

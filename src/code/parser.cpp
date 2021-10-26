@@ -22,7 +22,7 @@ size_t extractGroup(Ast &ast, size_t begin, size_t end, Token::Type newType) {
 
     // Move the inbetween objects
     newAst.resize(end - begin - 1);
-    for (auto j = 0; j < newAst.size(); ++j) {
+    for (size_t j = 0; j < newAst.size(); ++j) {
         newAst.at(j) = std::move(ast.at(j + begin + 1));
     }
     newAst.ending = std::move(ast.at(end).token);

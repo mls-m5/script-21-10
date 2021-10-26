@@ -46,10 +46,16 @@ all
     @matcher_test
   config =
     c++17
-    Wall
+  !msvc:flags=
+    -Wall
+    -Wextra
+    -Werror
+    -Wno-missing-field-initializers
+    -Wno-unused-parameter
   includes =
     include
     src
+  sysincludes =
     /usr/include/llvm-14
     /usr/include/llvm-c-14
   copy =

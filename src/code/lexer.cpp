@@ -56,7 +56,7 @@ Token::Type getOperator(std::string_view str) {
 }
 
 Tokens moveSpaces(Tokens tokens) {
-    for (auto i = 0; i < tokens.size(); ++i) {
+    for (size_t i = 0; i < tokens.size(); ++i) {
         auto &token = tokens.at(i);
         if (token.type == Token::Space && i < tokens.size() - 1) {
             tokens.at(i + 1).before = token.content;
@@ -78,7 +78,7 @@ Tokens splitBufferIntoRawTokens(std::shared_ptr<Buffer> buffer) {
 
     auto currentType = Token::None;
 
-    for (auto i = 0; i < buffer->size(); ++i) {
+    for (size_t i = 0; i < buffer->size(); ++i) {
         auto c = buffer->at(i);
         auto type = Token::None;
         if (isspace(c)) {

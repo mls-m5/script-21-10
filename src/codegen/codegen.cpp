@@ -8,7 +8,7 @@ Ast generateModuleCode(Ast ast, CodegenContext &context) {
     for (auto &child : ast) {
         switch (child.type) {
         case Token::FunctionDeclaration: {
-            auto ir = generateFunction(child, context);
+            generateFunction(child, context);
 
         } break;
         default:

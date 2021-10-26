@@ -2,7 +2,7 @@
 
 #include "code/ast.h"
 #include "context.h"
-#include "llvm/IR/Module.h"
+#include <llvm/IR/Module.h>
 #include <memory>
 
 //! @returns the final ast
