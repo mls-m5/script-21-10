@@ -52,4 +52,12 @@ TEST_CASE("string literals") {
     EXPECT_EQ(tokens.back().type, Token::String);
 }
 
+TEST_CASE("word with numbers") {
+    auto tokens = tokenize("hello40something8");
+
+    EXPECT_EQ(tokens.size(), 1);
+    EXPECT_EQ(tokens.front().type, Token::Word);
+    EXPECT_EQ(tokens.front().content, "hello40something8");
+}
+
 TEST_SUIT_END

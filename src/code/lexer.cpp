@@ -198,17 +198,31 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
         auto &a = tokens.at(i - 1);
         auto &b = tokens.at(i);
 
-        if (a.type == Token::Operator && b.type == Token::Operator &&
-            a.after.empty() && b.before.empty()) {
-            auto str = std::string{a.content};
-            str += b.content;
+        auto merge = [&a, &b] {
+            b.content = {a.content.begin(),
+                         a.content.size() + b.content.size()};
+            b.before = a.before;
 
-            if (isMultiCharOperator(str)) {
-                b.content = {a.content.begin(),
-                             a.content.size() + b.content.size()};
-                b.before = a.before;
+            a = {};
+        };
 
-                a = {};
+        if (a.after.empty() && b.before.empty()) {
+            if (a.type == Token::Operator && b.type == Token::Operator) {
+                auto str = std::string{a.content};
+                str += b.content;
+
+                if (isMultiCharOperator(str)) {
+                    merge();
+                }
+            }
+
+            if (a.type == Token::Word && b.type == Token::Numeric) {
+                b.type = a.type;
+                merge();
+            }
+
+            if (a.type == Token::Word && b.type == Token::Word) {
+                merge();
             }
         }
     }
