@@ -44,4 +44,12 @@ TEST_CASE("multiple word operators") {
     EXPECT_EQ(tokens.front().content.size(), 2);
 }
 
+TEST_CASE("string literals") {
+    auto tokens = tokenize("\"hello\" \"there\"");
+
+    EXPECT_EQ(tokens.size(), 2);
+    EXPECT_EQ(tokens.front().type, Token::String);
+    EXPECT_EQ(tokens.back().type, Token::String);
+}
+
 TEST_SUIT_END

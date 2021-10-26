@@ -72,6 +72,23 @@ Tokens moveSpaces(Tokens tokens) {
     return tokens;
 };
 
+Token readString(std::shared_ptr<Buffer> buffer, size_t &beginning) {
+    Token token;
+
+    for (size_t i = beginning + 1; i < buffer->size(); ++i) {
+        if (buffer->at(i) == '"') {
+            auto str = std::string_view{buffer->begin().base() + beginning,
+                                        i - beginning};
+            auto token = Token{std::move(buffer), str};
+            token.type = Token::String;
+            beginning = i;
+            return token;
+        }
+    }
+
+    throw std::runtime_error{"expected ending '\"'"};
+}
+
 // First pass of creating tokens
 Tokens splitBufferIntoRawTokens(std::shared_ptr<Buffer> buffer) {
     auto tokens = Tokens{};
@@ -90,6 +107,11 @@ Tokens splitBufferIntoRawTokens(std::shared_ptr<Buffer> buffer) {
         }
         else if (isdigit(c)) {
             type = Token::Numeric;
+        }
+        else if (c == '"') {
+            tokens.push_back(readString(buffer, i));
+            currentType = tokens.back().type;
+            continue;
         }
         else {
             type = Token::Other;

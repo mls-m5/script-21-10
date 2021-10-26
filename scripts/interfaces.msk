@@ -1,0 +1,25 @@
+
+
+trait Movable {
+    func move(x int)
+}
+
+struct Elevator impl Movable {
+    height int
+
+    func move(x int) {
+        height = x
+    }
+}
+
+func moveSomethingMovable(thing Movable &, x int) {
+    thing.move(x)
+}
+
+func main() {
+    let elevator = Elevator{0}
+
+    moveSomethingMovable(elevator)
+
+    elevator.x
+}
