@@ -21,6 +21,10 @@ bool isRightPointer(const Ast &ast) {
     return ast.type == Token::Operator && ast.token.content == "->";
 }
 
+bool isAssignmentOperator(const Ast &ast) {
+    return ast.type == Token::Operator && ast.token.content == "=";
+}
+
 } // namespace
 
 //! I use the c++ operator precedence
@@ -38,25 +42,23 @@ const Patterns &getStandardPatterns() {
              Token::FunctionArguments,
              Token::FunctionBody},
         },
-        EqualPriorityPatterns{
+        EqualPriorityPatterns{{
             {
-                {
-                    {Token::Any, Token::Period, Token::Word},
-                    Token::ValueMemberAccessor,
-                    {Token::Keep, Token::Keep, Token::MemberName},
-                },
-                {
-                    {Token::Any, {isRightPointer}, Token::Word},
-                    Token::PointerMemberAccessor,
-                    {Token::Keep, Token::RightArrow, Token::MemberName},
-                },
-                {
-                    {Token::Any, Token::Parentheses},
-                    Token::FunctionCall,
-                    {Token::Name, Token::FunctionArguments},
-                },
+                {Token::Any, Token::Period, Token::Word},
+                Token::ValueMemberAccessor,
+                {Token::Keep, Token::Keep, Token::MemberName},
             },
-        },
+            {
+                {Token::Any, {isRightPointer}, Token::Word},
+                Token::PointerMemberAccessor,
+                {Token::Keep, Token::RightArrow, Token::MemberName},
+            },
+            {
+                {Token::Any, Token::Parentheses},
+                Token::FunctionCall,
+                {Token::Name, Token::FunctionArguments},
+            },
+        }},
         {
             {Token::Any, {isOp5}, Token::Any},
             Token::BinaryOperation,
@@ -82,6 +84,22 @@ const Patterns &getStandardPatterns() {
             {Token::Word, Token::Word},
             Token::TypedVariable,
             {Token::Name, Token::TypeName},
+        },
+        EqualPriorityPatterns{{
+            {
+                {Token::LetKeyword, Token::TypedVariable},
+                Token::VariableDeclaration,
+            },
+            {
+                {Token::LetKeyword, Token::Word},
+                Token::VariableDeclaration,
+                {Token::Keep, Token::Name},
+            },
+        }},
+        {
+            {Token::Any, {isAssignmentOperator}, Token::Any},
+            Token::Assignment,
+            {Token::Keep, Token::Assignment, Token::Keep},
         },
         {
             {Token::Any, {isComa}, Token::Any},

@@ -23,11 +23,13 @@ std::string_view name(Token::Type t) {
         CASE(Period)
         CASE(RightArrow)
         CASE(Operator)
+        CASE(AssignmentOperator)
 
         CASE(FuncKeyword)
         CASE(ImportKeyword)
         CASE(ExportKeyword)
         CASE(ModuleKeyword)
+        CASE(LetKeyword)
 
         CASE(Parentheses)
         CASE(Brackets)
@@ -46,8 +48,10 @@ std::string_view name(Token::Type t) {
         CASE(ModuleStatement)
         CASE(BinaryOperation)
         CASE(List)
+        CASE(VariableDeclaration)
         CASE(TypedVariable)
         CASE(TypeName)
+        CASE(Assignment)
 
         CASE(Module)
 

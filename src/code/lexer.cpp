@@ -8,7 +8,7 @@ namespace {
 
 constexpr auto beginChars = "([{"sv;
 constexpr auto endChars = ")]}"sv;
-constexpr auto singleCharOperators = ",.+-/*<>!"sv;
+constexpr auto singleCharOperators = ",.+-/*<>!="sv;
 constexpr auto multiCharOperators = std::array{
     "->"sv,
     "=="sv,
@@ -34,6 +34,7 @@ Token::Type getKeyword(std::string_view str) {
         {"import", Token::ImportKeyword},
         {"export", Token::ExportKeyword},
         {"module", Token::ModuleKeyword},
+        {"let", Token::LetKeyword},
     };
 
     if (auto f = keywords.find(str); f != keywords.end()) {

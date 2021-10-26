@@ -1,6 +1,7 @@
 #include "expression.h"
 #include "code/parser.h"
 #include "log.h"
+#include "types.h"
 
 namespace {
 
@@ -82,7 +83,80 @@ llvm::Value *generateVariableExpression(Ast &ast, CodegenContext &context) {
                  ast.token,
                  "could not create variable from non word");
 
-    return context.scope.getVariable(std::string{ast.token.content})->value;
+    auto variable = context.scope.getVariable(std::string{ast.token.content});
+
+    if (!variable) {
+        throw InternalError{ast.token,
+                            "cannot find variable " +
+                                std::string{ast.token.content}};
+    }
+
+    auto load =
+        context.builder.CreateLoad(variable->type,
+                                   variable->alloca,
+                                   false,
+                                   "load" + std::string{ast.token.content});
+
+    load->setAlignment(llvm::Align{variable->alloca->getAlignment()});
+
+    return load;
+}
+
+llvm::AllocaInst *generateVariableDeclaration(Ast &ast,
+                                              CodegenContext &context) {
+
+    auto nameAst = ast.findRecursive(Token::Name);
+    if (!nameAst) {
+        throw InternalError{
+            ast.token,
+            "Invalid variable declaration statement, no name found " +
+                std::string{name(ast.type)}};
+    }
+
+    if (ast.back().type != Token::TypedVariable) {
+        throw InternalError{ast.token,
+                            "Untyped variables is not supported yet " +
+                                std::string{name(ast.type)}};
+    }
+
+    // Todo: Support untyped variables
+    auto &typeAst = ast.back().getRecursive(Token::TypeName);
+    auto *type = getType(typeAst.token, context);
+
+    auto function = context.builder.GetInsertBlock()->getParent();
+
+    auto alloca = createEntryBlockAlloca(
+        /**context.currentFunction*/ *function,
+        std::string{nameAst->token.content},
+        type);
+
+    context.scope.values[std::string{nameAst->token.content}] = {alloca, type};
+
+    return alloca;
+}
+
+llvm::Value *generateAssignment(Ast &ast, CodegenContext &context) {
+    auto &lhs = ast.front();
+
+    if (lhs.type == Token::VariableDeclaration) {
+        auto variable = generateVariableDeclaration(ast.front(), context);
+
+        auto value = generateExpression(ast.back(), context);
+        context.builder.CreateStore(value, variable);
+        return value;
+    }
+
+    if (lhs.type != Token::Word) {
+        throw InternalError{ast.token,
+                            "can only assign to variables specified by name" +
+                                std::string{name(ast.type)}};
+    }
+
+    auto variable = generateVariableExpression(lhs, context);
+    auto value = generateExpression(ast.back(), context);
+    context.builder.CreateStore(value, variable);
+
+    return value;
 }
 
 } // namespace
@@ -92,7 +166,7 @@ llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
     case Token::IntLiteral:
         return llvm::ConstantInt::get(
             context.context,
-            llvm::APInt(64, std::stoll(std::string{ast.token.content}), true));
+            llvm::APInt(32, std::stoll(std::string{ast.token.content}), true));
 
     case Token::BinaryOperation:
         return generateBinary(ast, context);
@@ -101,6 +175,11 @@ llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
         return generateFunctionCall(ast, context);
     case Token::Word:
         return generateVariableExpression(ast, context);
+    case Token::VariableDeclaration:
+        generateVariableDeclaration(ast, context);
+        return nullptr;
+    case Token::Assignment:
+        return generateAssignment(ast, context);
 
     default:
         throw InternalError{ast.token,

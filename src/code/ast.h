@@ -42,6 +42,35 @@ struct Ast : std::vector<Ast> {
         return *ast;
     }
 
+    Ast *findRecursive(Token::Type type) {
+        if (!isGrouped) {
+            return nullptr;
+        }
+        for (auto &child : *this) {
+            if (child.type == type) {
+                return &child;
+            }
+
+            if (auto f = child.findRecursive(type)) {
+                return f;
+            }
+        }
+        return nullptr;
+    }
+
+    Ast &getRecursive(Token::Type type) {
+        auto ast = findRecursive(type);
+
+        if (!ast) {
+            throw SyntaxError{token,
+                              std::string{"Could not find "} +
+                                  std::string{name(type)} + " in " +
+                                  std::string{name(this->type)}};
+        }
+
+        return *ast;
+    }
+
     friend std::ostream &operator<<(std::ostream &stream, const Ast &ast) {
         ast.print(stream);
         return stream;

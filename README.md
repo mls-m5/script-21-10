@@ -30,8 +30,8 @@ interface Movable {
 }
 
 struct Apa: impl Movable {
-   var x int
-   var y int
+   x int
+   y int
    
    // override specifies that this function must be implemented
    // by a interface
@@ -43,7 +43,7 @@ struct Apa: impl Movable {
 }
 
 struct Bepa: impl Movable {
-   var apa Apa // Will reduce the need for ever inheriting
+   apa Apa // Will reduce the need for ever inheriting
 
    // Just just call interfaced functions on apa instead of implementing them
    impl Movable -> apa 

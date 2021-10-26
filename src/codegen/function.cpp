@@ -1,6 +1,7 @@
 #include "function.h"
 #include "code/parser.h"
 #include "expression.h"
+#include "types.h"
 #include <llvm/IR/Verifier.h>
 
 namespace {
@@ -8,24 +9,12 @@ namespace {
 llvm::Value *generateFunctionBody(Ast &ast, CodegenContext &context) {
     groupStandard(ast);
 
-    // TODO: Does this only work for one expression?
-    auto last = (llvm::Value *){};
+    llvm::Value *last = {};
     for (auto &child : ast) {
         last = generateExpression(child, context);
     }
 
     return last;
-}
-
-llvm::Type *getType(const Token &typeName, CodegenContext &context) {
-    if (typeName.content == "int") {
-        return llvm::Type::getInt64Ty(context.context);
-    }
-    else if (typeName.content == "float") {
-        return llvm::Type::getFloatTy(context.context);
-    }
-
-    throw InternalError{typeName, "not recognized type"};
 }
 
 } // namespace
@@ -54,7 +43,7 @@ llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
     }();
 
     auto functionType = llvm::FunctionType::get(
-        llvm::Type::getInt64Ty(context.context), argTypes, false);
+        llvm::Type::getInt32Ty(context.context), argTypes, false);
 
     auto &name = ast.get(Token::Name);
 
@@ -80,6 +69,8 @@ llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
 llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
     auto name = ast.get(Token::Name).token.content;
     llvm::Function *function = context.module->getFunction(name);
+
+    auto push = PushValue{context.currentFunction, function};
 
     if (!function) {
         function = generateFunctionPrototype(ast, context);

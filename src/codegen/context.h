@@ -8,7 +8,7 @@
 #include <memory>
 
 struct Variable {
-    llvm::Value *value;
+    llvm::AllocaInst *alloca;
     llvm::Type *type = nullptr;
 };
 
@@ -22,8 +22,8 @@ struct Scope {
         definedFunctions[std::string{name.content}] = f;
     }
 
-    Variable *getVariable(std::string name) {
-        if (auto f = values.find(name); f != values.end()) {
+    Variable *getVariable(std::string_view name) {
+        if (auto f = values.find(std::string{name}); f != values.end()) {
             return &f->second;
         }
         return nullptr;
@@ -40,6 +40,8 @@ struct CodegenContext {
     llvm::IRBuilder<> builder{context};
     std::unique_ptr<llvm::Module> module;
 
+    llvm::Function *currentFunction = nullptr;
+
     Scope scope;
 
     CodegenContext(std::string id)
@@ -47,6 +49,23 @@ struct CodegenContext {
 
     //    inline std::map<std::string, std::unique_ptr<PrototypeAST>>
     //    FunctionProtos;
+};
+
+// Push a value and restore when it goes out of scope
+template <typename T>
+struct PushValue {
+    T &value;
+    T oldValue;
+
+    PushValue(T &value, T newValue)
+        : value(value)
+        , oldValue{std::move(value)} {
+        value = std::move(newValue);
+    }
+
+    ~PushValue() {
+        value = std::move(oldValue);
+    }
 };
 
 llvm::AllocaInst *createEntryBlockAlloca(llvm::Function &function,

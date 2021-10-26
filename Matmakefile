@@ -26,7 +26,6 @@ matcher_test
   in = @core
   command = [test]
 
-
 main
   in =
     @core

@@ -25,12 +25,14 @@ struct Token {
         Period,
         RightArrow,
         Operator,
+        AssignmentOperator,
 
         // Keywords
         FuncKeyword,
         ImportKeyword,
         ExportKeyword,
         ModuleKeyword,
+        LetKeyword,
 
         Parentheses,
         Brackets,
@@ -50,8 +52,10 @@ struct Token {
         ModuleStatement,
         BinaryOperation,
         List,
+        VariableDeclaration,
         TypedVariable,
         TypeName,
+        Assignment,
 
         Module,
 

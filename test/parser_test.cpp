@@ -177,4 +177,35 @@ TEST_CASE("typed variable") {
     }
 }
 
+TEST_CASE("variable declaration") {
+    {
+        auto ast = parse("let x int");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::VariableDeclaration);
+    }
+}
+
+TEST_CASE("assignment") {
+    {
+        auto ast = parse("x = y");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::Assignment);
+    }
+
+    {
+        auto ast = parse("let x = y");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::Assignment);
+    }
+}
+
 TEST_SUIT_END

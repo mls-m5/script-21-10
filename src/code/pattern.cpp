@@ -22,6 +22,7 @@ std::pair<Ast, size_t> group(Ast ast, const Pattern &pattern, size_t index) {
     auto newAst = Ast{};
     newAst.type = pattern.result;
     newAst.resize(pattern.matchers.size());
+    newAst.isGrouped = true;
 
     for (auto i = 0_uz; i < pattern.matchers.size(); ++i) {
         newAst.at(i) = std::move(ast.at(i + index));
