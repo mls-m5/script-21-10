@@ -33,6 +33,7 @@ struct Token {
         ExportKeyword,
         ModuleKeyword,
         LetKeyword,
+        StructKeyword,
 
         Parentheses,
         Brackets,
@@ -47,6 +48,7 @@ struct Token {
         FunctionCall,
         FunctionArguments,
         FunctionBody,
+        StructDeclaration,
         ImportStatement,
         ExportStatement,
         ModuleStatement,
@@ -56,6 +58,8 @@ struct Token {
         TypedVariable,
         TypeName,
         Assignment,
+        StructInitializer,
+        InitializerList,
 
         Module,
 
@@ -74,6 +78,10 @@ struct Token {
 
     bool isEndl() {
         return after.find('\n') != std::string_view::npos;
+    }
+
+    std::string toString() {
+        return std::string{content};
     }
 };
 

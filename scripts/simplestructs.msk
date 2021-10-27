@@ -8,9 +8,9 @@ struct Apa {
 
 func main() {
    let apa Apa = Apa{
-      x = 0,
-      y = 20.1,
-      str = "hello there",
+      10,
+      20.1,
+      "hello there",
    }
 
    let bepa Apa = Apa{1, 2.3, "hello again"}

@@ -12,6 +12,11 @@ int main(int argc, char **argv) {
     auto filename = argv[1];
 
     auto buffer = loadFile(filename);
+
+    if (!buffer) {
+        fatal("could not open file ", filename);
+    }
+
     auto ast = parse(buffer);
 
     log(ast);

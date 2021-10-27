@@ -15,5 +15,12 @@ llvm::Type *getType(const Token &typeName, CodegenContext &context) {
         return llvm::Type::getFloatTy(context.context);
     }
 
-    throw InternalError{typeName, "not recognized type"};
+    auto type = context.scope.getStruct(typeName.content);
+
+    if (!type) {
+        throw InternalError{
+            typeName, "not recognized type: " + std::string{typeName.content}};
+    }
+
+    return type->type;
 }

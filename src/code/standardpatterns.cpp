@@ -25,6 +25,10 @@ bool isAssignmentOperator(const Ast &ast) {
     return ast.type == Token::Operator && ast.token.content == "=";
 }
 
+bool isNotInitializerList(const Ast &ast) {
+    return ast.type != Token::InitializerList;
+}
+
 } // namespace
 
 //! I use the c++ operator precedence
@@ -42,11 +46,18 @@ const Patterns &getStandardPatterns() {
              Token::FunctionArguments,
              Token::FunctionBody},
         },
+        {
+            {Token::StructKeyword, Token::Word, Token::Braces},
+            Token::StructDeclaration,
+            {Token::StructKeyword, Token::Name, Token::Braces},
+        },
         EqualPriorityPatterns{{
             {
                 {Token::Any, Token::Period, Token::Word},
                 Token::ValueMemberAccessor,
                 {Token::Keep, Token::Keep, Token::MemberName},
+                Pattern::LeftToRight,
+                {isNotInitializerList},
             },
             {
                 {Token::Any, {isRightPointer}, Token::Word},
@@ -57,6 +68,11 @@ const Patterns &getStandardPatterns() {
                 {Token::Any, Token::Parentheses},
                 Token::FunctionCall,
                 {Token::Name, Token::FunctionArguments},
+            },
+            {
+                {Token::Word, Token::Braces},
+                Token::StructInitializer,
+                {Token::TypeName, Token::InitializerList},
             },
         }},
         {

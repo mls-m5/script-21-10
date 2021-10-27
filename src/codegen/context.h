@@ -12,14 +12,26 @@ struct Variable {
     llvm::Type *type = nullptr;
 };
 
+struct Struct {
+    struct StructMember {
+        Token name;
+        llvm::Type *type;
+    };
+
+    llvm::StructType *type;
+    std::vector<StructMember> members;
+    Token name;
+};
+
 struct Scope {
     const Scope *parent = 0;
 
     std::map<std::string, Variable> values;
     std::map<std::string, llvm::Function *> definedFunctions;
+    std::map<std::string, Struct> customTypes;
 
     void defineFunction(Token name, llvm::Function *f) {
-        definedFunctions[std::string{name.content}] = f;
+        definedFunctions[name.toString()] = f;
     }
 
     Variable *getVariable(std::string_view name) {
@@ -28,6 +40,9 @@ struct Scope {
         }
         return nullptr;
     }
+
+    Struct *getStruct(std::string_view name);
+    void setStruct(std::string_view name, Struct);
 
     void clear() {
         values.clear();

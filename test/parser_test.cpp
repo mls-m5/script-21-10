@@ -208,4 +208,36 @@ TEST_CASE("assignment") {
     }
 }
 
+TEST_CASE("structure") {
+    {
+        auto ast = parse("struct Apa { x int \n y float }");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::StructDeclaration);
+    }
+}
+
+TEST_CASE("struct initializer") {
+    {
+        auto ast = parse("Apa {x = 10, y = 20}");
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::StructInitializer);
+
+        std::cout << ast;
+
+        auto list = ast.findRecursive(Token::InitializerList);
+
+        EXPECT_TRUE(list);
+        groupStandard(*list);
+
+        std::cout << *list << std::endl;
+        EXPECT_EQ(list->size(), 1);
+        EXPECT_EQ(list->front().type, Token::List);
+
+        EXPECT_TRUE(list->findRecursive(Token::Assignment));
+    }
+}
+
 TEST_SUIT_END

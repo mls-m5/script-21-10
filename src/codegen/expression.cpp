@@ -1,6 +1,7 @@
 #include "expression.h"
 #include "code/parser.h"
 #include "log.h"
+#include "struct.h"
 #include "types.h"
 
 namespace {
@@ -15,9 +16,6 @@ llvm::Value *createLlvmBinaryExpression(Ast &op,
     else if (op.token.content == "-") {
         return context.builder.CreateSub(left, right, "tmpsub");
     }
-    //    else if (op.token.content == "/") {
-    //        return context.builder.CreateDiv(left, right, "tmpsub");
-    //    }
     else if (op.token.content == "*") {
         return context.builder.CreateMul(left, right, "tmpsub");
     }
@@ -157,12 +155,54 @@ llvm::Value *generateAssignment(Ast &ast, CodegenContext &context) {
                             "cannot find variable " +
                                 std::string{lhs.token.content}};
     }
-    //    auto variable = generateVariableExpression(lhs, context);
     auto value = generateExpression(ast.back(), context);
 
     context.builder.CreateStore(value, alloca->alloca);
 
     return value;
+}
+
+llvm::Value *generateStructInitializer(Ast &ast, CodegenContext &context) {
+    if (ast.size() != 2 || ast.back().type != Token::InitializerList) {
+        throw InternalError{ast.token,
+                            "bad format on struct initializer" +
+                                std::string{name(ast.type)}};
+    }
+
+    auto &typeNameAst = ast.get(Token::TypeName);
+    auto type = context.scope.getStruct(typeNameAst.token.content);
+
+    auto &list = ast.get(Token::InitializerList);
+    groupStandard(list);
+
+    auto flat = flattenList(list);
+
+    if (flat.empty()) {
+        return nullptr; // TODO: Handle null initialization in the future
+    }
+
+    auto values = std::vector<llvm::Value *>{};
+
+    if (flat.front()->type == Token::Assignment) {
+        for (auto f : flat) {
+            // Todo:  Handle the naming correctly
+            values.push_back(generateExpression(f->back(), context));
+        }
+    }
+    else {
+        for (auto f : flat) {
+            values.push_back(generateExpression(*f, context));
+        }
+    }
+
+    auto function = context.builder.GetInsertBlock()->getParent();
+    auto alloca =
+        createEntryBlockAlloca(*function, type->name.content, type->type);
+
+    (void)alloca;
+    // Todo: Continue here
+
+    return nullptr;
 }
 
 } // namespace
@@ -186,7 +226,11 @@ llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
         return nullptr;
     case Token::Assignment:
         return generateAssignment(ast, context);
-
+    case Token::StructDeclaration:
+        generateStructDeclaration(ast, context);
+        return nullptr;
+    case Token::StructInitializer:
+        return generateStructInitializer(ast, context);
     default:
         throw InternalError{ast.token,
                             "Could not create expression of type " +

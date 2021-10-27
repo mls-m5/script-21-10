@@ -1,6 +1,7 @@
 #include "codegen.h"
 #include "context.h"
 #include "function.h"
+#include "struct.h"
 
 Ast generateModuleCode(Ast ast, CodegenContext &context) {
     std::string moduleId = "moduleid";
@@ -11,6 +12,9 @@ Ast generateModuleCode(Ast ast, CodegenContext &context) {
             generateFunction(child, context);
 
         } break;
+        case Token::StructDeclaration:
+            generateStructDeclaration(child, context);
+            break;
         default:
             break;
         }
