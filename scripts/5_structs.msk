@@ -1,0 +1,17 @@
+
+
+struct Apa {
+   x int
+   y float
+}
+
+func main() {
+   let apa Apa = Apa{
+      x = 10,
+      y = 20.1,
+   }
+
+   let bepa Apa = Apa{1, 2.3}
+
+   apa.x + bepa.x
+}
