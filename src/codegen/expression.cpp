@@ -53,9 +53,9 @@ llvm::Value *generateFunctionCall(Ast &ast, CodegenContext &context) {
     }
 
     auto &name = ast.get(Token::Name);
-    if (auto f = context.scope.definedFunctions.find(
+    if (auto f = context.scope().definedFunctions.find(
             std::string{name.token.content});
-        f != context.scope.definedFunctions.end()) {
+        f != context.scope().definedFunctions.end()) {
         auto function = f->second;
 
         if (function->arg_size() != args.size()) {
@@ -81,7 +81,7 @@ llvm::Value *generateVariableExpression(Ast &ast, CodegenContext &context) {
                  ast.token,
                  "could not create variable from non word");
 
-    auto variable = context.scope.getVariable(std::string{ast.token.content});
+    auto variable = context.scope().getVariable(std::string{ast.token.content});
 
     if (!variable) {
         throw InternalError{ast.token,
@@ -134,7 +134,7 @@ llvm::AllocaInst *generateVariableDeclaration(Ast &ast,
     auto alloca = createEntryBlockAlloca(
         *function, std::string{nameAst->token.content}, type);
 
-    context.scope.values[std::string{nameAst->token.content}] = {alloca, type};
+    context.scope().values[std::string{nameAst->token.content}] = {alloca, type};
 
     return alloca;
 }
@@ -184,7 +184,7 @@ llvm::Value *generateAssignment(Ast &ast, CodegenContext &context) {
                                 std::string{name(ast.type)}};
     }
 
-    auto alloca = context.scope.getVariable(std::string{lhs.token.content});
+    auto alloca = context.scope().getVariable(std::string{lhs.token.content});
 
     if (!alloca) {
         throw InternalError{ast.token,

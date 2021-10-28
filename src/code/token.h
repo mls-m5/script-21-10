@@ -59,6 +59,7 @@ struct Token {
         List,
         VariableDeclaration,
         TypedVariable,
+        PointerTypedVariable,
         TypeName,
         Assignment,
         StructInitializer,

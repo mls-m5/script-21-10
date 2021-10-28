@@ -12,17 +12,26 @@ llvm::Type *generateStructDeclaration(Ast &ast, CodegenContext &context) {
 
     groupStandard(body);
 
+    auto createMember = [&s, &context](Ast &child, bool isPointer) {
+        auto &nameAst = child.get(Token::Name);
+        auto &typeAst = child.getRecursive(Token::TypeName);
+        auto type = getType(typeAst.token, context);
+        auto newMember = Struct::StructMember{nameAst.token, type};
+        s.members.push_back(newMember);
+    };
+
     for (auto &child : body) {
         if (child.type == Token::TypedVariable) {
-            auto &nameAst = child.get(Token::Name);
-            auto &typeAst = child.getRecursive(Token::TypeName);
-            auto type = getType(typeAst.token, context);
-            auto newMember = Struct::StructMember{nameAst.token, type};
-            s.members.push_back(newMember);
+            createMember(child, false);
+        }
+        else if (child.type == Token::PointerTypedVariable) {
+            // Todo: Handle pointer types
+            createMember(child.front(), true);
         }
         else {
             throw InternalError{child.token,
-                                "unexpected expression in struct body"};
+                                "unexpected expression in struct body " +
+                                    std::string{name(child.token.type)}};
         }
     }
 
@@ -37,7 +46,7 @@ llvm::Type *generateStructDeclaration(Ast &ast, CodegenContext &context) {
 
     s.type = type;
 
-    context.scope.setStruct(s.name.content, std::move(s));
+    context.scope().setStruct(s.name.content, std::move(s));
 
     return type;
 }
@@ -51,7 +60,7 @@ llvm::AllocaInst *generateStructInitializer(Ast &ast, CodegenContext &context) {
     }
 
     auto &typeNameAst = ast.get(Token::TypeName);
-    auto type = context.scope.getStruct(typeNameAst.token.content);
+    auto type = context.scope().getStruct(typeNameAst.token.content);
 
     auto &list = ast.get(Token::InitializerList);
     groupStandard(list);
@@ -103,7 +112,7 @@ llvm::Value *generateMemberAccessor(Ast &ast, CodegenContext &context) {
     auto &variableAst = ast.front();
     auto &memberAst = ast.get(Token::MemberName);
 
-    auto variable = context.scope.getVariable(variableAst.token.content);
+    auto variable = context.scope().getVariable(variableAst.token.content);
     auto structType = getStructFromType(variable->type, context);
 
     if (!structType) {

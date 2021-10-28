@@ -269,4 +269,30 @@ TEST_CASE("function prototype") {
     }
 }
 
+TEST_CASE("pointer type") {
+    {
+        auto ast = parse("x int*");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::PointerTypedVariable);
+    }
+}
+
+TEST_CASE("pointer types") {
+    {
+        auto ast = parse("struct Apa {x int *\n"
+                         "y int\n"
+                         "}");
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::StructDeclaration);
+
+        groupStandard(ast.getRecursive(Token::StructBody));
+
+        std::cout << ast << std::endl;
+
+        // We do not want everything to be a multiplication
+        EXPECT_FALSE(ast.findRecursive(Token::BinaryOperation));
+    }
+}
+
 TEST_SUIT_END

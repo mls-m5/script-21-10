@@ -55,6 +55,7 @@ std::string_view name(Token::Type t) {
         CASE(List)
         CASE(VariableDeclaration)
         CASE(TypedVariable)
+        CASE(PointerTypedVariable)
         CASE(TypeName)
         CASE(Assignment)
         CASE(StructInitializer)

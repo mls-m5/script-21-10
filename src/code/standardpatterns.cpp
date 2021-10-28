@@ -33,6 +33,16 @@ bool isCLiteral(const Ast &ast) {
     return ast.token.type == Token::String && ast.token.content == "\"C\"";
 }
 
+bool isAsterisk(const Ast &ast) {
+    return ast.token.content == "*";
+}
+
+std::function<bool(const Ast &ast)> isNot(Token::Type type) {
+    return [type](const Ast &ast) {
+        return ast.type != type; //
+    };
+}
+
 } // namespace
 
 //! I use the c++ operator precedence
@@ -94,8 +104,17 @@ const Patterns &getStandardPatterns() {
             },
         }},
         {
-            {Token::Any, {isOp5}, Token::Any},
+            {Token::Word, Token::Word},
+            Token::TypedVariable,
+            {Token::Name, Token::TypeName},
+        },
+        {
+            {isNot(Token::TypedVariable), {isOp5}, Token::Any},
             Token::BinaryOperation,
+            {},
+            Pattern::LeftToRight,
+            Matcher{isNot(Token::StructBody)}, // Prevent grouping of
+                                               // variable declarationsjj
         },
         {
             {Token::Any, {isOp6}, Token::Any},
@@ -115,9 +134,8 @@ const Patterns &getStandardPatterns() {
             {Token::Keep, Token::Name},
         },
         {
-            {Token::Word, Token::Word},
-            Token::TypedVariable,
-            {Token::Name, Token::TypeName},
+            {Token::TypedVariable, {isAsterisk}},
+            Token::PointerTypedVariable,
         },
         EqualPriorityPatterns{{
             {

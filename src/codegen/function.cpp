@@ -52,7 +52,7 @@ llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
                                        name.token.content,
                                        context.module.get());
 
-    context.scope.defineFunction(name.token, func);
+    context.scope().defineFunction(name.token, func);
 
     for (size_t i = 0; i < astArgs.size(); ++i) {
         auto *astArg = astArgs.at(i);
@@ -85,7 +85,7 @@ llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
     context.builder.SetInsertPoint(block);
 
     //    auto scope = Scope{&context.scope};
-    auto &scope = context.scope;
+    auto &scope = context.scope();
 
     for (auto &arg : function->args()) {
         // TODO: implement types
@@ -122,7 +122,7 @@ llvm::Function *generateExternFunction(Ast &ast, CodegenContext &context) {
                             "Failed to generate external expression"};
     }
 
-    context.scope.defineFunction(prototypeAst.get(Token::Name).token, function);
+    context.scope().defineFunction(prototypeAst.get(Token::Name).token, function);
 
     return function;
 }

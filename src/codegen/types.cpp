@@ -2,20 +2,27 @@
 #include "scriptexceptions.h"
 
 llvm::Type *getType(const Token &typeName, CodegenContext &context) {
-    if (typeName.content == "int") {
+    auto name = typeName.content;
+    if (name == "int") {
         return llvm::Type::getInt32Ty(context.context);
     }
-    if (typeName.content == "int32") {
+    if (name == "int32") {
         return llvm::Type::getInt32Ty(context.context);
     }
-    if (typeName.content == "int64") {
+    if (name == "int64") {
         return llvm::Type::getInt64Ty(context.context);
     }
-    else if (typeName.content == "float") {
+    if (name == "int8") {
+        return llvm::Type::getInt8Ty(context.context);
+    }
+    else if (name == "float") {
         return llvm::Type::getFloatTy(context.context);
     }
+    else if (name == "size_t") {
+        return llvm::Type::getInt64Ty(context.context);
+    }
 
-    auto type = context.scope.getStruct(typeName.content);
+    auto type = context.scope().getStruct(typeName.content);
 
     if (!type) {
         throw InternalError{
@@ -26,7 +33,7 @@ llvm::Type *getType(const Token &typeName, CodegenContext &context) {
 }
 
 Struct *getStructFromType(llvm::Type *type, CodegenContext &context) {
-    for (auto &pair : context.scope.customTypes) {
+    for (auto &pair : context.scope().customTypes) {
         if (pair.second.type == type) {
             return &pair.second;
         }

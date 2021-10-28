@@ -54,6 +54,14 @@ TEST_CASE("string literals") {
     EXPECT_EQ(tokens.back().content, "\"there\"");
 }
 
+TEST_CASE("strings inside parenthesis") {
+    auto tokens = tokenize("(\"hello\")");
+    EXPECT_EQ(tokens.size(), 3);
+    EXPECT_EQ(tokens.front().type, Token::BeginGroup);
+    EXPECT_EQ(tokens.at(1).type, Token::String);
+    EXPECT_EQ(tokens.back().type, Token::EndGroup);
+}
+
 TEST_CASE("word with numbers") {
     auto tokens = tokenize("hello40something8");
 

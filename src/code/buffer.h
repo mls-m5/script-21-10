@@ -42,4 +42,4 @@ private:
     std::string _data;
 };
 
-std::shared_ptr<Buffer> loadFile(std::filesystem::path path);
+std::shared_ptr<Buffer> loadBufferFromFile(std::filesystem::path path);

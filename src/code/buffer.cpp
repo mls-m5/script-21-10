@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 
-std::shared_ptr<Buffer> loadFile(std::filesystem::path path) {
+std::shared_ptr<Buffer> loadBufferFromFile(std::filesystem::path path) {
     auto file = std::ifstream{path};
     if (!file.is_open()) {
         return {};

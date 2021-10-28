@@ -55,6 +55,9 @@ std::pair<Ast, size_t> group(Ast ast, const Pattern &pattern, size_t index) {
     for (size_t i = 0; i + minSize <= ast.size();) {
         bool foundMatch = false;
         for (auto &p : pattern.patterns) {
+            if (!p.context(ast)) {
+                continue;
+            }
             if (!(i + p.matchers.size() <= ast.size())) {
                 // If patterns are different size we need to check for length
                 continue;

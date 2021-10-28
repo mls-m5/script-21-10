@@ -15,6 +15,10 @@ Struct *Scope::getStruct(std::string_view name) {
         return &f->second;
     }
 
+    if (parent) {
+        return parent->getStruct(name);
+    }
+
     return nullptr;
 }
 

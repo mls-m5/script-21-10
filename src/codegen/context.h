@@ -34,7 +34,7 @@ struct Variable {
 };
 
 struct Scope {
-    const Scope *parent = 0;
+    Scope *parent = 0;
 
     std::string moduleName;
     std::map<std::string, Variable> values;
@@ -65,16 +65,20 @@ struct CodegenContext {
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder{context};
     std::unique_ptr<llvm::Module> module;
+    std::map<std::string, Scope> importedModules;
 
     llvm::Function *currentFunction = nullptr;
 
-    Scope scope;
+    Scope rootScope;
+
+    Scope *currentScope = &rootScope;
+
+    Scope &scope() {
+        return *currentScope;
+    }
 
     CodegenContext(std::string id)
         : module{std::make_unique<llvm::Module>(id, context)} {}
-
-    //    inline std::map<std::string, std::unique_ptr<PrototypeAST>>
-    //    FunctionProtos;
 };
 
 // Push a value and restore when it goes out of scope

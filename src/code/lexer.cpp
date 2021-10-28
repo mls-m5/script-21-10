@@ -79,9 +79,8 @@ Token readString(std::shared_ptr<Buffer> buffer, size_t &beginning) {
 
     for (size_t i = beginning + 1; i < buffer->size(); ++i) {
         if (buffer->at(i) == '"') {
-            ++i;
             auto str = std::string_view{buffer->begin().base() + beginning,
-                                        i - beginning};
+                                        i - beginning + 1};
             auto token = Token{std::move(buffer), str};
             token.type = Token::String;
             beginning = i;

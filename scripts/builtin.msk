@@ -1,0 +1,5 @@
+
+export struct str {
+    data int8*
+    size size_t 
+}

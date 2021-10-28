@@ -1,0 +1,10 @@
+
+module strings
+
+func f(text str) {
+    str.len
+}
+
+func main() {
+   f("hello")
+}
