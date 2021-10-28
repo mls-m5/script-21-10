@@ -7,20 +7,30 @@
 #include <map>
 #include <memory>
 
-struct Variable {
-    llvm::AllocaInst *alloca;
-    llvm::Type *type = nullptr;
-};
-
 struct Struct {
     struct StructMember {
         Token name;
         llvm::Type *type;
     };
 
+    size_t getMemberIndex(std::string_view name) {
+        for (size_t i = 0; i < members.size(); ++i) {
+            auto &member = members.at(i);
+            if (member.name.content == name) {
+                return i;
+            }
+        }
+        return std::numeric_limits<size_t>::max();
+    }
+
     llvm::StructType *type;
     std::vector<StructMember> members;
     Token name;
+};
+
+struct Variable {
+    llvm::AllocaInst *alloca;
+    llvm::Type *type = nullptr;
 };
 
 struct Scope {

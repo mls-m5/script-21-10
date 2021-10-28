@@ -24,3 +24,13 @@ llvm::Type *getType(const Token &typeName, CodegenContext &context) {
 
     return type->type;
 }
+
+Struct *getStructFromType(llvm::Type *type, CodegenContext &context) {
+    for (auto &pair : context.scope.customTypes) {
+        if (pair.second.type == type) {
+            return &pair.second;
+        }
+    }
+
+    return nullptr;
+}

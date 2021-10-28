@@ -100,6 +100,14 @@ llvm::Value *generateVariableExpression(Ast &ast, CodegenContext &context) {
     return load;
 }
 
+llvm::Value *generateMemCpy(llvm::AllocaInst *dst,
+                            llvm::AllocaInst *src,
+                            size_t size,
+                            CodegenContext &context) {
+
+    return context.builder.CreateMemCpy(dst, {}, src, {}, size);
+}
+
 llvm::AllocaInst *generateVariableDeclaration(Ast &ast,
                                               CodegenContext &context) {
 
@@ -131,51 +139,7 @@ llvm::AllocaInst *generateVariableDeclaration(Ast &ast,
     return alloca;
 }
 
-llvm::Value *generateAssignment(Ast &ast, CodegenContext &context) {
-    auto &lhs = ast.front();
-
-    if (lhs.type == Token::VariableDeclaration) {
-        auto variable = generateVariableDeclaration(ast.front(), context);
-
-        if (!variable) {
-            throw InternalError{
-                ast.token,
-                "failed to create variable declaration. Value is not valid" +
-                    std::string{name(ast.type)}};
-        }
-        else if (!variable->getType()->isAggregateType()) {
-            auto value = generateExpression(ast.back(), context);
-            context.builder.CreateStore(value, variable);
-            return value;
-        }
-        else {
-            throw InternalError{
-                ast.token,
-                "assignment of aggregate types not implemented" +
-                    std::string{name(ast.type)}};
-        }
-    }
-
-    if (lhs.type != Token::Word) {
-        throw InternalError{ast.token,
-                            "can only assign to variables specified by name" +
-                                std::string{name(ast.type)}};
-    }
-
-    auto alloca = context.scope.getVariable(std::string{lhs.token.content});
-
-    if (!alloca) {
-        throw InternalError{ast.token,
-                            "cannot find variable " +
-                                std::string{lhs.token.content}};
-    }
-    auto value = generateExpression(ast.back(), context);
-
-    context.builder.CreateStore(value, alloca->alloca);
-
-    return value;
-}
-
+// @returns pointer to memory to be used...
 llvm::AllocaInst *generateStructInitializer(Ast &ast, CodegenContext &context) {
     if (ast.size() != 2 || ast.back().type != Token::InitializerList) {
         throw InternalError{ast.token,
@@ -223,16 +187,101 @@ llvm::AllocaInst *generateStructInitializer(Ast &ast, CodegenContext &context) {
         ++index;
     }
 
-    // https://stackoverflow.com/questions/26787341/inserting-getelementpointer-instruction-in-llvm-ir
-
-    // How do you do to make it work?
-    // auto gep = context.builder.CreateGEP(alloca, ids, "tmp");
-
-    // auto gep = context.builder.CreateStructGEP(type->type, alloca, 1,
-    // "member");
-    // (void)gep;
-
     return alloca;
+}
+
+llvm::Value *generateAssignment(Ast &ast, CodegenContext &context) {
+    auto &lhs = ast.front();
+
+    if (lhs.type == Token::VariableDeclaration) {
+        auto variable = generateVariableDeclaration(ast.front(), context);
+
+        if (!variable) {
+            throw InternalError{
+                ast.token,
+                "failed to create variable declaration. Value is not valid" +
+                    std::string{name(ast.type)}};
+        }
+        else if (!variable->getType()->isPointerTy()) {
+            auto value = generateExpression(ast.back(), context);
+            context.builder.CreateStore(value, variable);
+            return value;
+        }
+        else {
+
+            auto pointeeType = variable->getAllocatedType();
+
+            // if (pointeeType->isStructTy()) {
+            // Todo: Fix this in the future
+            auto value = generateStructInitializer(ast.back(), context);
+            auto structType = static_cast<llvm::StructType *>(pointeeType);
+
+            auto size = context.module->getDataLayout()
+                            .getStructLayout(structType)
+                            ->getSizeInBytes();
+
+            generateMemCpy(variable, value, size, context);
+            return variable;
+            // }
+
+            // throw InternalError{ast.token,
+            //                     "cannot handle assignment of pointer types" +
+            //                         std::string{name(ast.type)}};
+        }
+    }
+
+    if (lhs.type != Token::Word) {
+        throw InternalError{ast.token,
+                            "can only assign to variables specified by name" +
+                                std::string{name(ast.type)}};
+    }
+
+    auto alloca = context.scope.getVariable(std::string{lhs.token.content});
+
+    if (!alloca) {
+        throw InternalError{ast.token,
+                            "cannot find variable " +
+                                std::string{lhs.token.content}};
+    }
+    auto value = generateExpression(ast.back(), context);
+
+    context.builder.CreateStore(value, alloca->alloca);
+
+    return value;
+}
+
+// Note: Returns _pointer_ to member value
+llvm::Value *generateMemberAccessor(Ast &ast, CodegenContext &context) {
+    if (ast.size() != 3) {
+        throw InternalError{
+            ast.token, "malformed member accessor " + ast.token.toString()};
+    }
+
+    auto &variableAst = ast.front();
+    auto &memberAst = ast.get(Token::MemberName);
+
+    auto variable = context.scope.getVariable(variableAst.token.content);
+    auto structType = getStructFromType(variable->type, context);
+
+    if (!structType) {
+        throw InternalError{variableAst.token,
+                            "not a struct type: " +
+                                variableAst.token.toString()};
+    }
+
+    auto memberIndex = structType->getMemberIndex(memberAst.token.content);
+
+    auto gep = context.builder.CreateStructGEP(
+        variable->type, variable->alloca, memberIndex, memberAst.token.content);
+
+    return gep;
+}
+
+llvm::Value *generateVariableLoad(llvm::Value *pointer,
+                                  CodegenContext &context) {
+    auto load = context.builder.CreateLoad(pointer->getType(), pointer, "load");
+
+    return load;
 }
 
 } // namespace
@@ -259,8 +308,11 @@ llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
     case Token::StructDeclaration:
         generateStructDeclaration(ast, context);
         return nullptr;
-    case Token::StructInitializer:
-        return generateStructInitializer(ast, context);
+    // case Token::StructInitializer:
+    //     return generateStructInitializer(ast, context);
+    case Token::ValueMemberAccessor:
+        return generateVariableLoad(generateMemberAccessor(ast, context),
+                                    context);
     default:
         throw InternalError{ast.token,
                             "Could not create expression of type " +
