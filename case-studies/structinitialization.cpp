@@ -9,5 +9,7 @@ int main() {
 
     // apa = {30, 40};
 
-    return apa.x + apa.y;
+    auto bepa = apa;
+
+    // return apa.x + apa.y;
 }

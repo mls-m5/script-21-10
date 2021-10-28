@@ -2,18 +2,16 @@
 
 struct Apa {
    x int
-   y float
-   text str
+   y int
 }
 
 func main() {
    let apa Apa = Apa{
       10,
-      20.1,
-      "hello there",
+      20,
    }
 
-   let bepa Apa = Apa{1, 2.3, "hello again"}
+   let bepa Apa = Apa{1, 3}
 
-   return apa.x + bepa.x
+   apa.x + bepa.x
 }

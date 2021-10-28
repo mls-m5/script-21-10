@@ -49,6 +49,7 @@ struct Token {
         FunctionArguments,
         FunctionBody,
         StructDeclaration,
+        StructBody,
         ImportStatement,
         ExportStatement,
         ModuleStatement,

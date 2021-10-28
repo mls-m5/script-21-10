@@ -137,9 +137,23 @@ llvm::Value *generateAssignment(Ast &ast, CodegenContext &context) {
     if (lhs.type == Token::VariableDeclaration) {
         auto variable = generateVariableDeclaration(ast.front(), context);
 
-        auto value = generateExpression(ast.back(), context);
-        context.builder.CreateStore(value, variable);
-        return value;
+        if (!variable) {
+            throw InternalError{
+                ast.token,
+                "failed to create variable declaration. Value is not valid" +
+                    std::string{name(ast.type)}};
+        }
+        else if (!variable->getType()->isAggregateType()) {
+            auto value = generateExpression(ast.back(), context);
+            context.builder.CreateStore(value, variable);
+            return value;
+        }
+        else {
+            throw InternalError{
+                ast.token,
+                "assignment of aggregate types not implemented" +
+                    std::string{name(ast.type)}};
+        }
     }
 
     if (lhs.type != Token::Word) {
@@ -162,7 +176,7 @@ llvm::Value *generateAssignment(Ast &ast, CodegenContext &context) {
     return value;
 }
 
-llvm::Value *generateStructInitializer(Ast &ast, CodegenContext &context) {
+llvm::AllocaInst *generateStructInitializer(Ast &ast, CodegenContext &context) {
     if (ast.size() != 2 || ast.back().type != Token::InitializerList) {
         throw InternalError{ast.token,
                             "bad format on struct initializer" +
@@ -175,11 +189,11 @@ llvm::Value *generateStructInitializer(Ast &ast, CodegenContext &context) {
     auto &list = ast.get(Token::InitializerList);
     groupStandard(list);
 
-    auto flat = flattenList(list);
-
-    if (flat.empty()) {
+    if (list.empty()) {
         return nullptr; // TODO: Handle null initialization in the future
     }
+
+    auto flat = flattenList(list.front());
 
     auto values = std::vector<llvm::Value *>{};
 
@@ -199,10 +213,26 @@ llvm::Value *generateStructInitializer(Ast &ast, CodegenContext &context) {
     auto alloca =
         createEntryBlockAlloca(*function, type->name.content, type->type);
 
-    (void)alloca;
-    // Todo: Continue here
+    // https://llvm.org/doxygen/classllvm_1_1IRBuilderBase.html#afef76233e8877797902c325bb078e381
+    size_t index = 0;
+    for (auto value : values) {
+        // auto elementType = type->members.at(index).type;
+        auto gep = context.builder.CreateStructGEP(
+            type->type, alloca, index, type->members.at(index).name.content);
+        context.builder.CreateStore(value, gep);
+        ++index;
+    }
 
-    return nullptr;
+    // https://stackoverflow.com/questions/26787341/inserting-getelementpointer-instruction-in-llvm-ir
+
+    // How do you do to make it work?
+    // auto gep = context.builder.CreateGEP(alloca, ids, "tmp");
+
+    // auto gep = context.builder.CreateStructGEP(type->type, alloca, 1,
+    // "member");
+    // (void)gep;
+
+    return alloca;
 }
 
 } // namespace

@@ -7,15 +7,21 @@ llvm::Type *generateStructDeclaration(Ast &ast, CodegenContext &context) {
     auto &structNameAst = ast.get(Token::Name);
     s.name = structNameAst.token;
 
-    groupStandard(ast);
+    auto &body = ast.get(Token::StructBody);
 
-    for (auto &child : ast) {
+    groupStandard(body);
+
+    for (auto &child : body) {
         if (child.type == Token::TypedVariable) {
             auto &nameAst = child.get(Token::Name);
             auto &typeAst = child.getRecursive(Token::TypeName);
             auto type = getType(typeAst.token, context);
             auto newMember = Struct::StructMember{nameAst.token, type};
             s.members.push_back(newMember);
+        }
+        else {
+            throw InternalError{child.token,
+                                "unexpected expression in struct body"};
         }
     }
 

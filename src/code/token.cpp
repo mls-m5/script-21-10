@@ -45,6 +45,7 @@ std::string_view name(Token::Type t) {
         CASE(FunctionArguments)
         CASE(FunctionBody)
         CASE(StructDeclaration)
+        CASE(StructBody)
         CASE(ImportStatement)
         CASE(ExportStatement)
         CASE(ModuleStatement)

@@ -49,7 +49,7 @@ const Patterns &getStandardPatterns() {
         {
             {Token::StructKeyword, Token::Word, Token::Braces},
             Token::StructDeclaration,
-            {Token::StructKeyword, Token::Name, Token::Braces},
+            {Token::Keep, Token::Name, Token::StructBody},
         },
         EqualPriorityPatterns{{
             {
