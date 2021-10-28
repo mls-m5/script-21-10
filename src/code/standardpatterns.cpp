@@ -47,9 +47,19 @@ const Patterns &getStandardPatterns() {
              Token::FunctionBody},
         },
         {
+            // If it does not have a body it is only a function prototype
+            {Token::FuncKeyword, Token::Word, Token::Parentheses},
+            Token::FunctionPrototype,
+            {Token::FuncKeyword, Token::Name, Token::FunctionArguments},
+        },
+        {
             {Token::StructKeyword, Token::Word, Token::Braces},
             Token::StructDeclaration,
             {Token::Keep, Token::Name, Token::StructBody},
+        },
+        {
+            {Token::ExternKeyword, Token::FunctionPrototype},
+            Token::ExternStatement,
         },
         EqualPriorityPatterns{{
             {

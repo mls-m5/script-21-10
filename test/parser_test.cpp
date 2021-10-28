@@ -240,4 +240,26 @@ TEST_CASE("struct initializer") {
     }
 }
 
+TEST_CASE("extern statement") {
+    {
+        auto ast = parse("extern func hello(int, int)");
+        std::cout << ast << std::endl;
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::ExternStatement);
+    }
+}
+
+TEST_CASE("function prototype") {
+    {
+        auto ast = parse("func apa()");
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::FunctionPrototype);
+    }
+    {
+        auto ast = parse("func apa() {}");
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::FunctionDeclaration);
+    }
+}
+
 TEST_SUIT_END

@@ -36,6 +36,7 @@ Token::Type getKeyword(std::string_view str) {
         {"module", Token::ModuleKeyword},
         {"let", Token::LetKeyword},
         {"struct", Token::StructKeyword},
+        {"extern", Token::ExternKeyword},
     };
 
     if (auto f = keywords.find(str); f != keywords.end()) {

@@ -34,6 +34,7 @@ struct Token {
         ModuleKeyword,
         LetKeyword,
         StructKeyword,
+        ExternKeyword,
 
         Parentheses,
         Brackets,
@@ -45,6 +46,7 @@ struct Token {
         PointerMemberAccessor,
         MemberName,
         FunctionDeclaration,
+        FunctionPrototype,
         FunctionCall,
         FunctionArguments,
         FunctionBody,
@@ -61,6 +63,7 @@ struct Token {
         Assignment,
         StructInitializer,
         InitializerList,
+        ExternStatement,
 
         Module,
 

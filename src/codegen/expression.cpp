@@ -208,9 +208,6 @@ llvm::Value *generateVariableLoad(llvm::Value *pointer,
 } // namespace
 
 llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
-    throw InternalError{ast.token,
-                        "Could not create expression of type " +
-                            std::string{name(ast.type)}};
     switch (ast.type) {
     case Token::IntLiteral:
         return llvm::ConstantInt::get(
