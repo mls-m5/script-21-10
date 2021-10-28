@@ -134,7 +134,8 @@ llvm::AllocaInst *generateVariableDeclaration(Ast &ast,
     auto alloca = createEntryBlockAlloca(
         *function, std::string{nameAst->token.content}, type);
 
-    context.scope().values[std::string{nameAst->token.content}] = {alloca, type};
+    context.scope().values[std::string{nameAst->token.content}] = {alloca,
+                                                                   type};
 
     return alloca;
 }
@@ -154,7 +155,7 @@ llvm::Value *generateAssignment(Ast &ast, CodegenContext &context) {
 
         auto pointeeType = variable->getAllocatedType();
 
-        if (getStructFromType(pointeeType, context)) {
+        if (getStructFromType(pointeeType, context.scope())) {
             // if (pointeeType->isStructTy()) {
             // Todo: Fix this in the future
             auto value = generateStructInitializer(ast.back(), context);

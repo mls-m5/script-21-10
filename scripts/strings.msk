@@ -2,7 +2,7 @@
 module strings
 
 func f(text str) {
-    str.len
+    text.len
 }
 
 func main() {

@@ -6,4 +6,4 @@
 
 llvm::Type *getType(const Token &typeName, CodegenContext &context);
 
-Struct *getStructFromType(llvm::Type* type, CodegenContext &context);
+Struct *getStructFromType(llvm::Type *type, Scope &scope);

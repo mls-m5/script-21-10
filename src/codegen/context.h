@@ -26,6 +26,8 @@ struct Struct {
     llvm::StructType *type;
     std::vector<StructMember> members;
     Token name;
+
+    static constexpr size_t npos = std::numeric_limits<size_t>::max();
 };
 
 struct Variable {

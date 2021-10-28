@@ -113,7 +113,14 @@ llvm::Value *generateMemberAccessor(Ast &ast, CodegenContext &context) {
     auto &memberAst = ast.get(Token::MemberName);
 
     auto variable = context.scope().getVariable(variableAst.token.content);
-    auto structType = getStructFromType(variable->type, context);
+
+    if (!variable) {
+        throw InternalError{variableAst.token,
+                            "No variable defined with the name " +
+                                variableAst.token.toString()};
+    }
+
+    auto structType = getStructFromType(variable->type, context.scope());
 
     if (!structType) {
         throw InternalError{variableAst.token,
@@ -122,6 +129,12 @@ llvm::Value *generateMemberAccessor(Ast &ast, CodegenContext &context) {
     }
 
     auto memberIndex = structType->getMemberIndex(memberAst.token.content);
+
+    if (memberIndex == Struct::npos) {
+        throw InternalError{memberAst.token,
+                            "struct has no member with name " +
+                                memberAst.token.toString()};
+    }
 
     auto gep = context.builder.CreateStructGEP(
         variable->type, variable->alloca, memberIndex, memberAst.token.content);

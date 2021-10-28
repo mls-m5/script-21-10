@@ -88,8 +88,7 @@ llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
     auto &scope = context.scope();
 
     for (auto &arg : function->args()) {
-        // TODO: implement types
-        auto type = llvm::Type::getInt64Ty(context.context);
+        auto type = arg.getType();
         auto alloca = createEntryBlockAlloca(*function, arg.getName(), type);
 
         // llvm will optimize away the store if it is possible to fit in
@@ -122,7 +121,8 @@ llvm::Function *generateExternFunction(Ast &ast, CodegenContext &context) {
                             "Failed to generate external expression"};
     }
 
-    context.scope().defineFunction(prototypeAst.get(Token::Name).token, function);
+    context.scope().defineFunction(prototypeAst.get(Token::Name).token,
+                                   function);
 
     return function;
 }

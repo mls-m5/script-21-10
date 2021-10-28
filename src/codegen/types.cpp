@@ -32,11 +32,15 @@ llvm::Type *getType(const Token &typeName, CodegenContext &context) {
     return type->type;
 }
 
-Struct *getStructFromType(llvm::Type *type, CodegenContext &context) {
-    for (auto &pair : context.scope().customTypes) {
+Struct *getStructFromType(llvm::Type *type, Scope &scope) {
+    for (auto &pair : scope.customTypes) {
         if (pair.second.type == type) {
             return &pair.second;
         }
+    }
+
+    if (scope.parent) {
+        return getStructFromType(type, *scope.parent);
     }
 
     return nullptr;
