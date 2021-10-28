@@ -111,3 +111,18 @@ llvm::Function *generateFunction(Ast &ast, CodegenContext &context) {
     function->eraseFromParent();
     return nullptr;
 }
+
+llvm::Function *generateExternFunction(Ast &ast, CodegenContext &context) {
+
+    auto &prototypeAst = ast.get(Token::FunctionPrototype);
+    auto function = generateFunctionPrototype(prototypeAst, context);
+
+    if (!function) {
+        throw InternalError{ast.token,
+                            "Failed to generate external expression"};
+    }
+
+    context.scope.defineFunction(prototypeAst.get(Token::Name).token, function);
+
+    return function;
+}

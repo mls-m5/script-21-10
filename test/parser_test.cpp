@@ -247,6 +247,13 @@ TEST_CASE("extern statement") {
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::ExternStatement);
     }
+
+    {
+        auto ast = parse("extern \"C\" func hello(int, int)");
+        std::cout << ast << std::endl;
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::ExternStatement);
+    }
 }
 
 TEST_CASE("function prototype") {

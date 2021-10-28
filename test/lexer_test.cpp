@@ -49,7 +49,9 @@ TEST_CASE("string literals") {
 
     EXPECT_EQ(tokens.size(), 2);
     EXPECT_EQ(tokens.front().type, Token::String);
+    EXPECT_EQ(tokens.front().content, "\"hello\"");
     EXPECT_EQ(tokens.back().type, Token::String);
+    EXPECT_EQ(tokens.back().content, "\"there\"");
 }
 
 TEST_CASE("word with numbers") {
@@ -58,6 +60,12 @@ TEST_CASE("word with numbers") {
     EXPECT_EQ(tokens.size(), 1);
     EXPECT_EQ(tokens.front().type, Token::Word);
     EXPECT_EQ(tokens.front().content, "hello40something8");
+}
+
+TEST_CASE("words with underscore") {
+    auto tokens = tokenize("hello_there");
+
+    EXPECT_EQ(tokens.size(), 1);
 }
 
 TEST_SUIT_END

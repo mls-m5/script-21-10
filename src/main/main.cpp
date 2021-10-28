@@ -2,14 +2,19 @@
 #include "codegen/codegen.h"
 #include "codegen/writeobjectfile.h"
 #include "log.h"
+#include <filesystem>
 #include <iostream>
+
+namespace filesystem = std::filesystem;
 
 int main(int argc, char **argv) {
     if (argc < 2) {
         fatal("to few arguments, please specify file");
     }
 
-    auto filename = argv[1];
+    auto filename = std::filesystem::path{argv[1]};
+    auto out = filename;
+    out.replace_extension(".o");
 
     auto buffer = loadFile(filename);
 
@@ -28,11 +33,16 @@ int main(int argc, char **argv) {
     auto context = CodegenContext{filename};
 
     try {
-        ast = generateModuleCode(std::move(ast), context);
+        generateModuleCode(ast, context);
+    }
+    catch (SyntaxError &e) {
+        log(ast);
+        std::cerr << e.what() << "\n";
+        return 1;
     }
     catch (InternalError &e) {
-        std::cerr << e.what() << "\n";
         log(ast);
+        std::cerr << e.what() << "\n";
         return 1;
     }
 
@@ -42,5 +52,5 @@ int main(int argc, char **argv) {
 
     context.module->print(llvm::outs(), nullptr);
 
-    writeObjectFile(context, "testoutput.o");
+    writeObjectFile(context, out);
 }

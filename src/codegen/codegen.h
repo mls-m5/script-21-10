@@ -6,4 +6,4 @@
 #include <memory>
 
 //! @returns the final ast
-Ast generateModuleCode(Ast, CodegenContext &context);
+void generateModuleCode(Ast &, CodegenContext &context);

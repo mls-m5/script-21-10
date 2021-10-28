@@ -29,6 +29,10 @@ bool isNotInitializerList(const Ast &ast) {
     return ast.type != Token::InitializerList;
 }
 
+bool isCLiteral(const Ast &ast) {
+    return ast.token.type == Token::String && ast.token.content == "\"C\"";
+}
+
 } // namespace
 
 //! I use the c++ operator precedence
@@ -59,6 +63,10 @@ const Patterns &getStandardPatterns() {
         },
         {
             {Token::ExternKeyword, Token::FunctionPrototype},
+            Token::ExternStatement,
+        },
+        {
+            {Token::ExternKeyword, {isCLiteral}, Token::FunctionPrototype},
             Token::ExternStatement,
         },
         EqualPriorityPatterns{{

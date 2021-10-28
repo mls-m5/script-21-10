@@ -79,6 +79,7 @@ Token readString(std::shared_ptr<Buffer> buffer, size_t &beginning) {
 
     for (size_t i = beginning + 1; i < buffer->size(); ++i) {
         if (buffer->at(i) == '"') {
+            ++i;
             auto str = std::string_view{buffer->begin().base() + beginning,
                                         i - beginning};
             auto token = Token{std::move(buffer), str};
@@ -104,7 +105,7 @@ Tokens splitBufferIntoRawTokens(std::shared_ptr<Buffer> buffer) {
         if (isspace(c)) {
             type = Token::Space;
         }
-        else if (isalpha(c)) {
+        else if (isalpha(c) || c == '_') {
             type = Token::Alpha;
         }
         else if (isdigit(c)) {

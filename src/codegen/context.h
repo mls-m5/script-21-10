@@ -36,6 +36,7 @@ struct Variable {
 struct Scope {
     const Scope *parent = 0;
 
+    std::string moduleName;
     std::map<std::string, Variable> values;
     std::map<std::string, llvm::Function *> definedFunctions;
     std::map<std::string, Struct> customTypes;
