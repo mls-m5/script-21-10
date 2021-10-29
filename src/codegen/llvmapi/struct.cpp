@@ -4,6 +4,8 @@
 #include "types.h"
 #include "llvm/IR/DerivedTypes.h"
 
+namespace llvmapi {
+
 llvm::Type *generateStructDeclaration(Ast &ast, CodegenContext &context) {
     auto s = Struct{};
     auto &structNameAst = ast.get(Token::Name);
@@ -145,3 +147,5 @@ llvm::Value *generateMemberAccessor(Ast &ast, CodegenContext &context) {
 
     return gep;
 }
+
+} // namespace llvmapi

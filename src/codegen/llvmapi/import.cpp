@@ -3,6 +3,8 @@
 #include "struct.h"
 #include <iostream>
 
+using namespace llvmapi;
+
 namespace {
 void importStatement(Ast &ast, CodegenContext &context) {
     if (ast.size() != 2) {
@@ -26,6 +28,8 @@ void importStatement(Ast &ast, CodegenContext &context) {
     }
 }
 } // namespace
+
+namespace llvmapi {
 
 void importModule(Ast &ast, CodegenContext &context, bool toGlobal) {
     auto moduleName = [&ast] {
@@ -74,3 +78,5 @@ void importModule(Ast &ast, CodegenContext &context, bool toGlobal) {
 
     context.currentScope = oldScope;
 }
+
+} // namespace llvmapi

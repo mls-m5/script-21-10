@@ -1,7 +1,7 @@
 #include "code/parser.h"
-#include "codegen/codegen.h"
-#include "codegen/import.h"
-#include "codegen/writeobjectfile.h"
+#include "codegen/llvmapi/codegen.h"
+#include "codegen/llvmapi/import.h"
+#include "codegen/llvmapi/writeobjectfile.h"
 #include "log.h"
 #include "modules/modules.h"
 #include <filesystem>
@@ -43,16 +43,16 @@ int main(int argc, char **argv) {
 
     std::cout.flush();
 
-    auto context = CodegenContext{filename};
+    auto context = llvmapi::CodegenContext{filename};
 
     auto ast = loadAstFromFile(filename);
     try {
         for (auto file : files) {
             log("importing ", file);
             auto ast = loadAstFromFile(file);
-            importModule(ast, context, file == builtInFilename);
+            llvmapi::importModule(ast, context, file == builtInFilename);
         }
-        generateModuleCode(ast, context);
+        llvmapi::generateModuleCode(ast, context);
     }
     catch (SyntaxError &e) {
         log(ast);

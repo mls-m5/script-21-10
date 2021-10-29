@@ -1,6 +1,8 @@
 #include "types.h"
 #include "scriptexceptions.h"
 
+namespace llvmapi {
+
 llvm::Type *getType(const Token &typeName, CodegenContext &context) {
     auto name = typeName.content;
     if (name == "int") {
@@ -45,3 +47,5 @@ Struct *getStructFromType(llvm::Type *type, Scope &scope) {
 
     return nullptr;
 }
+
+} // namespace llvmapi

@@ -4,6 +4,8 @@
 #include "types.h"
 #include <llvm/IR/Verifier.h>
 
+using namespace llvmapi;
+
 namespace {
 
 llvm::Value *generateFunctionBody(Ast &ast, CodegenContext &context) {
@@ -18,6 +20,8 @@ llvm::Value *generateFunctionBody(Ast &ast, CodegenContext &context) {
 }
 
 } // namespace
+
+namespace llvmapi {
 
 llvm::Function *generateFunctionPrototype(Ast &ast, CodegenContext &context) {
     auto astArgs = [&] {
@@ -126,3 +130,5 @@ llvm::Function *generateExternFunction(Ast &ast, CodegenContext &context) {
 
     return function;
 }
+
+} // namespace llvmapi

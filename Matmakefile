@@ -5,9 +5,9 @@ core
   command = [static]
   src =
     src/*.cpp
-    src/codegen/*.cpp
-    src/code/*.cpp
+    src/codegen/llvmapi/*.cpp
     src/modules/*.cpp
+    src/code/*.cpp
 
 parser_test
   out = parser_test

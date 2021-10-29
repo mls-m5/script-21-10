@@ -21,20 +21,11 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetOptions.h>
-//#include <algorithm>
-//#include <cassert>
-//#include <cctype>
-//#include <cstdio>
-//#include <cstdlib>
-//#include <map>
-//#include <memory>
-//#include <string>
-//#include <system_error>
-//#include <utility>
-//#include <vector>
 
 // For more info, checkout
 // https://github.com/llvm/llvm-project/blob/main/llvm/examples/Kaleidoscope/Chapter8/toy.cpp
+
+namespace llvmapi {
 
 void writeObjectFile(CodegenContext &context, std::filesystem::path path) {
     //    llvm::InitializeModuleAndPassManager(); // Could not find
@@ -85,3 +76,5 @@ void writeObjectFile(CodegenContext &context, std::filesystem::path path) {
     pass.run(*context.module);
     file.flush();
 }
+
+} // namespace llvmapi

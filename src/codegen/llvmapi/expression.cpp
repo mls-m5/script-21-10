@@ -4,6 +4,8 @@
 #include "struct.h"
 #include "types.h"
 
+using namespace llvmapi;
+
 namespace {
 
 llvm::Value *createLlvmBinaryExpression(Ast &op,
@@ -232,6 +234,8 @@ llvm::Value *generateStringConstant(Ast &ast, CodegenContext &context) {
 
 } // namespace
 
+namespace llvmapi {
+
 llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
     switch (ast.type) {
     case Token::IntLiteral:
@@ -265,3 +269,5 @@ llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
                                 std::string{name(ast.type)}};
     }
 }
+
+} // namespace llvmapi

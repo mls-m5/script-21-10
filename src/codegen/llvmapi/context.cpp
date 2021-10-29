@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <llvm/IR/Function.h>
 
+namespace llvmapi {
+
 llvm::AllocaInst *createEntryBlockAlloca(llvm::Function &function,
                                          llvm::StringRef varName,
                                          llvm::Type *type) {
@@ -25,3 +27,5 @@ Struct *Scope::getStruct(std::string_view name) {
 void Scope::setStruct(std::string_view name, Struct s) {
     customTypes[std::string{name}] = std::move(s);
 }
+
+} // namespace llvmapi

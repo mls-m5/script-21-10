@@ -3,6 +3,8 @@
 #include "function.h"
 #include "struct.h"
 
+namespace llvmapi {
+
 void generateModuleStatement(Ast &ast, CodegenContext &context) {}
 
 void generateModuleCode(Ast &ast, CodegenContext &context) {
@@ -31,3 +33,5 @@ void generateModuleCode(Ast &ast, CodegenContext &context) {
         }
     }
 }
+
+} // namespace llvmapi

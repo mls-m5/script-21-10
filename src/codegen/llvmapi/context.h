@@ -7,6 +7,8 @@
 #include <map>
 #include <memory>
 
+namespace llvmapi {
+
 struct Struct {
     struct StructMember {
         Token name;
@@ -103,3 +105,5 @@ struct PushValue {
 llvm::AllocaInst *createEntryBlockAlloca(llvm::Function &function,
                                          llvm::StringRef varName,
                                          llvm::Type *type);
+
+} // namespace llvmapi
