@@ -31,6 +31,10 @@ int main(int argc, char **argv) {
 
     auto files = findModuleFiles("log");
     auto builtInFilename = std::filesystem::path{"scripts/builtin.msk"};
+    if (!filesystem::exists(builtInFilename)) {
+        // Todo: Obviously create some better handling for this
+        builtInFilename = "builtin.msk";
+    }
     files.insert(files.begin(), builtInFilename);
 
     // log(ast);

@@ -206,6 +206,30 @@ llvm::Value *generateVariableLoad(llvm::Value *pointer,
     return load;
 }
 
+llvm::Value *generateStringConstant(Ast &ast, CodegenContext &context) {
+    auto str = ast.token.content;
+    // Strip surrounding ""
+    str.remove_prefix(1);
+    str.remove_suffix(1);
+    auto stringConstant =
+        context.builder.CreateGlobalString(str, "stringConstant");
+    stringConstant->setLinkage(llvm::GlobalValue::LinkageTypes::PrivateLinkage);
+    // stringConstant->setGlobalObjectSubClassData
+    // auto size = context.module->getDataLayout().getTypeSizeInBits(
+    //                 stringConstant->getType()) /
+    //             8;
+
+    // auto firstElement = context.builder.CreateConstGEP1_32(
+    //     stringConstant->getType(), stringConstant, 0, "strgep");
+
+    auto cast =
+        context.builder.CreateCast(llvm::Instruction::CastOps::BitCast,
+                                   stringConstant,
+                                   llvm::Type::getInt8PtrTy(context.context),
+                                   "cast");
+    return cast;
+}
+
 } // namespace
 
 llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
@@ -233,6 +257,8 @@ llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
     case Token::ValueMemberAccessor:
         return generateVariableLoad(generateMemberAccessor(ast, context),
                                     context);
+    case Token::String:
+        return generateStringConstant(ast, context);
     default:
         throw InternalError{ast.token,
                             "Could not create expression of type " +

@@ -2,6 +2,7 @@
 #include "code/parser.h"
 #include "expression.h"
 #include "types.h"
+#include "llvm/IR/DerivedTypes.h"
 
 llvm::Type *generateStructDeclaration(Ast &ast, CodegenContext &context) {
     auto s = Struct{};
@@ -16,6 +17,9 @@ llvm::Type *generateStructDeclaration(Ast &ast, CodegenContext &context) {
         auto &nameAst = child.get(Token::Name);
         auto &typeAst = child.getRecursive(Token::TypeName);
         auto type = getType(typeAst.token, context);
+        if (isPointer) {
+            type = llvm::PointerType::get(type, 0);
+        }
         auto newMember = Struct::StructMember{nameAst.token, type};
         s.members.push_back(newMember);
     };

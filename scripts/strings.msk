@@ -1,10 +1,8 @@
 
 module strings
 
-func f(text str) {
-    text.len
-}
 
 func main() {
-   f("hello")
+    "hello"
 }
+
