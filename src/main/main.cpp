@@ -1,5 +1,6 @@
 #include "code/parser.h"
 #include "codegen/cpp/module.h"
+#include "codegen/cpp/writeoutputfile.h"
 #include "codegen/llvmapi/codegen.h"
 #include "codegen/llvmapi/import.h"
 #include "codegen/llvmapi/writeobjectfile.h"
@@ -73,6 +74,8 @@ int handleCpp(filesystem::path out,
     cpp::generateModule(ast, context);
 
     context.dumpCpp(std::cout);
+
+    cpp::writeOutputFile(context, out);
 
     return 1;
 }

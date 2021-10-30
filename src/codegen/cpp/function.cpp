@@ -29,7 +29,7 @@ FunctionPrototype &generateFunctionProototype(Ast &ast, Context context) {
 void generateFunctionDeclaration(Ast &ast, Context &context) {
     auto &function = generateFunctionProototype(ast, context);
     auto block =
-        Block{"void " + std::string{function.name} + "()", function.location};
+        Block{"int " + std::string{function.name} + "()", function.location};
     auto it = context.insert(std::move(block));
 
     auto oldInsertPoint =
