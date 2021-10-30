@@ -14,11 +14,15 @@ void Block::dump(std::ostream &stream, int indentSize) const {
     indent(indentSize) << content << "\n";
 
     if (!lines.empty()) {
-        indent(indentSize) << "{\n";
+        if (indentSize > 0) {
+            indent(indentSize) << "{\n";
+        }
         for (auto &line : lines) {
             line.dump(stream, indentSize + 1);
         }
-        indent(indentSize) << "}\n";
+        if (indentSize > 0) {
+            indent(indentSize) << "}\n";
+        }
     }
 }
 
