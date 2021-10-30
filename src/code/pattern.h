@@ -93,4 +93,4 @@ struct EqualPriorityPatterns {
 using Patterns = std::vector<EqualPriorityPatterns>;
 
 // Apply patterns to ast and group accordincly
-void group(Ast &ast, const Patterns &patterns);
+void group(Ast &ast, const Patterns &patterns, bool isRecursive = false);

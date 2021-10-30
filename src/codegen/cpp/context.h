@@ -2,6 +2,7 @@
 
 #include "code/token.h"
 #include "function.h"
+#include "value.h"
 #include <filesystem>
 #include <iosfwd>
 #include <list>
@@ -31,11 +32,6 @@ struct Block {
     void dump(std::ostream &stream, int indent = 0) const;
 };
 
-struct Value {
-    // Reference if you want to use the value
-    std::string name;
-};
-
 struct Type {
     std::string name;
 
@@ -49,6 +45,7 @@ struct Variable {
         Struct,
     };
 
+    std::string name;
     Type type = Value;
 };
 
@@ -66,6 +63,9 @@ struct Context {
 
     Context(std::filesystem::path filename);
 
+    Context(Context &) = delete;
+    Context &operator=(Context &) = delete;
+
     std::string generateName(std::string_view base);
 
     InsertPoint insert(Block);
@@ -75,20 +75,25 @@ struct Context {
     Type *getType(std::string_view name);
     Variable *getVariable(std::string_view name);
     void setVariable(std::string name, Variable);
-    std::list<FunctionPrototype>::iterator addFunctionPrototype(
-        FunctionPrototype);
 
     // Set and return the old point
     InsertPoint setInsertPoint(InsertPoint it);
 
     std::string generateId(std::string base = "");
 
+    void pushVariable(Variable var);
+
+    // ALways do this in the reverse order
+    void popVariable(std::string name);
+
+    std::map<std::string, FunctionPrototype> functions;
+
 private:
     InsertPoint _insertPoint = InsertPoint{&root, root.lines.end()};
 
     std::vector<Type> _builtInTypes;
     std::map<std::string, Variable> _variables;
-    std::list<FunctionPrototype> _functions;
+    std::vector<Variable> _variableStack;
     std::list<Type> _types;
     size_t _lastId = 0;
 };

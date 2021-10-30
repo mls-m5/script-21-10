@@ -23,6 +23,14 @@ Value generateBinaryOperation(Ast &ast, Context &context) {
     return {id};
 }
 
+Value generateVariableExpression(Ast &ast, Context &context) {
+    if (auto variable = context.getVariable(ast.token.toString())) {
+        return {variable->name};
+    }
+    throw InternalError{
+        ast.token, "Variable with name " + ast.token.toString() + " not found"};
+}
+
 } // namespace
 
 namespace cpp {
@@ -33,6 +41,11 @@ Value generateExpression(Ast &ast, Context &context) {
         return generateIntLiteral(ast, context);
     case Token::BinaryOperation:
         return generateBinaryOperation(ast, context);
+    case Token::Word:
+        return generateVariableExpression(ast, context);
+    case Token::FunctionCall:
+        return generateFunctionCall(ast, context);
+
     default:
         throw InternalError{ast.token,
                             "Could not create expression of type " +

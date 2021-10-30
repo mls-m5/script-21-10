@@ -1,6 +1,7 @@
 #pragma once
 
 #include "code/ast.h"
+#include "value.h"
 #include <string>
 #include <vector>
 
@@ -21,8 +22,10 @@ struct FunctionPrototype {
     std::vector<Arg> args;
 };
 
-FunctionPrototype &generateFunctionProototype(Ast &ast, Context context);
+FunctionPrototype generateFunctionProototype(Ast &ast, Context &context);
 
 void generateFunctionDeclaration(Ast &ast, Context &context);
+
+Value generateFunctionCall(Ast &ast, Context &context);
 
 } // namespace cpp

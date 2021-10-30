@@ -69,15 +69,23 @@ int handleCpp(filesystem::path out,
 
     log(ast);
 
+    groupStandard(ast, true);
+
     auto context = cpp::Context{filename};
 
-    cpp::generateModule(ast, context);
+    try {
+        cpp::generateModule(ast, context);
+        context.dumpCpp(std::cout);
+        cpp::writeOutputFile(context, out);
+    }
+    catch (InternalError &e) {
+        log(ast);
+        context.dumpCpp(std::cout);
+        std::cout << "error: " << e.what() << std::endl;
+        return 1;
+    }
 
-    context.dumpCpp(std::cout);
-
-    cpp::writeOutputFile(context, out);
-
-    return 1;
+    return 0;
 }
 
 auto standardImports() {

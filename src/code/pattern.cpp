@@ -58,6 +58,10 @@ std::pair<Ast, size_t> group(Ast ast, const Pattern &pattern, size_t index) {
             if (!p.context(ast)) {
                 continue;
             }
+            if (p.result == ast.type) {
+                // Do not group the same thing again
+                continue;
+            }
             if (!(i + p.matchers.size() <= ast.size())) {
                 // If patterns are different size we need to check for length
                 continue;
@@ -79,7 +83,7 @@ std::pair<Ast, size_t> group(Ast ast, const Pattern &pattern, size_t index) {
     return ast;
 }
 
-void verify(const Ast &ast) {
+[[maybe_unused]] void verify(const Ast &ast) {
     for (auto &child : ast) {
         if (!child.token.content.empty() && !child.token.buffer) {
             throw std::runtime_error{"Invalid ast when grouping"};
@@ -91,8 +95,13 @@ void verify(const Ast &ast) {
 
 } // namespace
 
-void group(Ast &ast, const Patterns &patterns) {
-    if (ast.isGrouped) {
+void group(Ast &ast, const Patterns &patterns, bool isRecursive) {
+    if (ast.isGrouped && !isRecursive) {
+        return;
+    }
+
+    if (ast.size() < 2) {
+        // Nothing to group
         return;
     }
 
@@ -106,6 +115,12 @@ void group(Ast &ast, const Patterns &patterns) {
         }
         else {
             throw std::runtime_error{"group from right not implemented yet"};
+        }
+    }
+
+    if (isRecursive) {
+        for (auto &child : ast) {
+            group(child, patterns, isRecursive);
         }
     }
 

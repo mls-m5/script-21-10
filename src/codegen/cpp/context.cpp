@@ -60,12 +60,6 @@ Variable *Context::getVariable(std::string_view name) {
     return nullptr;
 }
 
-decltype(Context::_functions)::iterator Context::addFunctionPrototype(
-    FunctionPrototype function) {
-    _functions.push_back(std::move(function));
-    return --_functions.end();
-}
-
 Context::InsertPoint Context::setInsertPoint(InsertPoint it) {
     return std::exchange(_insertPoint, it);
 }
@@ -75,6 +69,26 @@ std::string Context::generateId(std::string base) {
         return "tmp" + std::to_string(_lastId++);
     }
     return std::string{base} + std::to_string(_lastId++);
+}
+
+void Context::pushVariable(Variable var) {
+    if (auto f = _variables.find(var.name); f != _variables.end()) {
+        _variableStack.emplace_back(std::move(f->second));
+        f->second = std::move(var);
+    }
+    else {
+        _variables[var.name] = var;
+    }
+}
+
+void Context::popVariable(std::string name) {
+    if (!_variableStack.empty() && _variableStack.back().name == name) {
+        _variables[name] = _variableStack.back();
+        _variableStack.pop_back();
+    }
+    else {
+        _variables.erase(name);
+    }
 }
 
 } // namespace cpp

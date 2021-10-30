@@ -7,4 +7,4 @@
 [[nodiscard]] Ast parse(std::string code);
 [[nodiscard]] Ast parse(std::shared_ptr<Buffer> buffer);
 
-void groupStandard(Ast &ast);
+void groupStandard(Ast &ast, bool isRecursive = false);

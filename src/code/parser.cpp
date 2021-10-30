@@ -97,8 +97,8 @@ Ast parse(Tokens tokens) {
     return ast;
 }
 
-void groupStandard(Ast &ast) {
-    group(ast, getStandardPatterns());
+void groupStandard(Ast &ast, bool isRecursive) {
+    group(ast, getStandardPatterns(), isRecursive);
 }
 
 Ast parse(std::string source) {
