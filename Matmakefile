@@ -6,6 +6,7 @@ core
   src =
     src/*.cpp
     src/codegen/llvmapi/*.cpp
+    src/codegen/cpp/*.cpp
     src/modules/*.cpp
     src/code/*.cpp
 

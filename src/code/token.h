@@ -5,6 +5,11 @@
 #include <string_view>
 #include <vector>
 
+struct TokenLocation {
+    int row = 0;
+    int col = 0;
+};
+
 struct Token {
     enum Type {
         // Early constants used by lexer
@@ -78,6 +83,9 @@ struct Token {
     std::string_view content;
     std::string_view before;
     std::string_view after;
+    TokenLocation loc;
+
+    static constexpr TokenLocation nloc = {-1, -1};
 
     Type type = None;
 
@@ -85,7 +93,7 @@ struct Token {
         return after.find('\n') != std::string_view::npos;
     }
 
-    std::string toString() {
+    std::string toString() const {
         return std::string{content};
     }
 };
