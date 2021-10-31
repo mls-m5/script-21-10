@@ -67,9 +67,9 @@ int handleCpp(filesystem::path out,
               const std::vector<filesystem::path> &files) {
     auto ast = loadAstFromFile(filename);
 
-    log(ast);
-
     groupStandard(ast, true);
+
+    log(ast);
 
     auto context = cpp::Context{filename};
 

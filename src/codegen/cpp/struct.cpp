@@ -17,7 +17,7 @@ Struct::Struct(Ast &ast, Context &context) {
 
         if (!type) {
             throw InternalError{typeAst.token,
-                                "could not find member of name " +
+                                "could not find member type of name " +
                                     typeAst.token.toString()};
         }
         member.type = type;

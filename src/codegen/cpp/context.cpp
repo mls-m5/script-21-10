@@ -30,7 +30,9 @@ Context::Context(std::filesystem::path filename)
     : filename(filename)
     , root{Token{}} {
 
+    // Built in types
     _types.push_back({"int"});
+    _types.push_back({"float"});
 }
 
 Context::InsertPoint Context::insert(Block line) {

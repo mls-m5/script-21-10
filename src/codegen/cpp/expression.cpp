@@ -64,17 +64,23 @@ Value generateVariableDeclaration(Ast &ast, Context &context) {
     return {name};
 }
 
-Value generateStructInitializer(Ast &ast, Context &) {
+Value generateStructInitializer(Ast &ast, Context &context) {
     if (!ast.empty()) {
         auto list = flattenList(ast.back().front());
 
         std::ostringstream ss;
 
-        ss << ast.front().token.toString() << "{\n";
+        ss << ast.front().token.toString() << "{ ";
         for (auto &member : list) {
-            ss << member->token.toString() << ",\n";
+            if (member->type == Token::Assignment) {
+                ss << "." << member->front().token.toString() << "="
+                   << generateExpression(member->back(), context).name << ", ";
+            }
+            else {
+                ss << generateExpression(*member, context).name << ", ";
+            }
         }
-        ss << "}";
+        ss << " }";
         return {ss.str()};
     }
 
