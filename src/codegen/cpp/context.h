@@ -8,6 +8,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <variant>
 
 namespace cpp {
 
@@ -35,6 +36,8 @@ struct Block {
 struct Type {
     std::string name;
 
+    struct Struct *structPtr = nullptr;
+
     bool isStruct = false;
 };
 
@@ -47,6 +50,18 @@ struct Variable {
 
     std::string name;
     Type type = Value;
+    bool isPointer = false;
+
+    bool isStruct() {
+        return ptr.index() == 1;
+    }
+
+    bool isValue() {
+        return ptr.index() == 2;
+    }
+
+    // Void is just to have some unused type
+    std::variant<void *, struct Struct *, Type *> ptr = {};
 };
 
 struct Context {
@@ -95,6 +110,7 @@ private:
     std::map<std::string, Variable> _variables;
     std::vector<Variable> _variableStack;
     std::list<Type> _types;
+    //    std::map<std::string, Struct> _structs;
     size_t _lastId = 0;
 };
 

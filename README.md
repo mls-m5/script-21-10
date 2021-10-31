@@ -3,6 +3,9 @@ Somtimes a man just needs to create a programming language.
 
 The goal would be something like this:
 
+Btw. Don't look in this repository for hints on how to code. The code is a mess
+and has degraded the latest commits.
+
 ```c++
 
 // str is reference type of String
