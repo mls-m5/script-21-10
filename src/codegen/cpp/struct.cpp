@@ -9,24 +9,20 @@ Struct::Struct(Ast &ast, Context &context) {
 
     auto &bodyAst = ast.get(Token::StructBody);
 
-    if (!bodyAst.empty()) {
-        auto memberAsts = flattenList(bodyAst.front());
+    for (auto &memberAst : bodyAst) {
+        auto &typeAst = memberAst.get(Token::TypeName);
+        auto type = context.getType(typeAst.token.toString());
 
-        for (auto memberAst : memberAsts) {
-            auto &typeAst = memberAst->get(Token::TypeName);
-            auto type = context.getType(typeAst.token.toString());
+        auto &member = members.emplace_back();
 
-            auto &member = members.emplace_back();
-
-            if (!type) {
-                throw InternalError{typeAst.token,
-                                    "could not find member of name " +
-                                        typeAst.token.toString()};
-            }
-            member.type = type;
-
-            member.name = memberAst->get(Token::Name).token.toString();
+        if (!type) {
+            throw InternalError{typeAst.token,
+                                "could not find member of name " +
+                                    typeAst.token.toString()};
         }
+        member.type = type;
+
+        member.name = memberAst.get(Token::Name).token.toString();
     }
 }
 

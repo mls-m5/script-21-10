@@ -147,6 +147,13 @@ Value generateAssignment(Ast &ast, Context &context) {
     return value;
 }
 
+Value generateValueMemberAccessor(Ast &ast, Context &) {
+    auto &lhs = ast.front();
+    auto &rhs = ast.back();
+
+    return {lhs.token.toString() + "." + rhs.token.toString()};
+}
+
 } // namespace
 
 namespace cpp {
@@ -165,6 +172,8 @@ Value generateExpression(Ast &ast, Context &context) {
         return generateAssignment(ast, context);
     case Token::StructInitializer:
         return generateStructInitializer(ast, context);
+    case Token::ValueMemberAccessor:
+        return generateValueMemberAccessor(ast, context);
 
     default:
         throw InternalError{ast.token,
