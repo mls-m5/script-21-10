@@ -2,6 +2,7 @@
 
 #include "code/token.h"
 #include "function.h"
+#include "struct.h"
 #include "value.h"
 #include <filesystem>
 #include <iosfwd>
@@ -37,8 +38,6 @@ struct Type {
     std::string name;
 
     struct Struct *structPtr = nullptr;
-
-    bool isStruct = false;
 };
 
 struct Variable {
@@ -88,6 +87,8 @@ struct Context {
     void dumpCpp(std::ostream &stream) const;
 
     Type *getType(std::string_view name);
+    void setType(Type type);
+    void setStruct(Struct s);
     Variable *getVariable(std::string_view name);
     void setVariable(std::string name, Variable);
 
@@ -110,8 +111,8 @@ private:
     std::map<std::string, Variable> _variables;
     std::vector<Variable> _variableStack;
     std::list<Type> _types;
-    //    std::map<std::string, Struct> _structs;
     size_t _lastId = 0;
+    std::map<std::string, Struct> _structs;
 };
 
 } // namespace cpp

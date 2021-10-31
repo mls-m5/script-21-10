@@ -28,7 +28,10 @@ void Block::dump(std::ostream &stream, int indentSize) const {
 
 Context::Context(std::filesystem::path filename)
     : filename(filename)
-    , root{Token{}} {}
+    , root{Token{}} {
+
+    _types.push_back({"int"});
+}
 
 Context::InsertPoint Context::insert(Block line) {
     auto it =
@@ -50,6 +53,16 @@ Type *Context::getType(std::string_view name) {
     }
 
     return nullptr;
+}
+
+void Context::setType(Type type) {
+    _types.push_back(std::move(type));
+}
+
+void Context::setStruct(Struct s) {
+    auto name = s.name;
+    auto &sref = _structs[name] = std::move(s);
+    _types.push_back(Type{name, &sref});
 }
 
 Variable *Context::getVariable(std::string_view name) {

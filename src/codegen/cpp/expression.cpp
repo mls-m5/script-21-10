@@ -63,6 +63,24 @@ Value generateVariableDeclaration(Ast &ast, Context &context) {
 
     return {name};
 }
+
+Value generateStructInitializer(Ast &ast, Context &) {
+    if (!ast.empty()) {
+        auto list = flattenList(ast.back().front());
+
+        std::ostringstream ss;
+
+        ss << ast.front().token.toString() << "{\n";
+        for (auto &member : list) {
+            ss << member->token.toString() << ",\n";
+        }
+        ss << "}";
+        return {ss.str()};
+    }
+
+    return {"{}"};
+}
+
 Value generateAssignment(Ast &ast, Context &context) {
     auto &lhs = ast.front();
 
@@ -145,6 +163,8 @@ Value generateExpression(Ast &ast, Context &context) {
         return generateFunctionCall(ast, context);
     case Token::Assignment:
         return generateAssignment(ast, context);
+    case Token::StructInitializer:
+        return generateStructInitializer(ast, context);
 
     default:
         throw InternalError{ast.token,

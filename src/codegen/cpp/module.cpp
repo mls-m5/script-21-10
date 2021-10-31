@@ -1,4 +1,5 @@
 #include "module.h"
+#include "struct.h"
 
 namespace cpp {
 
@@ -9,7 +10,10 @@ void generateRootNode(Ast &ast, Context &context) {
         break;
     case Token::FunctionDeclaration:
         generateFunctionDeclaration(ast, context);
+        break;
 
+    case Token::StructDeclaration:
+        generateStructDeclaration(ast, context);
         break;
     default:
         throw InternalError{
