@@ -4,32 +4,9 @@
 #include "expression.h"
 #include <sstream>
 
-namespace cpp {
+using namespace cpp;
 
-FunctionPrototype::FunctionPrototype(Ast &ast) {
-    name = ast.get(Token::Name).token.toString();
-
-    auto astArgs = [&] {
-        auto &astParentheses = ast.get(Token::FunctionArguments);
-        groupStandard(astParentheses);
-        return astParentheses.empty() ? std::vector<Ast *>{}
-                                      : flattenList(astParentheses.front());
-    }();
-
-    for (auto *astArg : astArgs) {
-        auto &nameAst = astArg->get(Token::Name);
-        auto &typeAst = astArg->get(Token::TypeName);
-        args.push_back({nameAst.token.toString(), typeAst.token.toString()});
-    }
-}
-
-FunctionPrototype generateFunctionProototype(Ast &ast, Context &context) {
-    auto function = FunctionPrototype{ast};
-
-    context.functions.emplace(function.name, function);
-
-    return function;
-}
+namespace {
 
 std::string joinComa(const std::vector<FunctionPrototype::Arg> &args) {
     std::ostringstream ss;
@@ -46,14 +23,58 @@ std::string joinComa(const std::vector<FunctionPrototype::Arg> &args) {
     return s;
 }
 
+} // namespace
+
+namespace cpp {
+
+FunctionPrototype::FunctionPrototype(Ast &ast, bool shouldDisableMangling) {
+    name = ast.get(Token::Name).token.toString();
+    this->shouldDisableMangling = shouldDisableMangling;
+
+    auto astArgs = [&] {
+        auto &astParentheses = ast.get(Token::FunctionArguments);
+        groupStandard(astParentheses);
+        return astParentheses.empty() ? std::vector<Ast *>{}
+                                      : flattenList(astParentheses.front());
+    }();
+
+    for (auto *astArg : astArgs) {
+        auto &nameAst = astArg->get(Token::Name);
+        auto &typeAst = astArg->get(Token::TypeName);
+        args.push_back({nameAst.token.toString(), typeAst.token.toString()});
+    }
+}
+
+std::string FunctionPrototype::signature() {
+    auto ss = std::ostringstream{};
+
+    if (shouldDisableMangling) {
+        ss << "extern \"C\" ";
+    }
+
+    ss << "int " + std::string{name};
+
+    ss << "(" << joinComa(args) << ")";
+
+    return ss.str();
+}
+
+FunctionPrototype generateFunctionProototype(Ast &ast,
+                                             Context &context,
+                                             bool shouldDisableMangling) {
+    auto function = FunctionPrototype{ast, shouldDisableMangling};
+
+    context.functions.emplace(function.name, function);
+
+    return function;
+}
+
 void generateFunctionDeclaration(Ast &ast, Context &context) {
     auto function = generateFunctionProototype(ast, context);
 
     std::ostringstream ss;
 
-    ss << "int " + std::string{function.name};
-
-    ss << "(" << joinComa(function.args) << ")";
+    ss << function.signature();
 
     auto block = Block{ss.str(), function.location};
     auto it = context.insert(std::move(block));

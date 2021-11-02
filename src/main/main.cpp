@@ -74,6 +74,11 @@ int handleCpp(filesystem::path out,
     auto context = cpp::Context{filename};
 
     try {
+        //        for (auto file : files) {
+        //            log("importing ", file);
+        //            auto ast = loadAstFromFile(file);
+        //            cpp::importModule(ast, context, file.stem() == "builtin");
+        //        }
         cpp::generateModule(ast, context);
         context.dumpCpp(std::cout);
         cpp::writeOutputFile(context, out);

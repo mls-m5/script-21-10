@@ -1,7 +1,7 @@
 
 module extern_test
 
-extern func log_putc(x int)
+extern "C" func log_putc(x int)
 
 func main() {
     log_putc(72)

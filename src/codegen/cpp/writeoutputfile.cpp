@@ -21,8 +21,9 @@ void cpp::writeOutputFile(Context &context, std::filesystem::path path) {
 
     {
         std::cout << "linking..." << std::endl;
+        auto nativeLib = " scripts/lib.cpp ";
         auto command = "g++ -o " + (path.parent_path() / path.stem()).string() +
-                       " " + path.string();
+                       " " + nativeLib + path.string();
 
         std::cout << command << std::endl;
         system(command.c_str());

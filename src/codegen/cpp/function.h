@@ -15,14 +15,18 @@ struct FunctionPrototype {
         std::string type; // Todo: Handle other types
     };
 
-    FunctionPrototype(Ast &ast);
+    FunctionPrototype(Ast &ast, bool shouldDisableMangling);
 
+    std::string signature();
+
+    bool shouldDisableMangling = false;
     std::string name;
     TokenLocation location;
     std::vector<Arg> args;
 };
 
-FunctionPrototype generateFunctionProototype(Ast &ast, Context &context);
+FunctionPrototype generateFunctionProototype(
+    Ast &ast, Context &context, bool shouldDisableMangling = false);
 
 void generateFunctionDeclaration(Ast &ast, Context &context);
 
