@@ -1,5 +1,5 @@
 
-module main
+module simplefunctions
 
 func add(x int, y int) {
    x + y

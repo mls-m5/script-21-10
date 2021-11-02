@@ -11,12 +11,14 @@ void generateExternDeclaration(Ast &ast, Context &context) {
 
     if (declAst.type == Token::FunctionPrototype) {
         auto prototype =
-            generateFunctionProototype(declAst, context, shouldDisableMangling);
-        context.insert({prototype.signature() + ";", ast.front().token.loc});
+            generateFunctionPrototype(declAst, context, shouldDisableMangling);
+        context.insert({prototype.signature(context.moduleName) + ";",
+                        ast.front().token.loc});
     }
 }
 
 void generateRootNode(Ast &ast, Context &context) {
+
     switch (ast.type) {
     case Token::ModuleStatement:
         // Handled elsewhere
@@ -40,6 +42,21 @@ void generateRootNode(Ast &ast, Context &context) {
 }
 
 void generateModule(Ast &ast, Context &context) {
+    if (ast.empty()) {
+        return;
+    }
+
+    if (ast.front().type != Token::ModuleStatement) {
+        throw InternalError{ast.token,
+                            "Expected module statement at beginning of file" +
+                                std::string{name(ast.type)}};
+    }
+
+    auto &moduleStatement = ast.front();
+    auto &moduleName = moduleStatement.get(Token::Name);
+
+    context.moduleName = moduleName.token.content;
+
     for (auto &child : ast) {
         generateRootNode(child, context);
     }

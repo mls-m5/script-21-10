@@ -1,4 +1,5 @@
 
+module simplestructs
 
 struct Apa {
    x int

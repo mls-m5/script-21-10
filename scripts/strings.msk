@@ -1,8 +1,11 @@
 
 module strings
 
+func hello() {
+    "hello"
+}
 
 func main() {
-    "hello"
+    hello().len
 }
 

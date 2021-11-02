@@ -1,5 +1,5 @@
 
 export struct str {
-    data int8*
-    len size_t 
+    data uint8*
+    len size_t
 }

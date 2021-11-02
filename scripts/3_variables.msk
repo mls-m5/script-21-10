@@ -1,5 +1,5 @@
 
-module main
+module variables
 
 func main() {
    let x int = 10

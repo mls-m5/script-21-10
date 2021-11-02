@@ -73,6 +73,9 @@ struct Context {
 
     std::filesystem::path filename;
 
+    // Used to add prefixes to function and type names
+    std::string moduleName;
+
     Block root;
 
     Context(std::filesystem::path filename);

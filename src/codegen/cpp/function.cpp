@@ -45,23 +45,45 @@ FunctionPrototype::FunctionPrototype(Ast &ast, bool shouldDisableMangling) {
     }
 }
 
-std::string FunctionPrototype::signature() {
+std::string FunctionPrototype::signature(std::string_view moduleName) {
     auto ss = std::ostringstream{};
 
-    if (shouldDisableMangling) {
-        ss << "extern \"C\" ";
+    auto isMain = name == "main";
+
+    if (!isMain) {
+        if (shouldDisableMangling) {
+            ss << "extern \"C\" ";
+        }
+        else {
+            ss << "static ";
+        }
     }
 
-    ss << "int " + std::string{name};
+    // Todo: Implement return type
+    ss << "int ";
+
+    ss << mangledName(moduleName);
 
     ss << "(" << joinComa(args) << ")";
 
     return ss.str();
 }
 
-FunctionPrototype generateFunctionProototype(Ast &ast,
-                                             Context &context,
-                                             bool shouldDisableMangling) {
+std::string FunctionPrototype::mangledName(std::string_view moduleName) {
+    auto ss = std::ostringstream{};
+
+    if (!shouldDisableMangling && !moduleName.empty() && name != "main") {
+        ss << moduleName << "_";
+    }
+
+    ss << name;
+
+    return ss.str();
+}
+
+FunctionPrototype generateFunctionPrototype(Ast &ast,
+                                            Context &context,
+                                            bool shouldDisableMangling) {
     auto function = FunctionPrototype{ast, shouldDisableMangling};
 
     context.functions.emplace(function.name, function);
@@ -70,11 +92,11 @@ FunctionPrototype generateFunctionProototype(Ast &ast,
 }
 
 void generateFunctionDeclaration(Ast &ast, Context &context) {
-    auto function = generateFunctionProototype(ast, context);
+    auto function = generateFunctionPrototype(ast, context);
 
     std::ostringstream ss;
 
-    ss << function.signature();
+    ss << function.signature(context.moduleName);
 
     auto block = Block{ss.str(), function.location};
     auto it = context.insert(std::move(block));

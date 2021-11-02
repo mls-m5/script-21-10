@@ -1,3 +1,4 @@
+#pragma once
 
 #include "code/ast.h"
 #include "context.h"

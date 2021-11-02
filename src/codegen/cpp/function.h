@@ -17,7 +17,9 @@ struct FunctionPrototype {
 
     FunctionPrototype(Ast &ast, bool shouldDisableMangling);
 
-    std::string signature();
+    std::string signature(std::string_view moduleName);
+
+    std::string mangledName(std::string_view moduleName);
 
     bool shouldDisableMangling = false;
     std::string name;
@@ -25,8 +27,9 @@ struct FunctionPrototype {
     std::vector<Arg> args;
 };
 
-FunctionPrototype generateFunctionProototype(
-    Ast &ast, Context &context, bool shouldDisableMangling = false);
+FunctionPrototype generateFunctionPrototype(Ast &ast,
+                                            Context &context,
+                                            bool shouldDisableMangling = false);
 
 void generateFunctionDeclaration(Ast &ast, Context &context);
 
