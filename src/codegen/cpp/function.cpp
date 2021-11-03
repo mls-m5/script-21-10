@@ -27,9 +27,17 @@ std::string joinComa(const std::vector<FunctionPrototype::Arg> &args) {
 
 namespace cpp {
 
-FunctionPrototype::FunctionPrototype(Ast &ast, bool shouldDisableMangling) {
+FunctionPrototype::FunctionPrototype(Ast &ast,
+                                     std::string_view moduleName,
+                                     bool shouldDisableMangling)
+    : shouldDisableMangling(shouldDisableMangling)
+    , moduleName(moduleName) {
+
+    if (shouldDisableMangling) {
+        this->moduleName = "";
+    }
+
     name = ast.get(Token::Name).token.toString();
-    this->shouldDisableMangling = shouldDisableMangling;
 
     auto astArgs = [&] {
         auto &astParentheses = ast.get(Token::FunctionArguments);
@@ -45,7 +53,7 @@ FunctionPrototype::FunctionPrototype(Ast &ast, bool shouldDisableMangling) {
     }
 }
 
-std::string FunctionPrototype::signature(std::string_view moduleName) {
+std::string FunctionPrototype::signature() {
     auto ss = std::ostringstream{};
 
     auto isMain = name == "main";
@@ -62,14 +70,14 @@ std::string FunctionPrototype::signature(std::string_view moduleName) {
     // Todo: Implement return type
     ss << "int ";
 
-    ss << mangledName(moduleName);
+    ss << mangledName();
 
     ss << "(" << joinComa(args) << ")";
 
     return ss.str();
 }
 
-std::string FunctionPrototype::mangledName(std::string_view moduleName) {
+std::string FunctionPrototype::mangledName() {
     auto ss = std::ostringstream{};
 
     if (!shouldDisableMangling && !moduleName.empty() && name != "main") {
@@ -81,12 +89,17 @@ std::string FunctionPrototype::mangledName(std::string_view moduleName) {
     return ss.str();
 }
 
+std::string FunctionPrototype::localName() {
+    return name;
+}
+
 FunctionPrototype generateFunctionPrototype(Ast &ast,
                                             Context &context,
                                             bool shouldDisableMangling) {
-    auto function = FunctionPrototype{ast, shouldDisableMangling};
+    auto function =
+        FunctionPrototype{ast, context.moduleName, shouldDisableMangling};
 
-    context.functions.emplace(function.name, function);
+    context.functions.emplace(function.localName(), function);
 
     return function;
 }
@@ -96,7 +109,7 @@ void generateFunctionDeclaration(Ast &ast, Context &context) {
 
     std::ostringstream ss;
 
-    ss << function.signature(context.moduleName);
+    ss << function.signature();
 
     auto block = Block{ss.str(), function.location};
     auto it = context.insert(std::move(block));
@@ -170,7 +183,7 @@ Value generateFunctionCall(Ast &ast, Context &context) {
             argsString.pop_back();
         }
 
-        context.insert({"auto " + id + " = " + name.token.toString() + "(" +
+        context.insert({"auto " + id + " = " + f->second.mangledName() + "(" +
                             argsString + ");",
                         name.token.loc});
 

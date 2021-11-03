@@ -15,16 +15,24 @@ struct FunctionPrototype {
         std::string type; // Todo: Handle other types
     };
 
-    FunctionPrototype(Ast &ast, bool shouldDisableMangling);
+    // @param moduleName is not used if shouldDisableMangling is true
+    FunctionPrototype(Ast &ast,
+                      std::string_view moduleName,
+                      bool shouldDisableMangling);
 
-    std::string signature(std::string_view moduleName);
+    std::string signature();
 
-    std::string mangledName(std::string_view moduleName);
+    std::string mangledName();
+
+    //! When a function is part of the current translation module or if a module
+    //! is imported without module name
+    std::string localName();
 
     bool shouldDisableMangling = false;
     std::string name;
     TokenLocation location;
     std::vector<Arg> args;
+    std::string moduleName;
 };
 
 FunctionPrototype generateFunctionPrototype(Ast &ast,

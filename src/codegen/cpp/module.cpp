@@ -12,8 +12,7 @@ void generateExternDeclaration(Ast &ast, Context &context) {
     if (declAst.type == Token::FunctionPrototype) {
         auto prototype =
             generateFunctionPrototype(declAst, context, shouldDisableMangling);
-        context.insert({prototype.signature(context.moduleName) + ";",
-                        ast.front().token.loc});
+        context.insert({prototype.signature() + ";", ast.front().token.loc});
     }
 }
 

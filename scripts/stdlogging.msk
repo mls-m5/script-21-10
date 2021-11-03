@@ -1,7 +1,7 @@
 
 module log
 
-extern func log_print(text str) 
+extern "C" func log_print(text str)
 
 export func log(text str) {
     log_print(text)
