@@ -17,7 +17,7 @@ bool isComa(const Ast &ast) {
     return ast.type == Token::Operator && ast.token.content == ",";
 }
 
-bool isRightPointer(const Ast &ast) {
+bool isRightArrow(const Ast &ast) {
     return ast.type == Token::Operator && ast.token.content == "->";
 }
 
@@ -50,21 +50,26 @@ std::function<bool(const Ast &ast)> isNot(Token::Type type) {
 const Patterns &getStandardPatterns() {
     static const auto patterns = Patterns{
         {
-            {Token::FuncKeyword,
-             Token::Word,
-             Token::Parentheses,
-             Token::Braces},
-            Token::FunctionDeclaration,
-            {Token::FuncKeyword,
-             Token::Name,
-             Token::FunctionArguments,
-             Token::FunctionBody},
-        },
-        {
             // If it does not have a body it is only a function prototype
             {Token::FuncKeyword, Token::Word, Token::Parentheses},
             Token::FunctionPrototype,
             {Token::FuncKeyword, Token::Name, Token::FunctionArguments},
+        },
+        {
+            {Token::FunctionPrototype, {isRightArrow}, Token::Word},
+            Token::TypedFunctionPrototype,
+            {Token::Keep, Token::RightArrow, Token::TypeName},
+        },
+        {
+            // Without return type
+            {Token::FunctionPrototype, Token::Braces},
+            Token::FunctionDeclaration,
+            {Token::Keep, Token::FunctionBody},
+        },
+        {
+            {Token::TypedFunctionPrototype, Token::Braces},
+            Token::TypedFunctionDeclaration,
+            {Token::Keep, Token::FunctionBody},
         },
         {
             {Token::StructKeyword, Token::Word, Token::Braces},
@@ -88,7 +93,7 @@ const Patterns &getStandardPatterns() {
                 {isNotInitializerList},
             },
             {
-                {Token::Any, {isRightPointer}, Token::Word},
+                {Token::Any, {isRightArrow}, Token::Word},
                 Token::PointerMemberAccessor,
                 {Token::Keep, Token::RightArrow, Token::MemberName},
             },

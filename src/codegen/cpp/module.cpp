@@ -23,6 +23,7 @@ void generateRootNode(Ast &ast, Context &context) {
         // Handled elsewhere
         break;
     case Token::FunctionDeclaration:
+    case Token::TypedFunctionDeclaration:
         generateFunctionDeclaration(ast, context);
         break;
 

@@ -14,6 +14,8 @@ void importStatement(Ast &ast, Context &context) {
     switch (child.type) {
     case Token::FunctionDeclaration:
     case Token::FunctionPrototype:
+    case Token::TypedFunctionDeclaration:
+    case Token::TypedFunctionPrototype:
         generateFunctionPrototype(child, context);
 
         break;

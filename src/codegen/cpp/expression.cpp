@@ -153,11 +153,16 @@ Value generateAssignment(Ast &ast, Context &context) {
     return value;
 }
 
-Value generateValueMemberAccessor(Ast &ast, Context &) {
+Value generateValueMemberAccessor(Ast &ast, Context &context) {
     auto &lhs = ast.front();
     auto &rhs = ast.back();
 
-    return {lhs.token.toString() + "." + rhs.token.toString()};
+    return {generateExpression(lhs, context).name + "." +
+            generateExpression(rhs, context).name};
+}
+
+Value generateStringLiteral(Ast &ast, Context &) {
+    return {"str{" + ast.token.toString() + "}"};
 }
 
 } // namespace
@@ -180,6 +185,10 @@ Value generateExpression(Ast &ast, Context &context) {
         return generateStructInitializer(ast, context);
     case Token::ValueMemberAccessor:
         return generateValueMemberAccessor(ast, context);
+    case Token::String:
+        return generateStringLiteral(ast, context);
+    case Token::MemberName:
+        return {ast.token.toString()};
 
     default:
         throw InternalError{ast.token,

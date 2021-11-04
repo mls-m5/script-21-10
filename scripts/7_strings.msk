@@ -1,11 +1,11 @@
 
 module strings
 
-func hello() {
+func hello() -> str {
     "hello"
 }
 
-func main() {
+func main() -> int {
     hello().len
 }
 

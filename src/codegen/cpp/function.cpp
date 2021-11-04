@@ -8,10 +8,11 @@ using namespace cpp;
 
 namespace {
 
-std::string joinComa(const std::vector<FunctionPrototype::Arg> &args) {
+std::string join(const std::vector<FunctionPrototype::Arg> &args,
+                 char separator) {
     std::ostringstream ss;
     for (auto &arg : args) {
-        ss << arg.type << " " << arg.name << ",";
+        ss << arg.type << " " << arg.name << separator;
     }
 
     auto s = ss.str();
@@ -21,6 +22,12 @@ std::string joinComa(const std::vector<FunctionPrototype::Arg> &args) {
     }
 
     return s;
+}
+
+Ast *getFunctionReturnType(Ast &ast) {
+    auto f = ast.findRecursive(Token::TypedFunctionPrototype);
+
+    return f ? &f->back() : nullptr;
 }
 
 } // namespace
@@ -37,10 +44,18 @@ FunctionPrototype::FunctionPrototype(Ast &ast,
         this->moduleName = "";
     }
 
-    name = ast.get(Token::Name).token.toString();
+    auto returnTypeAst = getFunctionReturnType(ast);
+
+    if (returnTypeAst) {
+        returnTypeName = returnTypeAst->token.toString();
+    }
+
+    auto &prototypeAst = ast.getRecursive(Token::FunctionPrototype);
+
+    name = prototypeAst.get(Token::Name).token.toString();
 
     auto astArgs = [&] {
-        auto &astParentheses = ast.get(Token::FunctionArguments);
+        auto &astParentheses = prototypeAst.get(Token::FunctionArguments);
         groupStandard(astParentheses);
         return astParentheses.empty() ? std::vector<Ast *>{}
                                       : flattenList(astParentheses.front());
@@ -68,11 +83,11 @@ std::string FunctionPrototype::signature() {
     }
 
     // Todo: Implement return type
-    ss << "int ";
+    ss << returnTypeName << " ";
 
     ss << mangledName();
 
-    ss << "(" << joinComa(args) << ")";
+    ss << "(" << join(args, ' ') << ")";
 
     return ss.str();
 }
@@ -117,7 +132,8 @@ void generateFunctionDeclaration(Ast &ast, Context &context) {
     auto oldInsertPoint =
         context.setInsertPoint({&*it.it, it.it->lines.begin()});
 
-    auto &body = ast.get(Token::FunctionBody);
+    // Todo: Sometime in the far future, optimize this statement
+    auto &body = ast.getRecursive(Token::FunctionBody);
 
     for (auto &arg : function.args) {
         context.pushVariable(Variable{arg.name});

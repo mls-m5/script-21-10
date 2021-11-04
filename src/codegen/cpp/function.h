@@ -33,6 +33,8 @@ struct FunctionPrototype {
     TokenLocation location;
     std::vector<Arg> args;
     std::string moduleName;
+
+    std::string returnTypeName = "void";
 };
 
 FunctionPrototype generateFunctionPrototype(Ast &ast,

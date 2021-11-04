@@ -278,7 +278,7 @@ TEST_CASE("pointer type") {
     }
 }
 
-TEST_CASE("pointer types") {
+TEST_CASE("pointer types 2") {
     {
         auto ast = parse("struct Apa {x int *\n"
                          "y int\n"
@@ -292,6 +292,25 @@ TEST_CASE("pointer types") {
 
         // We do not want everything to be a multiplication
         EXPECT_FALSE(ast.findRecursive(Token::BinaryOperation));
+    }
+}
+
+TEST_CASE("function return type") {
+    {
+        auto ast = parse("func apa() -> int ");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::TypedFunctionPrototype);
+    }
+    {
+        auto ast = parse("func apa() -> int {}");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::TypedFunctionDeclaration);
     }
 }
 
