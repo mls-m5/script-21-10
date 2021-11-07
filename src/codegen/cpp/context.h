@@ -4,6 +4,7 @@
 #include "filelookup.h"
 #include "function.h"
 #include "struct.h"
+#include "type.h"
 #include "value.h"
 #include <filesystem>
 #include <iosfwd>
@@ -20,14 +21,24 @@ struct Block {
 
     Block(const Token &token)
         : content{token.toString()}
-        , loc{token.loc} {}
+        , loc{token.loc}
+        , buffer{token.buffer} {}
 
-    Block(std::string content, TokenLocation loc)
-        : content{content}
-        , loc{loc} {}
+    Block(std::string content, const Token &copyLocation)
+        : content{std::move(content)}
+        , loc{copyLocation.loc}
+        , buffer{copyLocation.buffer} {}
+
+    Block(std::string content,
+          TokenLocation loc,
+          std::shared_ptr<Buffer> buffer)
+        : content{std::move(content)}
+        , loc{loc}
+        , buffer(buffer) {}
 
     std::string content;
     TokenLocation loc;
+    std::shared_ptr<Buffer> buffer;
 
     // List to avoid elements being allocated and deallocated
     ListT lines;
@@ -35,33 +46,9 @@ struct Block {
     void dump(std::ostream &stream, int indent = 0) const;
 };
 
-struct Type {
-    std::string name;
-
-    struct Struct *structPtr = nullptr;
-};
-
 struct Variable {
-    enum Type {
-        Value,
-        Function,
-        Struct,
-    };
-
     std::string name;
-    Type type = Value;
-    bool isPointer = false;
-
-    bool isStruct() {
-        return ptr.index() == 1;
-    }
-
-    bool isValue() {
-        return ptr.index() == 2;
-    }
-
-    // Void is just to have some unused type
-    std::variant<void *, struct Struct *, Type *> ptr = {};
+    SpecificType type;
 };
 
 struct Namespace {

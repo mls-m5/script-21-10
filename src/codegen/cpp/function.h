@@ -38,6 +38,11 @@ struct FunctionPrototype {
     std::string returnTypeName = "void";
 
     bool shouldExport = false;
+
+    SpecificType returnType(Context &context);
+
+private:
+    SpecificType _returnType;
 };
 
 FunctionPrototype generateFunctionPrototype(const Ast &ast,

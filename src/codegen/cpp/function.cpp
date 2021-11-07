@@ -115,6 +115,14 @@ std::string FunctionPrototype::localName() {
     return name;
 }
 
+SpecificType FunctionPrototype::returnType(Context &context) {
+    if (!_returnType.type) {
+        _returnType.type = context.getType(returnTypeName);
+    }
+
+    return _returnType;
+}
+
 FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
                                             bool shouldExport,
@@ -136,7 +144,7 @@ void generateFunctionDeclaration(const Ast &ast,
 
     ss << function.signature();
 
-    auto block = Block{ss.str(), function.location};
+    auto block = Block{ss.str(), function.location, ast.token.buffer};
     auto it = context.insert(std::move(block));
 
     auto oldInsertPoint =
@@ -150,13 +158,25 @@ void generateFunctionDeclaration(const Ast &ast,
     }
 
     auto lastResult = Value{};
+    auto *lastToken = &ast.token;
 
     for (auto &child : body) {
         lastResult = generateExpression(child, context);
+        lastToken = &child.token;
     }
 
     if (!lastResult.name.empty()) {
-        generateReturnExpression(lastResult, context);
+        auto returnType = function.returnType(context);
+        if (lastResult.type.type != returnType.type) {
+            throw InternalError(
+                *lastToken,
+                "return statement does not match function type: " +
+                    lastResult.type.type->name + " is not equal to " +
+                    returnType.type->name);
+        }
+        else {
+            generateReturnExpression(lastResult, context, *lastToken);
+        }
     }
 
     context.setInsertPoint(oldInsertPoint);
@@ -186,7 +206,7 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
     auto &target = ast.front();
 
     auto call = [&context, &ast, &astArgs, &args](FunctionPrototype &function,
-                                                  TokenLocation loc) {
+                                                  const Token &loc) {
         if (function.args.size() != args.size()) {
             throw InternalError{ast.token,
                                 "trying to call function " +
@@ -229,7 +249,7 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
             f != context.functions.end()) {
             auto &function = f->second;
 
-            auto id = call(function, target.token.loc);
+            auto id = call(function, target.token);
 
             return {id};
         }
@@ -247,7 +267,7 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
 
             auto &function = f->second;
 
-            auto id = call(function, target.token.loc);
+            auto id = call(function, target.token);
 
             return {id};
         }

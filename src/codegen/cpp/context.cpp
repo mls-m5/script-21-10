@@ -11,6 +11,10 @@ void Block::dump(std::ostream &stream, int indentSize) const {
         return stream;
     };
 
+    if (buffer) {
+        indent(indentSize) << "#line " << loc.row << " " << buffer->path()
+                           << "\n";
+    }
     indent(indentSize) << content << "\n";
 
     if (!lines.empty()) {
@@ -31,6 +35,7 @@ Context::Context(std::filesystem::path filename)
     , root{Token{}} {
 
     // Built in types
+    _types.push_back({"void"});
     _types.push_back({"int"});
     _types.push_back({"float"});
     _types.push_back({"uint8"});

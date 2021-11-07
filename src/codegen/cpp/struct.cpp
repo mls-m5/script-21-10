@@ -45,7 +45,7 @@ void generateStructDeclaration(const Ast &ast, Context &context) {
     }
     else {
         for (auto &line : lines) {
-            context.insert({std::move(line), ast.front().token.loc});
+            context.insert({std::move(line), ast.front().token});
         }
     }
 

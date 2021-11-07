@@ -7,8 +7,8 @@ namespace {
 Value generateIntLiteral(const Ast &ast, Context &context) {
     auto id = context.generateId("c");
     auto text = "constexpr int " + id + " = " + ast.token.toString() + ";";
-    context.insert({text, ast.token.loc});
-    return {id};
+    context.insert({text, ast.token});
+    return {id, {context.getType("int")}};
 }
 
 Value generateBinaryOperation(const Ast &ast, Context &context) {
@@ -18,14 +18,21 @@ Value generateBinaryOperation(const Ast &ast, Context &context) {
     auto id = context.generateId("bin");
     auto text = "auto " + id + " = " + lhs.name + ast.at(1).token.toString() +
                 rhs.name + ";";
-    context.insert({text, ast.token.loc});
+    context.insert({text, ast.token});
 
-    return {id};
+    if (lhs.type.type != rhs.type.type) {
+        throw InternalError{ast.token,
+                            "could not operato on different types " +
+                                lhs.type.type->name + " and " +
+                                rhs.type.type->name};
+    }
+
+    return {id, lhs.type};
 }
 
 Value generateVariableExpression(const Ast &ast, Context &context) {
     if (auto variable = context.getVariable(ast.token.toString())) {
-        return {variable->name};
+        return {variable->name, {variable->type}};
     }
     throw InternalError{
         ast.token, "Variable with name " + ast.token.toString() + " not found"};
@@ -47,21 +54,17 @@ Value generateVariableDeclaration(const Ast &ast, Context &context) {
     }
 
     auto name = nameAst->token.toString();
-    auto variable = Variable{name};
-
     auto &typeAst = ast.back().getRecursive(Token::TypeName);
     auto type = context.getType(typeAst.token.content);
 
-    if (type) {
-        variable.ptr = type;
-    }
+    auto variable = Variable{name, {type}};
 
     context.pushVariable(variable);
 
     context.insert(
-        {typeAst.token.toString() + " " + name + ";", nameAst->token.loc});
+        {typeAst.token.toString() + " " + name + ";", nameAst->token});
 
-    return {name};
+    return {name, {type}};
 }
 
 Value generateStructInitializer(const Ast &ast, Context &context) {
@@ -69,6 +72,20 @@ Value generateStructInitializer(const Ast &ast, Context &context) {
         auto list = flattenList(ast.back().front());
 
         std::ostringstream ss;
+
+        auto structName = ast.front().token.toString();
+
+        auto *type = context.getType(structName);
+
+        if (!type) {
+            throw InternalError{ast.front().token,
+                                "could not find type with name " + structName};
+        }
+
+        if (!type->structPtr) {
+            throw InternalError{ast.front().token,
+                                structName + " is not a struct"};
+        }
 
         ss << ast.front().token.toString() << "{ ";
         for (auto &member : list) {
@@ -81,10 +98,10 @@ Value generateStructInitializer(const Ast &ast, Context &context) {
             }
         }
         ss << " }";
-        return {ss.str()};
+        return {ss.str(), {type}};
     }
 
-    return {"{}"};
+    return {"{}", {}};
 }
 
 Value generateAssignment(const Ast &ast, Context &context) {
@@ -133,7 +150,7 @@ Value generateAssignment(const Ast &ast, Context &context) {
         auto value = generateExpression(ast.back(), context);
 
         context.insert(
-            {variable.name + " = " + value.name + ";", ast.front().token.loc});
+            {variable.name + " = " + value.name + ";", ast.front().token});
 
         return variable;
     }
@@ -148,7 +165,7 @@ Value generateAssignment(const Ast &ast, Context &context) {
 
     auto value = generateExpression(ast.back(), context);
 
-    context.insert({variable->name + " = " + value.name + ";", lhs.token.loc});
+    context.insert({variable->name + " = " + value.name + ";", lhs.token});
 
     return value;
 }
@@ -157,12 +174,14 @@ Value generateValueMemberAccessor(const Ast &ast, Context &context) {
     auto &lhs = ast.front();
     auto &rhs = ast.back();
 
+    // Todo: Figure out this type
+
     return {generateExpression(lhs, context).name + "." +
             generateExpression(rhs, context).name};
 }
 
-Value generateStringLiteral(const Ast &ast, Context &) {
-    return {"str{" + ast.token.toString() + "}"};
+Value generateStringLiteral(const Ast &ast, Context &context) {
+    return {"str{" + ast.token.toString() + "}", {context.getType("str")}};
 }
 
 } // namespace
@@ -188,7 +207,7 @@ Value generateExpression(const Ast &ast, Context &context) {
     case Token::String:
         return generateStringLiteral(ast, context);
     case Token::MemberName:
-        return {ast.token.toString()};
+        return {ast.token.toString(), {}};
 
     default:
         throw InternalError{ast.token,
@@ -199,8 +218,10 @@ Value generateExpression(const Ast &ast, Context &context) {
     return {};
 }
 
-Value generateReturnExpression(const Value &value, Context &context) {
-    context.insert({"return " + value.name + ";", Token::nloc});
+Value generateReturnExpression(const Value &value,
+                               Context &context,
+                               const Token &copyLocationFrom) {
+    context.insert({"return " + value.name + ";", copyLocationFrom});
     return {};
 }
 

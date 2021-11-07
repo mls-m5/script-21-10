@@ -5,6 +5,8 @@
 namespace cpp {
 
 Value generateExpression(const Ast &ast, Context &context);
-Value generateReturnExpression(const Value &, Context &context);
+Value generateReturnExpression(const Value &,
+                               Context &context,
+                               const Token &copyLocation);
 
 } // namespace cpp
