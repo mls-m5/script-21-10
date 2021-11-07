@@ -46,10 +46,13 @@ struct Ast : std::vector<Ast> {
         if (!isGrouped) {
             return nullptr;
         }
+        if (this->type == type) {
+            return this;
+        }
         for (auto &child : *this) {
-            if (child.type == type) {
-                return &child;
-            }
+            //            if (child.type == type) {
+            //                return &child;
+            //            }
 
             if (auto f = child.findRecursive(type)) {
                 return f;

@@ -1,4 +1,6 @@
 
+module builtin
+
 export struct str {
     data uint8*
     len size_t

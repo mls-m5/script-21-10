@@ -1,22 +1,22 @@
 
 module extern_test
 
-extern "C" func log_putc(x int)
+extern "C" func native_log_putc(x int)
 
 func main() {
-    log_putc(72)
-    log_putc(101)
-    log_putc(108)
-    log_putc(108)
-    log_putc(111)
+    native_log_putc(72)
+    native_log_putc(101)
+    native_log_putc(108)
+    native_log_putc(108)
+    native_log_putc(111)
 
-    log_putc(32)
+    native_log_putc(32)
 
-    log_putc(116)
-    log_putc(104)
-    log_putc(101)
-    log_putc(114)
-    log_putc(101)
+    native_log_putc(116)
+    native_log_putc(104)
+    native_log_putc(101)
+    native_log_putc(114)
+    native_log_putc(101)
 
-    log_putc(10)
+    native_log_putc(10)
 }

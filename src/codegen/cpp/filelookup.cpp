@@ -20,6 +20,18 @@ std::string moduleName(std::filesystem::path path) {
 
 } // namespace
 
+std::vector<std::filesystem::path> FileLookup::findModuleFiles(
+    std::string name) {
+    auto ret = std::vector<std::filesystem::path>{};
+    for (auto &it : moduleFiles) {
+        if (it.first == name) {
+            ret.push_back(it.second);
+        }
+    }
+
+    return ret;
+}
+
 FileLookup::FileLookup() {
     for (auto &it : std::filesystem::recursive_directory_iterator{"."}) {
         if (it.path().extension() != ".msk") {

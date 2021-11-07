@@ -13,9 +13,24 @@ void generateExternDeclaration(const Ast &ast, Context &context) {
         static_cast<bool>(ast.find(Token::String)); // Check for "C"
 
     if (declAst.type == Token::FunctionPrototype) {
-        auto prototype =
-            generateFunctionPrototype(declAst, context, shouldDisableMangling);
+        auto prototype = generateFunctionPrototype(
+            declAst, context, false, shouldDisableMangling);
         context.insert({prototype.signature() + ";", ast.front().token.loc});
+    }
+}
+
+void generateRootExport(const Ast &ast, Context &context) {
+    switch (ast.type) {
+    case Token::StructDeclaration:
+        // The struct should already be imported by import method
+        break;
+    case Token::FunctionDeclaration:
+        generateFunctionDeclaration(ast, context, true);
+        break;
+    default:
+        throw InternalError{ast.token,
+                            "Invalid exported element " +
+                                std::string{name(ast.type)}};
     }
 }
 
@@ -44,6 +59,10 @@ void generateRootNode(const Ast &ast, Context &context) {
 
     case Token::ImportStatement:
         handleImport(ast, context);
+        break;
+
+    case Token::ExportStatement:
+        generateRootExport(ast.back(), context);
         break;
 
     default:

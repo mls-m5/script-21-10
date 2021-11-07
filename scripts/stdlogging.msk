@@ -1,8 +1,8 @@
 
 module log
 
-extern "C" func log_print(text str)
+extern "C" func native_log_print(text str)
 
 export func print(text str) {
-    log_print(text)
+    native_log_print(text)
 }

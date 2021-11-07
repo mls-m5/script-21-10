@@ -1,0 +1,6 @@
+
+module helloworld
+
+func main() {
+    log.print("hello there")
+}

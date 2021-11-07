@@ -85,7 +85,12 @@ std::string FunctionPrototype::signature() {
     }
 
     // Todo: Implement return type
-    ss << returnTypeName << " ";
+    if (isMain) {
+        ss << "int ";
+    }
+    else {
+        ss << returnTypeName << " ";
+    }
 
     ss << mangledName();
 
@@ -150,7 +155,9 @@ void generateFunctionDeclaration(const Ast &ast,
         lastResult = generateExpression(child, context);
     }
 
-    generateReturnExpression(lastResult, context);
+    if (!lastResult.name.empty()) {
+        generateReturnExpression(lastResult, context);
+    }
 
     context.setInsertPoint(oldInsertPoint);
 
@@ -205,15 +212,15 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
         if (function.returnTypeName == "void") {
             context.insert(
                 {function.mangledName() + "(" + argsString + ");", loc});
+            return std::string{};
         }
 
         else {
             context.insert({"auto " + id + " = " + function.mangledName() +
                                 "(" + argsString + ");",
                             loc});
+            return id;
         }
-
-        return id;
     };
 
     if (target.type == Token::Word) {

@@ -3,7 +3,6 @@
 #include "codegen/cpp/module.h"
 #include "codegen/cpp/writeoutputfile.h"
 #include "log.h"
-#include "modules/modules.h"
 #include <filesystem>
 #include <iostream>
 
@@ -26,9 +25,7 @@ Ast loadAstFromFile(filesystem::path filename) {
     return parse(buffer);
 }
 
-int handleLlvm(filesystem::path out,
-               filesystem::path filename,
-               const std::vector<filesystem::path> &files) {
+int handleLlvm(filesystem::path out, filesystem::path filename) {
 #ifdef ENABLE_LLVM
     log("generating code");
 
@@ -68,7 +65,6 @@ int handleLlvm(filesystem::path out,
 #else
     (void)out;
     (void)filename;
-    (void)files;
     fatal("llvm is not enabled");
 #endif
 };
@@ -80,6 +76,17 @@ void printErrorInformation(const Token &token, std::string_view message) {
         std::cerr << " ";
     }
     std::cerr << "^-- here\n";
+}
+
+auto standardImports(cpp::Context &context) {
+    auto files = context.fileLookup.findModuleFiles("log");
+    auto builtInFilename = std::filesystem::path{"scripts/builtin.msk"};
+    if (!filesystem::exists(builtInFilename)) {
+        // Todo: Obviously create some better handling for this
+        builtInFilename = "builtin.msk";
+    }
+    files.insert(files.begin(), builtInFilename);
+    return files;
 }
 
 int importCpp(cpp::Context &context,
@@ -108,54 +115,56 @@ int importCpp(cpp::Context &context,
     return 0;
 }
 
-int handleCpp(filesystem::path out,
-              filesystem::path filename,
-              const std::vector<filesystem::path> &files) {
-    auto ast = loadAstFromFile(filename);
+bool inputModule(filesystem::path path, cpp::Context &context) {
+    auto ast = loadAstFromFile(path);
 
     groupStandard(ast, true);
 
     log(ast);
-
-    auto context = cpp::Context{filename};
-
-    if (importCpp(context, files)) {
-        return 1;
-    }
-
     try {
         cpp::generateModule(ast, context);
         context.dumpCpp(std::cout);
-        cpp::writeOutputFile(context, out);
     }
     catch (SyntaxError &e) {
         log(ast);
         printErrorInformation(e.token, e.what());
-        //        std::cerr << e.token.locationString() << ": " << e.what() <<
-        //        "\n";
         return 1;
     }
     catch (InternalError &e) {
         log(ast);
         context.dumpCpp(std::cout);
         printErrorInformation(e.token, e.what());
-        //        std::cout << e.token.locationString() << ": " << e.what() <<
-        //        std::endl;
         return 1;
     }
-
     return 0;
 }
 
-auto standardImports() {
-    auto files = findModuleFiles("log");
-    auto builtInFilename = std::filesystem::path{"scripts/builtin.msk"};
-    if (!filesystem::exists(builtInFilename)) {
-        // Todo: Obviously create some better handling for this
-        builtInFilename = "builtin.msk";
+int handleCpp(filesystem::path out, std::string moduleName) {
+
+    auto context = cpp::Context{moduleName};
+
+    if (importCpp(context, standardImports(context))) {
+        return 1;
     }
-    files.insert(files.begin(), builtInFilename);
-    return files;
+
+    auto standardFiles = standardImports(context);
+    auto files = context.fileLookup.findModuleFiles(moduleName);
+
+    for (auto &file : standardFiles) {
+        if (inputModule(file, context)) {
+            return 1;
+        }
+    }
+
+    for (auto &file : files) {
+        if (inputModule(file, context)) {
+            return 1;
+        }
+    }
+
+    cpp::writeOutputFile(context, out);
+
+    return 0;
 }
 
 int main(int argc, char **argv) {
@@ -165,16 +174,13 @@ int main(int argc, char **argv) {
         fatal("to few arguments, please specify file");
     }
 
-    auto filename = std::filesystem::path{argv[1]};
-    auto out = filename;
-    out.replace_extension(".o");
-
-    auto files = standardImports();
+    auto modulename = std::string{argv[1]};
+    auto out = filesystem::path{modulename + ".o"};
 
     if (false) {
-        return handleLlvm(out, filename, files);
+        return handleLlvm(out, modulename);
     }
     else {
-        return handleCpp(out, filename, files);
+        return handleCpp(out, modulename);
     }
 }
