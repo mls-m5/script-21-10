@@ -260,6 +260,6 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
     return tokens;
 }
 
-Tokens tokenize(std::string source) {
-    return tokenize(std::make_shared<Buffer>(std::move(source)));
+Tokens tokenize(std::string source, std::filesystem::path sourcePath) {
+    return tokenize(std::make_shared<Buffer>(std::move(source), sourcePath));
 }

@@ -11,5 +11,5 @@ std::shared_ptr<Buffer> loadBufferFromFile(std::filesystem::path path) {
 
     buffer << file.rdbuf();
 
-    return std::make_shared<Buffer>(buffer.str());
+    return std::make_shared<Buffer>(buffer.str(), path);
 }

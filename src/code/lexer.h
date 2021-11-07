@@ -6,4 +6,5 @@
 // Split a buffer into ots smallest pieces
 Tokens tokenize(std::shared_ptr<Buffer>);
 
-Tokens tokenize(std::string source);
+Tokens tokenize(std::string source,
+                std::filesystem::path sourcePath = "commandline");

@@ -101,8 +101,8 @@ void groupStandard(Ast &ast, bool isRecursive) {
     group(ast, getStandardPatterns(), isRecursive);
 }
 
-Ast parse(std::string source) {
-    return parse(tokenize(std::move(source)));
+Ast parse(std::string source, std::filesystem::path sourcePath) {
+    return parse(tokenize(std::move(source), sourcePath));
 }
 
 Ast parse(std::shared_ptr<Buffer> buffer) {

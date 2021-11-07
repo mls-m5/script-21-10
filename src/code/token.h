@@ -98,6 +98,8 @@ struct Token {
     std::string toString() const {
         return std::string{content};
     }
+
+    std::string locationString() const;
 };
 
 using Tokens = std::vector<Token>;

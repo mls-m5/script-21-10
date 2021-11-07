@@ -5,8 +5,9 @@
 
 // An immutable, unmovable buffer
 struct Buffer {
-    Buffer(std::string data)
-        : _data(std::move(data)) {}
+    Buffer(std::string data, std::filesystem::path path)
+        : _data(std::move(data))
+        , _path(path) {}
 
     Buffer(const Buffer &) = delete;
     Buffer(Buffer &&) = delete;
@@ -38,8 +39,13 @@ struct Buffer {
         return _data.at(i);
     }
 
+    std::filesystem::path path() {
+        return _path;
+    }
+
 private:
     std::string _data;
+    std::filesystem::path _path;
 };
 
 std::shared_ptr<Buffer> loadBufferFromFile(std::filesystem::path path);

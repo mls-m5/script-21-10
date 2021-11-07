@@ -1,4 +1,5 @@
 #include "code/parser.h"
+#include "codegen/cpp/import.h"
 #include "codegen/cpp/module.h"
 #include "codegen/cpp/writeoutputfile.h"
 #include "codegen/llvmapi/codegen.h"
@@ -42,12 +43,12 @@ int handleLlvm(filesystem::path out,
     }
     catch (SyntaxError &e) {
         log(ast);
-        std::cerr << e.what() << "\n";
+        std::cerr << e.token.locationString() << ": " << e.what() << "\n";
         return 1;
     }
     catch (InternalError &e) {
         log(ast);
-        std::cerr << e.what() << "\n";
+        std::cerr << e.token.locationString() << ": " << e.what() << "\n";
         return 1;
     }
 
@@ -74,19 +75,24 @@ int handleCpp(filesystem::path out,
     auto context = cpp::Context{filename};
 
     try {
-        //        for (auto file : files) {
-        //            log("importing ", file);
-        //            auto ast = loadAstFromFile(file);
-        //            cpp::importModule(ast, context, file.stem() == "builtin");
-        //        }
+        for (auto file : files) {
+            log("importing ", file);
+            auto ast = loadAstFromFile(file);
+            cpp::importModule(ast, context, file.stem() == "builtin");
+        }
         cpp::generateModule(ast, context);
         context.dumpCpp(std::cout);
         cpp::writeOutputFile(context, out);
     }
+    catch (SyntaxError &e) {
+        log(ast);
+        std::cerr << e.token.locationString() << ": " << e.what() << "\n";
+        return 1;
+    }
     catch (InternalError &e) {
         log(ast);
         context.dumpCpp(std::cout);
-        std::cout << "error: " << e.what() << std::endl;
+        std::cout << e.token.locationString() << ": " << e.what() << std::endl;
         return 1;
     }
 

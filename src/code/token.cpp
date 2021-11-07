@@ -75,3 +75,9 @@ std::string_view name(Token::Type t) {
 }
 
 #undef CASE
+
+std::string Token::locationString() const {
+    auto ss = std::ostringstream{};
+    ss << buffer->path().string() << ":" << loc.row << ":" << loc.col;
+    return ss.str();
+}
