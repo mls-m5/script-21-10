@@ -76,4 +76,16 @@ TEST_CASE("words with underscore") {
     EXPECT_EQ(tokens.size(), 1);
 }
 
+TEST_CASE("source location") {
+    auto tokens = tokenize("hello\n  there");
+
+    EXPECT_EQ(tokens.size(), 2);
+
+    EXPECT_EQ(tokens.front().loc.row, 1);
+    EXPECT_EQ(tokens.front().loc.col, 1);
+
+    EXPECT_EQ(tokens.back().loc.row, 2);
+    EXPECT_EQ(tokens.back().loc.col, 3);
+}
+
 TEST_SUIT_END

@@ -26,6 +26,16 @@ constexpr bool isMultiCharOperator(std::string_view str) {
     return false;
 }
 
+void nextLocation(TokenLocation &loc, char c) {
+    if (c == '\n') {
+        ++loc.row;
+        loc.col = 0;
+    }
+    else {
+        ++loc.col;
+    }
+}
+
 } // namespace
 
 Token::Type getKeyword(std::string_view str) {
@@ -74,14 +84,18 @@ Tokens moveSpaces(Tokens tokens) {
     return tokens;
 };
 
-Token readString(std::shared_ptr<Buffer> buffer, size_t &beginning) {
+Token readString(std::shared_ptr<Buffer> buffer,
+                 size_t &beginning,
+                 TokenLocation &loc) {
     Token token;
 
     for (size_t i = beginning + 1; i < buffer->size(); ++i) {
-        if (buffer->at(i) == '"') {
+        auto c = buffer->at(i);
+        nextLocation(loc, c);
+        if (c == '"') {
             auto str = std::string_view{buffer->begin().base() + beginning,
                                         i - beginning + 1};
-            auto token = Token{std::move(buffer), str};
+            auto token = Token{std::move(buffer), str, loc};
             token.type = Token::String;
             beginning = i;
             return token;
@@ -97,10 +111,14 @@ Tokens splitBufferIntoRawTokens(std::shared_ptr<Buffer> buffer) {
     tokens.reserve(buffer->size());
 
     auto currentType = Token::None;
+    TokenLocation loc = {.row = 1, .col = 0};
 
     for (size_t i = 0; i < buffer->size(); ++i) {
         auto c = buffer->at(i);
         auto type = Token::None;
+
+        nextLocation(loc, c);
+
         if (isspace(c)) {
             type = Token::Space;
         }
@@ -111,7 +129,7 @@ Tokens splitBufferIntoRawTokens(std::shared_ptr<Buffer> buffer) {
             type = Token::Numeric;
         }
         else if (c == '"') {
-            tokens.push_back(readString(buffer, i));
+            tokens.push_back(readString(buffer, i, loc));
             currentType = tokens.back().type;
             continue;
         }
@@ -127,7 +145,7 @@ Tokens splitBufferIntoRawTokens(std::shared_ptr<Buffer> buffer) {
             back = std::string_view{back.data(), back.size() + 1};
         }
         else {
-            auto token = Token{buffer, {(buffer->begin() + i).base(), 1}};
+            auto token = Token{buffer, {(buffer->begin() + i).base(), 1}, loc};
             token.type = type;
             tokens.emplace_back(std::move(token));
         }
@@ -204,6 +222,7 @@ Tokens tokenize(std::shared_ptr<Buffer> buffer) {
             b.content = {a.content.begin(),
                          a.content.size() + b.content.size()};
             b.before = a.before;
+            b.loc = a.loc;
 
             a = {};
         };

@@ -83,9 +83,9 @@ struct Token {
 
     std::shared_ptr<Buffer> buffer;
     std::string_view content;
-    std::string_view before;
-    std::string_view after;
     TokenLocation loc;
+    std::string_view before = {};
+    std::string_view after = {};
 
     static constexpr TokenLocation nloc = {-1, -1};
 
