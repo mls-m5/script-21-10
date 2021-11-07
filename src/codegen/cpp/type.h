@@ -15,6 +15,11 @@ struct Type {
 struct SpecificType {
     Type *type = nullptr;
     int pointerDepth = 0;
+
+    std::string toString() {
+        // Todo: Also handlen pointers
+        return type->name;
+    }
 };
 
 } // namespace cpp

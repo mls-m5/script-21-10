@@ -39,7 +39,9 @@ Value generateVariableExpression(const Ast &ast, Context &context) {
         ast.token, "Variable with name " + ast.token.toString() + " not found"};
 }
 
-Value generateVariableDeclaration(const Ast &ast, Context &context) {
+Value generateVariableDeclaration(const Ast &ast,
+                                  Context &context,
+                                  SpecificType type) {
     auto nameAst = ast.findRecursive(Token::Name);
     if (!nameAst) {
         throw InternalError{
@@ -48,22 +50,18 @@ Value generateVariableDeclaration(const Ast &ast, Context &context) {
                 std::string{name(ast.type)}};
     }
 
-    if (ast.back().type != Token::TypedVariable) {
-        throw InternalError{ast.token,
-                            "Untyped variables is not supported yet " +
-                                std::string{name(ast.type)}};
-    }
-
     auto name = nameAst->token.toString();
-    auto &typeAst = ast.back().getRecursive(Token::TypeName);
-    auto type = context.getType(typeAst.token.content);
+
+    if (!type.type) {
+        auto &typeAst = ast.back().getRecursive(Token::TypeName);
+        type.type = context.getType(typeAst.token.content);
+    }
 
     auto variable = Variable{name, {type}};
 
     context.pushVariable(variable);
 
-    context.insert(
-        {typeAst.token.toString() + " " + name + ";", nameAst->token});
+    context.insert({type.toString() + " " + name + ";", nameAst->token});
 
     return {name, {type}};
 }
@@ -109,46 +107,10 @@ Value generateAssignment(const Ast &ast, Context &context) {
     auto &lhs = ast.front();
 
     if (lhs.type == Token::VariableDeclaration) {
-        auto variable = generateVariableDeclaration(ast.front(), context);
-
-        //        if (!variable) {
-        //            throw InternalError{
-        //                ast.token,
-        //                "failed to create variable declaration. Value is not
-        //                valid" +
-        //                    std::string{name(ast.type)}};
-        //        }
-
-        //        auto pointeeType = variable->getAllocatedType();
-
-        //        if (getStructFromType(pointeeType, context.scope())) {
-        //            // if (pointeeType->isStructTy()) {
-        //            // Todo: Fix this in the future
-        //            auto value = generateStructInitializer(ast.back(),
-        //            context); auto structType = static_cast<llvm::StructType
-        //            *>(pointeeType);
-
-        //            auto size = context.module->getDataLayout()
-        //                            .getStructLayout(structType)
-        //                            ->getSizeInBytes();
-
-        //            generateMemCpy(variable, value, size, context);
-        //            return variable;
-        //        }
-        //        else {
-        //            auto value = generateExpression(ast.back(), context);
-        //            context.builder.CreateStore(value, variable);
-        //            return value;
-        //        }
-
-        //        throw InternalError{ast.token,
-        //                            "cannot handle assignment of pointer
-        //                            types" +
-        //                                std::string{name(ast.type)}};
-
-        // Todo: Handle structs
-
         auto value = generateExpression(ast.back(), context);
+
+        auto variable =
+            generateVariableDeclaration(ast.front(), context, value.type);
 
         context.insert(
             {variable.name + " = " + value.name + ";", ast.front().token});
