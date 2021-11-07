@@ -25,6 +25,7 @@ std::pair<Ast, size_t> group(Ast ast, const Pattern &pattern, size_t index) {
     newAst.isGrouped = true;
     newAst.token.loc = ast.front().token.loc;
     newAst.token.buffer = ast.front().token.buffer;
+    newAst.token.content = {ast.front().token.content.data(), 0};
 
     for (auto i = 0_uz; i < pattern.matchers.size(); ++i) {
         newAst.at(i) = std::move(ast.at(i + index));

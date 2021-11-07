@@ -73,6 +73,14 @@ int handleLlvm(filesystem::path out,
 #endif
 };
 
+void printErrorInformation(const Token &token, std::string_view message) {
+    std::cerr << token.locationString() << ": " << message << "\n";
+    std::cerr << token.buffer->getLineAt(token.content) << "\n";
+    for (int i = 0; i + 1 < token.loc.col; ++i) {
+        std::cerr << " ";
+    }
+    std::cerr << "^-- here\n";
+}
 int handleCpp(filesystem::path out,
               filesystem::path filename,
               const std::vector<filesystem::path> &files) {
@@ -85,24 +93,23 @@ int handleCpp(filesystem::path out,
     auto context = cpp::Context{filename};
 
     try {
-        for (auto file : files) {
-            log("importing ", file);
-            auto ast = loadAstFromFile(file);
-            cpp::importModule(ast, context, file.stem() == "builtin");
-        }
         cpp::generateModule(ast, context);
         context.dumpCpp(std::cout);
         cpp::writeOutputFile(context, out);
     }
     catch (SyntaxError &e) {
         log(ast);
-        std::cerr << e.token.locationString() << ": " << e.what() << "\n";
+        printErrorInformation(e.token, e.what());
+        //        std::cerr << e.token.locationString() << ": " << e.what() <<
+        //        "\n";
         return 1;
     }
     catch (InternalError &e) {
         log(ast);
         context.dumpCpp(std::cout);
-        std::cout << e.token.locationString() << ": " << e.what() << std::endl;
+        printErrorInformation(e.token, e.what());
+        //        std::cout << e.token.locationString() << ": " << e.what() <<
+        //        std::endl;
         return 1;
     }
 

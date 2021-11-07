@@ -43,6 +43,9 @@ struct Buffer {
         return _path;
     }
 
+    // For debug output, find the full line where this string segment is located
+    std::string_view getLineAt(std::string_view word) const;
+
 private:
     std::string _data;
     std::filesystem::path _path;
