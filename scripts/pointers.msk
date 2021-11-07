@@ -1,9 +1,0 @@
-
-module pointers
-
-struct Apa {
-
-}
-
-func main() {
-}

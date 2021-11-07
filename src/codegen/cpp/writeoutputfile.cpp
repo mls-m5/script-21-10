@@ -10,7 +10,6 @@ constexpr auto builtinTypes = R"_(
 #include <cstddef>
 
 struct str {
-//   template <typename T>
    constexpr str(const char s[]): data(s), len(_len(s)) {}
 
    const char *data;

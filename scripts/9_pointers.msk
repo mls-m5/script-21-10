@@ -1,0 +1,21 @@
+
+module pointers
+
+struct Apa {
+   text str
+}
+
+func modify(apa Apa*) {
+   apa->text = "there"
+}
+
+func print(apa Apa) {
+
+}
+
+func main() {
+    let apa = Apa { message = "hello" }
+    modify(&apa)
+    print(apa)
+
+}

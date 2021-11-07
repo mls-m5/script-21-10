@@ -12,7 +12,15 @@ struct Context;
 struct FunctionPrototype {
     struct Arg {
         std::string name;
-        std::string type; // Todo: Handle other types
+        std::string _typeName;
+        int pointer;
+
+        SpecificType type = {};
+
+        SpecificType getType(Context &context);
+
+        // Noncaching version
+        SpecificType getType(Context &context) const;
     };
 
     // @param moduleName is not used if shouldDisableMangling is true
@@ -21,7 +29,7 @@ struct FunctionPrototype {
                       bool shouldExport,
                       bool shouldDisableMangling);
 
-    std::string signature();
+    std::string signature(Context &context);
 
     std::string mangledName();
 

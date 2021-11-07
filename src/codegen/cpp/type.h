@@ -16,9 +16,14 @@ struct SpecificType {
     Type *type = nullptr;
     int pointerDepth = 0;
 
-    std::string toString() {
-        // Todo: Also handlen pointers
-        return type->name;
+    std::string toString() const;
+
+    bool operator==(const SpecificType &other) const {
+        return type == other.type && pointerDepth == other.pointerDepth;
+    }
+
+    bool operator!=(const SpecificType &other) const {
+        return !(*this == other);
     }
 };
 

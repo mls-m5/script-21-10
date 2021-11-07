@@ -104,9 +104,9 @@ Value generateStructInitializer(const Ast &ast, Context &context) {
 }
 
 Value generateAssignment(const Ast &ast, Context &context) {
-    auto &lhs = ast.front();
+    auto &lhsAst = ast.front();
 
-    if (lhs.type == Token::VariableDeclaration) {
+    if (lhsAst.type == Token::VariableDeclaration) {
         auto value = generateExpression(ast.back(), context);
 
         auto variable =
@@ -118,22 +118,33 @@ Value generateAssignment(const Ast &ast, Context &context) {
         return variable;
     }
 
-    if (lhs.type != Token::Word) {
-        throw InternalError{ast.token,
-                            "can only assign to variables specified by name" +
-                                std::string{name(ast.type)}};
-    }
+    auto lhs = generateExpression(lhsAst, context);
 
-    auto variable = context.getVariable(std::string{lhs.token.content});
+    //    if (lhsAst.type != Token::MemberName) {
+    //        throw InternalError{ast.token,
+    //                            "can only assign to variables specified by
+    //                            name " +
+    //                                std::string{name(ast.type)}};
+    //    }
+
+    //    auto variable =
+    //    context.getVariable(std::string{lhsAst.token.content});
 
     auto value = generateExpression(ast.back(), context);
 
-    context.insert({variable->name + " = " + value.name + ";", lhs.token});
+    if (lhs.type != value.type) {
+        throw InternalError{lhsAst.token,
+                            "cannot assign variable of type " +
+                                lhs.type.toString() + " with value of type " +
+                                value.type.toString()};
+    }
+
+    context.insert({lhs.name + " = " + value.name + ";", lhsAst.token});
 
     return value;
 }
 
-Value generateValueMemberAccessor(const Ast &ast, Context &context) {
+Value generateMemberAccessor(const Ast &ast, Context &context) {
     auto &lhsAst = ast.front();
     auto &rhsAst = ast.back();
 
@@ -153,7 +164,8 @@ Value generateValueMemberAccessor(const Ast &ast, Context &context) {
                          s->members.end(),
                          [&rhs](auto &&member) { return member.name == rhs; });
         f != s->members.end()) {
-        return {lhs.name + "." + rhs, f->type};
+        auto op = ast.type == Token::PointerMemberAccessor ? "->" : ".";
+        return {lhs.name + op + rhs, f->type};
     }
 
     throw InternalError{rhsAst.token,
@@ -184,7 +196,9 @@ Value generateExpression(const Ast &ast, Context &context) {
     case Token::StructInitializer:
         return generateStructInitializer(ast, context);
     case Token::ValueMemberAccessor:
-        return generateValueMemberAccessor(ast, context);
+        return generateMemberAccessor(ast, context);
+    case Token::PointerMemberAccessor:
+        return generateMemberAccessor(ast, context);
     case Token::String:
         return generateStringLiteral(ast, context);
     case Token::MemberName:

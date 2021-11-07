@@ -50,10 +50,6 @@ struct Ast : std::vector<Ast> {
             return this;
         }
         for (auto &child : *this) {
-            //            if (child.type == type) {
-            //                return &child;
-            //            }
-
             if (auto f = child.findRecursive(type)) {
                 return f;
             }

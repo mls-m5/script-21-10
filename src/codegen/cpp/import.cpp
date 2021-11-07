@@ -18,7 +18,7 @@ void importStatement(const Ast &ast, Context &context) {
     case Token::TypedFunctionDeclaration:
     case Token::TypedFunctionPrototype: {
         auto prototype = generateFunctionPrototype(child, context, true);
-        context.insert({prototype.signature() + ";", ast.front().token});
+        context.insert({prototype.signature(context) + ";", ast.front().token});
     }
 
     break;

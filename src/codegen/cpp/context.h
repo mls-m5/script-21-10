@@ -83,6 +83,9 @@ struct Context {
     void dumpCpp(std::ostream &stream) const;
 
     Type *getType(std::string_view name);
+
+    // Get the pointer including pointer types
+    SpecificType getType(const Ast &ast);
     void setType(Type type);
     void setStruct(Struct s);
     Variable *getVariable(std::string_view name);

@@ -64,6 +64,17 @@ Type *Context::getType(std::string_view name) {
     return nullptr;
 }
 
+SpecificType Context::getType(const Ast &ast) {
+    auto &typeAst = ast.getRecursive(Token::TypeName);
+    auto type = getType(typeAst.token.content);
+    int pointer = 0;
+    if (ast.type == Token::TypedVariable) {
+        pointer = 1;
+    }
+
+    return {type, pointer};
+}
+
 void Context::setType(Type type) {
     _types.push_back(std::move(type));
 }
