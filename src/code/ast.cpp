@@ -24,7 +24,7 @@ void Ast::print(std::ostream &stream, int indentation) const {
     }
 }
 
-std::vector<Ast *> flattenList(Ast &root) {
+std::vector<const Ast *> flattenList(const Ast &root) {
     if (root.type != Token::List) {
         return {&root};
     }

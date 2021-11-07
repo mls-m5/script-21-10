@@ -100,21 +100,21 @@ void group(Ast &ast, const Patterns &patterns, bool isRecursive) {
         return;
     }
 
-    if (ast.size() < 2) {
-        // Nothing to group
-        return;
-    }
+    if (ast.size() > 1) {
 
-    for (auto &pattern : patterns) {
-        if (pattern.patterns.empty()) {
-            continue;
-        }
+        for (auto &pattern : patterns) {
+            if (pattern.patterns.empty()) {
+                continue;
+            }
 
-        if (pattern.patterns.front().matchDirection == Pattern::LeftToRight) {
-            ast = groupFromLeft(std::move(ast), pattern);
-        }
-        else {
-            throw std::runtime_error{"group from right not implemented yet"};
+            if (pattern.patterns.front().matchDirection ==
+                Pattern::LeftToRight) {
+                ast = groupFromLeft(std::move(ast), pattern);
+            }
+            else {
+                throw std::runtime_error{
+                    "group from right not implemented yet"};
+            }
         }
     }
 
@@ -129,6 +129,5 @@ void group(Ast &ast, const Patterns &patterns, bool isRecursive) {
     verify(ast);
 
 #endif
-
     ast.isGrouped = true;
 }

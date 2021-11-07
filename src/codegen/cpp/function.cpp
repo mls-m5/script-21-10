@@ -24,7 +24,7 @@ std::string join(const std::vector<FunctionPrototype::Arg> &args,
     return s;
 }
 
-Ast *getFunctionReturnType(Ast &ast) {
+const Ast *getFunctionReturnType(const Ast &ast) {
     auto f = ast.findRecursive(Token::TypedFunctionPrototype);
 
     return f ? &f->back() : nullptr;
@@ -34,7 +34,7 @@ Ast *getFunctionReturnType(Ast &ast) {
 
 namespace cpp {
 
-FunctionPrototype::FunctionPrototype(Ast &ast,
+FunctionPrototype::FunctionPrototype(const Ast &ast,
                                      std::string_view moduleName,
                                      bool shouldDisableMangling)
     : shouldDisableMangling(shouldDisableMangling)
@@ -56,8 +56,8 @@ FunctionPrototype::FunctionPrototype(Ast &ast,
 
     auto astArgs = [&] {
         auto &astParentheses = prototypeAst.get(Token::FunctionArguments);
-        groupStandard(astParentheses);
-        return astParentheses.empty() ? std::vector<Ast *>{}
+        //        groupStandard(astParentheses);
+        return astParentheses.empty() ? std::vector<const Ast *>{}
                                       : flattenList(astParentheses.front());
     }();
 
@@ -108,7 +108,7 @@ std::string FunctionPrototype::localName() {
     return name;
 }
 
-FunctionPrototype generateFunctionPrototype(Ast &ast,
+FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
                                             bool shouldDisableMangling) {
     auto function =
@@ -119,7 +119,7 @@ FunctionPrototype generateFunctionPrototype(Ast &ast,
     return function;
 }
 
-void generateFunctionDeclaration(Ast &ast, Context &context) {
+void generateFunctionDeclaration(const Ast &ast, Context &context) {
     auto function = generateFunctionPrototype(ast, context);
 
     std::ostringstream ss;
@@ -157,13 +157,13 @@ void generateFunctionDeclaration(Ast &ast, Context &context) {
     (void)it;
 }
 
-Value generateFunctionCall(Ast &ast, Context &context) {
+Value generateFunctionCall(const Ast &ast, Context &context) {
     std::vector<Value> args;
 
     auto &astArgs = ast.get(Token::FunctionArguments);
 
     if (!astArgs.empty()) {
-        groupStandard(astArgs);
+        //        groupStandard(astArgs);
 
         auto list = flattenList(astArgs.front());
         for (auto *arg : list) {

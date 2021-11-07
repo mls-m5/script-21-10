@@ -222,6 +222,7 @@ TEST_CASE("structure") {
 TEST_CASE("struct initializer") {
     {
         auto ast = parse("Apa {x = 10, y = 20}");
+        groupStandard(ast, true);
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::StructInitializer);
 
@@ -230,7 +231,6 @@ TEST_CASE("struct initializer") {
         auto list = ast.findRecursive(Token::InitializerList);
 
         EXPECT_TRUE(list);
-        groupStandard(*list);
 
         std::cout << *list << std::endl;
         EXPECT_EQ(list->size(), 1);
@@ -283,10 +283,11 @@ TEST_CASE("pointer types 2") {
         auto ast = parse("struct Apa {x int *\n"
                          "y int\n"
                          "}");
+        groupStandard(ast, true);
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::StructDeclaration);
 
-        groupStandard(ast.getRecursive(Token::StructBody));
+        //        groupStandard(ast.getRecursive(Token::StructBody));
 
         std::cout << ast << std::endl;
 

@@ -16,7 +16,7 @@ struct FunctionPrototype {
     };
 
     // @param moduleName is not used if shouldDisableMangling is true
-    FunctionPrototype(Ast &ast,
+    FunctionPrototype(const Ast &ast,
                       std::string_view moduleName,
                       bool shouldDisableMangling);
 
@@ -37,12 +37,12 @@ struct FunctionPrototype {
     std::string returnTypeName = "void";
 };
 
-FunctionPrototype generateFunctionPrototype(Ast &ast,
+FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
                                             bool shouldDisableMangling = false);
 
-void generateFunctionDeclaration(Ast &ast, Context &context);
+void generateFunctionDeclaration(const Ast &ast, Context &context);
 
-Value generateFunctionCall(Ast &ast, Context &context);
+Value generateFunctionCall(const Ast &ast, Context &context);
 
 } // namespace cpp

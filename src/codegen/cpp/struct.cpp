@@ -2,7 +2,7 @@
 
 namespace cpp {
 
-Struct::Struct(Ast &ast, Context &context) {
+Struct::Struct(const Ast &ast, Context &context) {
     auto &nameAst = ast.get(Token::Name);
 
     name = nameAst.token.toString();
@@ -26,7 +26,7 @@ Struct::Struct(Ast &ast, Context &context) {
     }
 }
 
-void generateStructDeclaration(Ast &ast, Context &context) {
+void generateStructDeclaration(const Ast &ast, Context &context) {
     auto s = Struct(ast, context);
 
     auto lines = std::vector<std::string>{};

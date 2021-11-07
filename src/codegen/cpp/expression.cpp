@@ -4,14 +4,14 @@ using namespace cpp;
 
 namespace {
 
-Value generateIntLiteral(Ast &ast, Context &context) {
+Value generateIntLiteral(const Ast &ast, Context &context) {
     auto id = context.generateId("c");
     auto text = "constexpr int " + id + " = " + ast.token.toString() + ";";
     context.insert({text, ast.token.loc});
     return {id};
 }
 
-Value generateBinaryOperation(Ast &ast, Context &context) {
+Value generateBinaryOperation(const Ast &ast, Context &context) {
     auto lhs = generateExpression(ast.front(), context);
     auto rhs = generateExpression(ast.back(), context);
 
@@ -23,7 +23,7 @@ Value generateBinaryOperation(Ast &ast, Context &context) {
     return {id};
 }
 
-Value generateVariableExpression(Ast &ast, Context &context) {
+Value generateVariableExpression(const Ast &ast, Context &context) {
     if (auto variable = context.getVariable(ast.token.toString())) {
         return {variable->name};
     }
@@ -31,7 +31,7 @@ Value generateVariableExpression(Ast &ast, Context &context) {
         ast.token, "Variable with name " + ast.token.toString() + " not found"};
 }
 
-Value generateVariableDeclaration(Ast &ast, Context &context) {
+Value generateVariableDeclaration(const Ast &ast, Context &context) {
     auto nameAst = ast.findRecursive(Token::Name);
     if (!nameAst) {
         throw InternalError{
@@ -64,7 +64,7 @@ Value generateVariableDeclaration(Ast &ast, Context &context) {
     return {name};
 }
 
-Value generateStructInitializer(Ast &ast, Context &context) {
+Value generateStructInitializer(const Ast &ast, Context &context) {
     if (!ast.empty()) {
         auto list = flattenList(ast.back().front());
 
@@ -87,7 +87,7 @@ Value generateStructInitializer(Ast &ast, Context &context) {
     return {"{}"};
 }
 
-Value generateAssignment(Ast &ast, Context &context) {
+Value generateAssignment(const Ast &ast, Context &context) {
     auto &lhs = ast.front();
 
     if (lhs.type == Token::VariableDeclaration) {
@@ -153,7 +153,7 @@ Value generateAssignment(Ast &ast, Context &context) {
     return value;
 }
 
-Value generateValueMemberAccessor(Ast &ast, Context &context) {
+Value generateValueMemberAccessor(const Ast &ast, Context &context) {
     auto &lhs = ast.front();
     auto &rhs = ast.back();
 
@@ -161,7 +161,7 @@ Value generateValueMemberAccessor(Ast &ast, Context &context) {
             generateExpression(rhs, context).name};
 }
 
-Value generateStringLiteral(Ast &ast, Context &) {
+Value generateStringLiteral(const Ast &ast, Context &) {
     return {"str{" + ast.token.toString() + "}"};
 }
 
@@ -169,7 +169,7 @@ Value generateStringLiteral(Ast &ast, Context &) {
 
 namespace cpp {
 
-Value generateExpression(Ast &ast, Context &context) {
+Value generateExpression(const Ast &ast, Context &context) {
     switch (ast.type) {
     case Token::IntLiteral:
         return generateIntLiteral(ast, context);

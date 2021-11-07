@@ -6,6 +6,6 @@
 
 namespace cpp {
 
-void generateModule(Ast &ast, Context &Context);
+void generateModule(const Ast &ast, Context &Context);
 
 } // namespace cpp

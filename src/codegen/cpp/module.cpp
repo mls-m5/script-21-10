@@ -3,7 +3,7 @@
 
 namespace cpp {
 
-void generateExternDeclaration(Ast &ast, Context &context) {
+void generateExternDeclaration(const Ast &ast, Context &context) {
     auto &declAst = ast.back();
 
     auto shouldDisableMangling =
@@ -16,7 +16,7 @@ void generateExternDeclaration(Ast &ast, Context &context) {
     }
 }
 
-void generateRootNode(Ast &ast, Context &context) {
+void generateRootNode(const Ast &ast, Context &context) {
 
     switch (ast.type) {
     case Token::ModuleStatement:
@@ -41,7 +41,7 @@ void generateRootNode(Ast &ast, Context &context) {
     }
 }
 
-void generateModule(Ast &ast, Context &context) {
+void generateModule(const Ast &ast, Context &context) {
     if (ast.empty()) {
         return;
     }

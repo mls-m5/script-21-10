@@ -4,7 +4,7 @@
 
 namespace cpp {
 
-Value generateExpression(Ast &ast, Context &context);
+Value generateExpression(const Ast &ast, Context &context);
 Value generateReturnExpression(const Value &, Context &context);
 
 } // namespace cpp

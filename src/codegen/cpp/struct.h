@@ -18,9 +18,9 @@ struct Struct {
 
     Struct() = default;
 
-    Struct(Ast &ast, Context &context);
+    Struct(const Ast &ast, Context &context);
 };
 
-void generateStructDeclaration(Ast &ast, Context &context);
+void generateStructDeclaration(const Ast &ast, Context &context);
 
 } // namespace cpp

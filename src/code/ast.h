@@ -19,7 +19,7 @@ struct Ast : std::vector<Ast> {
 
     void print(std::ostream &, int indentation = 0) const;
 
-    Ast *find(Token::Type type) {
+    const Ast *find(Token::Type type) const {
         for (auto &child : *this) {
             if (child.type == type) {
                 return &child;
@@ -29,7 +29,7 @@ struct Ast : std::vector<Ast> {
     }
 
     // Same as find but expect a result
-    Ast &get(Token::Type type) {
+    const Ast &get(Token::Type type) const {
         auto ast = find(type);
 
         if (!ast) {
@@ -42,7 +42,7 @@ struct Ast : std::vector<Ast> {
         return *ast;
     }
 
-    Ast *findRecursive(Token::Type type) {
+    const Ast *findRecursive(Token::Type type) const {
         if (!isGrouped) {
             return nullptr;
         }
@@ -58,7 +58,7 @@ struct Ast : std::vector<Ast> {
         return nullptr;
     }
 
-    Ast &getRecursive(Token::Type type) {
+    const Ast &getRecursive(Token::Type type) const {
         auto ast = findRecursive(type);
 
         if (!ast) {
@@ -79,4 +79,4 @@ struct Ast : std::vector<Ast> {
 
 // Coma separated lists are nested expressions. This gives a flat vector
 // pointing to all actual values
-std::vector<Ast *> flattenList(Ast &root);
+std::vector<const Ast *> flattenList(const Ast &root);
