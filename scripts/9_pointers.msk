@@ -9,13 +9,13 @@ func modify(apa Apa*) {
    apa->text = "there"
 }
 
-func print(apa Apa) {
-
+func printApa(apa Apa) {
+   print(apa.text)
 }
 
 func main() {
-    let apa = Apa { message = "hello" }
+    let apa = Apa { text = "hello" }
     modify(&apa)
-    print(apa)
+    printApa(apa)
 
 }

@@ -64,6 +64,7 @@ std::string_view name(Token::Type t) {
         CASE(StructInitializer)
         CASE(InitializerList)
         CASE(ExternStatement)
+        CASE(ReferencingStatement)
 
         CASE(Module)
 

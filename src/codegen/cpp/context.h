@@ -43,7 +43,9 @@ struct Block {
     // List to avoid elements being allocated and deallocated
     ListT lines;
 
-    void dump(std::ostream &stream, int indent = 0) const;
+    void dump(std::ostream &stream,
+              int indent = 0,
+              bool removeLines = false) const;
 };
 
 struct Variable {
@@ -80,7 +82,7 @@ struct Context {
 
     InsertPoint insert(Block);
 
-    void dumpCpp(std::ostream &stream) const;
+    void dumpCpp(std::ostream &stream, bool removeLines = false) const;
 
     Type *getType(std::string_view name);
 

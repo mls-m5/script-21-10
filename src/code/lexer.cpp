@@ -8,7 +8,7 @@ namespace {
 
 constexpr auto beginChars = "([{"sv;
 constexpr auto endChars = ")]}"sv;
-constexpr auto singleCharOperators = ",.+-/*<>!="sv;
+constexpr auto singleCharOperators = ",.+-/*<>!=&"sv;
 constexpr auto multiCharOperators = std::array{
     "->"sv,
     "=="sv,

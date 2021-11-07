@@ -17,6 +17,10 @@ bool isComa(const Ast &ast) {
     return ast.type == Token::Operator && ast.token.content == ",";
 }
 
+bool isAmperesAnd(const Ast &ast) {
+    return ast.type == Token::Operator && ast.token.content == "&";
+}
+
 bool isRightArrow(const Ast &ast) {
     return ast.type == Token::Operator && ast.token.content == "->";
 }
@@ -162,6 +166,12 @@ const Patterns &getStandardPatterns() {
             {Token::Any, {isComa}, Token::Any},
             Token::List,
         },
+        EqualPriorityPatterns{{
+            {
+                {{isAmperesAnd}, Token::Word},
+                Token::ReferencingStatement,
+            },
+        }},
     };
 
     return patterns;

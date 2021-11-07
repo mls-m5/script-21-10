@@ -112,7 +112,7 @@ int importCpp(cpp::Context &context,
         catch (InternalError &e) {
             err(ast);
             if (shouldOutputDebugInfo) {
-                context.dumpCpp(std::cerr);
+                context.dumpCpp(std::cerr, true);
             }
             printErrorInformation(e.token, e.what());
             return 1;
@@ -130,7 +130,7 @@ bool inputModule(filesystem::path path, cpp::Context &context) {
     try {
         cpp::generateModule(ast, context);
         if (shouldOutputDebugInfo) {
-            context.dumpCpp(std::cout);
+            context.dumpCpp(std::cout, true);
         }
     }
     catch (SyntaxError &e) {
@@ -140,7 +140,7 @@ bool inputModule(filesystem::path path, cpp::Context &context) {
     }
     catch (InternalError &e) {
         err(ast);
-        context.dumpCpp(std::cerr);
+        context.dumpCpp(std::cerr, true);
         printErrorInformation(e.token, e.what());
         return 1;
     }

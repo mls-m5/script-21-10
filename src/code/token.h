@@ -73,6 +73,7 @@ struct Token {
         StructInitializer,
         InitializerList,
         ExternStatement,
+        ReferencingStatement,
 
         Module,
 

@@ -315,4 +315,13 @@ TEST_CASE("function return type") {
     }
 }
 
+TEST_CASE("function return type") {
+    {
+        auto ast = parse("&hello");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::ReferencingStatement);
+    }
+}
+
 TEST_SUIT_END

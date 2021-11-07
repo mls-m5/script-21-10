@@ -2,8 +2,7 @@
 
 namespace cpp {
 
-void Block::dump(std::ostream &stream, int indentSize) const {
-    //    auto ident = std::string(indent, ' ');
+void Block::dump(std::ostream &stream, int indentSize, bool removeLines) const {
     auto indent = [&stream](int indentSize) -> std::ostream & {
         for (int i = 0; i < indentSize; ++i) {
             stream << "  ";
@@ -11,7 +10,7 @@ void Block::dump(std::ostream &stream, int indentSize) const {
         return stream;
     };
 
-    if (buffer) {
+    if (buffer && !removeLines) {
         indent(indentSize) << "#line " << loc.row << " " << buffer->path()
                            << "\n";
     }
@@ -22,7 +21,7 @@ void Block::dump(std::ostream &stream, int indentSize) const {
             indent(indentSize) << "{\n";
         }
         for (auto &line : lines) {
-            line.dump(stream, indentSize + 1);
+            line.dump(stream, indentSize + 1, removeLines);
         }
         if (indentSize > 0) {
             indent(indentSize) << "}\n";
@@ -50,8 +49,8 @@ Context::InsertPoint Context::insert(Block line) {
     return {_insertPoint.block, it};
 }
 
-void Context::dumpCpp(std::ostream &stream) const {
-    root.dump(stream);
+void Context::dumpCpp(std::ostream &stream, bool removeLines) const {
+    root.dump(stream, removeLines);
 }
 
 Type *Context::getType(std::string_view name) {

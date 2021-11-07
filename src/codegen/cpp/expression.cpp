@@ -177,6 +177,13 @@ Value generateStringLiteral(const Ast &ast, Context &context) {
     return {"str{" + ast.token.toString() + "}", {context.getType("str")}};
 }
 
+Value generateReferencingStatement(const Ast &ast, Context &context) {
+    auto value = generateExpression(ast.back(), context);
+    auto type = value.type;
+    type.pointerDepth += 1;
+    return {"&" + value.name, type};
+}
+
 } // namespace
 
 namespace cpp {
@@ -203,6 +210,9 @@ Value generateExpression(const Ast &ast, Context &context) {
         return generateStringLiteral(ast, context);
     case Token::MemberName:
         return {ast.token.toString(), {}};
+    case Token::ReferencingStatement:
+        return generateReferencingStatement(ast, context);
+        break;
 
     default:
         throw InternalError{ast.token,

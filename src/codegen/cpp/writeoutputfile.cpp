@@ -11,9 +11,12 @@ constexpr auto builtinTypes = R"_(
 
 struct str {
    constexpr str(const char s[]): data(s), len(_len(s)) {}
+   constexpr str() = default;
+   constexpr str(const str&) = default;
+   constexpr str& operator=(const str&) = default;
 
-   const char *data;
-   size_t len;
+   const char *data = nullptr;
+   size_t len = 0;
 
    private:
    constexpr size_t _len(const char *s) {
