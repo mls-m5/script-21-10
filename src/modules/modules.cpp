@@ -27,10 +27,9 @@ bool isModule(std::filesystem::path path, std::string name) {
 
 } // namespace
 
-
 std::vector<std::filesystem::path> findModuleFiles(std::string moduleName) {
     auto ret = std::vector<std::filesystem::path>{};
-    for (auto it : std::filesystem::recursive_directory_iterator{"."}) {
+    for (auto &it : std::filesystem::recursive_directory_iterator{"."}) {
         if (it.path().extension() != ".msk") {
             continue;
         }

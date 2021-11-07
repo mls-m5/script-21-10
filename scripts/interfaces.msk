@@ -7,7 +7,7 @@ trait Movable {
 struct Elevator impl Movable {
     height int
 
-    func move(x int) {
+    impl func move(x int) {
         height = x
     }
 }

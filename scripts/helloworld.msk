@@ -1,8 +1,0 @@
-
-module main
-
-import log
-
-func main() {
-    log.print("hello there")
-}

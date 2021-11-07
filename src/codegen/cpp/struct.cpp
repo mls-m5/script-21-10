@@ -1,4 +1,5 @@
 #include "struct.h"
+#include <iostream>
 
 namespace cpp {
 
@@ -10,7 +11,7 @@ Struct::Struct(const Ast &ast, Context &context) {
     auto &bodyAst = ast.get(Token::StructBody);
 
     for (auto &memberAst : bodyAst) {
-        auto &typeAst = memberAst.get(Token::TypeName);
+        auto &typeAst = memberAst.getRecursive(Token::TypeName);
         auto type = context.getType(typeAst.token.toString());
 
         auto &member = members.emplace_back();
@@ -22,7 +23,8 @@ Struct::Struct(const Ast &ast, Context &context) {
         }
         member.type = type;
 
-        member.name = memberAst.get(Token::Name).token.toString();
+        member.name = memberAst.getRecursive(Token::Name).token.toString();
+        member.pointerLevels = memberAst.type == Token::PointerTypedVariable;
     }
 }
 
@@ -38,8 +40,13 @@ void generateStructDeclaration(const Ast &ast, Context &context) {
 
     lines.push_back("};");
 
-    for (auto &line : lines) {
-        context.insert({std::move(line), ast.front().token.loc});
+    if (s.name == "str") {
+        std::cout << "skipping output of built in struct str\n";
+    }
+    else {
+        for (auto &line : lines) {
+            context.insert({std::move(line), ast.front().token.loc});
+        }
     }
 
     context.setStruct(s);

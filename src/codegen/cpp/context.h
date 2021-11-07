@@ -1,6 +1,7 @@
 #pragma once
 
 #include "code/token.h"
+#include "filelookup.h"
 #include "function.h"
 #include "struct.h"
 #include "value.h"
@@ -63,6 +64,11 @@ struct Variable {
     std::variant<void *, struct Struct *, Type *> ptr = {};
 };
 
+struct Namespace {
+    std::map<std::string, Namespace> subNamespaces;
+    std::map<std::string, FunctionPrototype> prototypes;
+};
+
 struct Context {
     // insert iterators does not work here since they cannot return the original
     // iterator
@@ -106,6 +112,8 @@ struct Context {
     void popVariable(std::string name);
 
     std::map<std::string, FunctionPrototype> functions;
+
+    FileLookup fileLookup;
 
 private:
     InsertPoint _insertPoint = InsertPoint{&root, root.lines.end()};

@@ -10,6 +10,7 @@ struct Struct {
     struct Member {
         std::string name;
         struct Type *type;
+        int pointerLevels = 0;
     };
 
     std::string name;

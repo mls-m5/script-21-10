@@ -1,10 +1,11 @@
 #include "import.h"
+#include "code/parser.h"
 #include "function.h"
 
 using namespace cpp;
 
 namespace {
-void importStatement(Ast &ast, Context &context) {
+void importStatement(const Ast &ast, Context &context) {
     if (ast.size() != 2) {
         throw InternalError{ast.token, "Malformed export statement"};
     }
@@ -15,10 +16,12 @@ void importStatement(Ast &ast, Context &context) {
     case Token::FunctionDeclaration:
     case Token::FunctionPrototype:
     case Token::TypedFunctionDeclaration:
-    case Token::TypedFunctionPrototype:
-        generateFunctionPrototype(child, context);
+    case Token::TypedFunctionPrototype: {
+        auto prototype = generateFunctionPrototype(child, context, true);
+        context.insert({prototype.signature() + ";", ast.front().token.loc});
+    }
 
-        break;
+    break;
 
     case Token::StructDeclaration:
         generateStructDeclaration(child, context);
@@ -31,7 +34,7 @@ void importStatement(Ast &ast, Context &context) {
 
 namespace cpp {
 
-void importModule(Ast &ast, Context &context, bool toGlobal) {
+void importModule(const Ast &ast, Context &context, bool toGlobal) {
     auto moduleName = [&ast] {
         for (auto &child : ast) {
             switch (child.type) {
@@ -70,6 +73,25 @@ void importModule(Ast &ast, Context &context, bool toGlobal) {
     }
 
     context.moduleName = "";
+}
+
+void handleImport(const Ast &importStatement, Context &context) {
+    auto &moduleNameAst = importStatement.back();
+
+    auto filename = context.fileLookup.find(moduleNameAst.token.toString());
+
+    auto buffer = loadBufferFromFile(filename);
+
+    if (!buffer) {
+        throw InternalError{moduleNameAst.token,
+                            "Could not find file for module " +
+                                moduleNameAst.token.toString()};
+    }
+
+    auto moduleAst = parse(buffer);
+    groupStandard(moduleAst, true);
+
+    importModule(moduleAst, context, false);
 }
 
 } // namespace cpp

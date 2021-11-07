@@ -33,6 +33,8 @@ Context::Context(std::filesystem::path filename)
     // Built in types
     _types.push_back({"int"});
     _types.push_back({"float"});
+    _types.push_back({"uint8"});
+    _types.push_back({"size_t"});
 }
 
 Context::InsertPoint Context::insert(Block line) {

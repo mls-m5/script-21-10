@@ -3,6 +3,6 @@ module log
 
 extern "C" func log_print(text str)
 
-export func log(text str) {
+export func print(text str) {
     log_print(text)
 }

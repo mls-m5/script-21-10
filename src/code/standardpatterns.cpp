@@ -100,7 +100,7 @@ const Patterns &getStandardPatterns() {
             {
                 {Token::Any, Token::Parentheses},
                 Token::FunctionCall,
-                {Token::Name, Token::FunctionArguments},
+                {Token::Keep, Token::FunctionArguments},
             },
             {
                 {Token::Word, Token::Braces},

@@ -36,9 +36,11 @@ namespace cpp {
 
 FunctionPrototype::FunctionPrototype(const Ast &ast,
                                      std::string_view moduleName,
+                                     bool shouldExport,
                                      bool shouldDisableMangling)
     : shouldDisableMangling(shouldDisableMangling)
-    , moduleName(moduleName) {
+    , moduleName(moduleName)
+    , shouldExport(shouldExport) {
 
     if (shouldDisableMangling) {
         this->moduleName = "";
@@ -77,7 +79,7 @@ std::string FunctionPrototype::signature() {
         if (shouldDisableMangling) {
             ss << "extern \"C\" ";
         }
-        else {
+        else if (!shouldExport) {
             ss << "static ";
         }
     }
@@ -110,17 +112,20 @@ std::string FunctionPrototype::localName() {
 
 FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
+                                            bool shouldExport,
                                             bool shouldDisableMangling) {
-    auto function =
-        FunctionPrototype{ast, context.moduleName, shouldDisableMangling};
+    auto function = FunctionPrototype{
+        ast, context.moduleName, shouldExport, shouldDisableMangling};
 
     context.functions.emplace(function.localName(), function);
 
     return function;
 }
 
-void generateFunctionDeclaration(const Ast &ast, Context &context) {
-    auto function = generateFunctionPrototype(ast, context);
+void generateFunctionDeclaration(const Ast &ast,
+                                 Context &context,
+                                 bool shouldExport) {
+    auto function = generateFunctionPrototype(ast, context, shouldExport);
 
     std::ostringstream ss;
 
@@ -171,11 +176,10 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
         }
     }
 
-    auto &name = ast.get(Token::Name);
-    if (auto f = context.functions.find(name.token.toString());
-        f != context.functions.end()) {
-        auto &function = f->second;
+    auto &target = ast.front();
 
+    auto call = [&context, &ast, &astArgs, &args](FunctionPrototype &function,
+                                                  TokenLocation loc) {
         if (function.args.size() != args.size()) {
             throw InternalError{ast.token,
                                 "trying to call function " +
@@ -184,7 +188,6 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
                                     " arguments, but it only has " +
                                     std::to_string(function.args.size())};
         }
-
         auto id = context.generateId("fnc");
 
         auto ss = std::ostringstream{};
@@ -199,17 +202,52 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
             argsString.pop_back();
         }
 
-        context.insert({"auto " + id + " = " + f->second.mangledName() + "(" +
-                            argsString + ");",
-                        name.token.loc});
+        if (function.returnTypeName == "void") {
+            context.insert(
+                {function.mangledName() + "(" + argsString + ");", loc});
+        }
 
-        return {id};
+        else {
+            context.insert({"auto " + id + " = " + function.mangledName() +
+                                "(" + argsString + ");",
+                            loc});
+        }
+
+        return id;
+    };
+
+    if (target.type == Token::Word) {
+        auto &name = target;
+        if (auto f = context.functions.find(name.token.toString());
+            f != context.functions.end()) {
+            auto &function = f->second;
+
+            auto id = call(function, target.token.loc);
+
+            return {id};
+        }
     }
-    else {
-        throw InternalError{name.token,
-                            "Could not find function " +
-                                std::string{name.token.content}};
+
+    if (target.type == Token::ValueMemberAccessor) {
+        //        auto value = generateExpression(target, context);
+
+        auto &name = target.back();
+
+        // Todo: Actually handle the namespacing/module part of this
+
+        if (auto f = context.functions.find(name.token.toString());
+            f != context.functions.end()) {
+
+            auto &function = f->second;
+
+            auto id = call(function, target.token.loc);
+
+            return {id};
+        }
     }
+    throw InternalError{target.token,
+                        "Could not find function " +
+                            std::string{target.token.content}};
 }
 
 } // namespace cpp

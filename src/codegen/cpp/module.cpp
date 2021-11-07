@@ -1,7 +1,10 @@
 #include "module.h"
+#include "import.h"
 #include "struct.h"
 
-namespace cpp {
+using namespace cpp;
+
+namespace {
 
 void generateExternDeclaration(const Ast &ast, Context &context) {
     auto &declAst = ast.back();
@@ -16,6 +19,10 @@ void generateExternDeclaration(const Ast &ast, Context &context) {
     }
 }
 
+} // namespace
+
+namespace cpp {
+
 void generateRootNode(const Ast &ast, Context &context) {
 
     switch (ast.type) {
@@ -24,7 +31,7 @@ void generateRootNode(const Ast &ast, Context &context) {
         break;
     case Token::FunctionDeclaration:
     case Token::TypedFunctionDeclaration:
-        generateFunctionDeclaration(ast, context);
+        generateFunctionDeclaration(ast, context, false);
         break;
 
     case Token::StructDeclaration:
@@ -33,6 +40,10 @@ void generateRootNode(const Ast &ast, Context &context) {
 
     case Token::ExternStatement:
         generateExternDeclaration(ast, context);
+        break;
+
+    case Token::ImportStatement:
+        handleImport(ast, context);
         break;
 
     default:

@@ -18,6 +18,7 @@ struct FunctionPrototype {
     // @param moduleName is not used if shouldDisableMangling is true
     FunctionPrototype(const Ast &ast,
                       std::string_view moduleName,
+                      bool shouldExport,
                       bool shouldDisableMangling);
 
     std::string signature();
@@ -35,13 +36,18 @@ struct FunctionPrototype {
     std::string moduleName;
 
     std::string returnTypeName = "void";
+
+    bool shouldExport = false;
 };
 
 FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
+                                            bool shouldExport,
                                             bool shouldDisableMangling = false);
 
-void generateFunctionDeclaration(const Ast &ast, Context &context);
+void generateFunctionDeclaration(const Ast &ast,
+                                 Context &context,
+                                 bool shouldExport);
 
 Value generateFunctionCall(const Ast &ast, Context &context);
 

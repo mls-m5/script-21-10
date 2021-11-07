@@ -81,6 +81,33 @@ void printErrorInformation(const Token &token, std::string_view message) {
     }
     std::cerr << "^-- here\n";
 }
+
+int importCpp(cpp::Context &context,
+              const std::vector<filesystem::path> &files) {
+    for (auto file : files) {
+        auto ast = loadAstFromFile(file);
+
+        // Todo: Only do shallow parsing (no function bodies) for imports
+        groupStandard(ast, true);
+        try {
+            log("importing ", file);
+            cpp::importModule(ast, context, file.stem() == "builtin");
+        }
+        catch (SyntaxError &e) {
+            log(ast);
+            printErrorInformation(e.token, e.what());
+            return 1;
+        }
+        catch (InternalError &e) {
+            log(ast);
+            context.dumpCpp(std::cout);
+            printErrorInformation(e.token, e.what());
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int handleCpp(filesystem::path out,
               filesystem::path filename,
               const std::vector<filesystem::path> &files) {
@@ -91,6 +118,10 @@ int handleCpp(filesystem::path out,
     log(ast);
 
     auto context = cpp::Context{filename};
+
+    if (importCpp(context, files)) {
+        return 1;
+    }
 
     try {
         cpp::generateModule(ast, context);
