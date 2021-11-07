@@ -13,6 +13,7 @@ std::string_view name(Token::Type t) {
         CASE(Alpha)
         CASE(NonSpace)
         CASE(Other)
+        CASE(Semicolon)
 
         CASE(Word)
         CASE(BeginGroup)

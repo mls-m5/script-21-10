@@ -19,6 +19,7 @@ struct Token {
         Numeric,
         NonSpace,
         Other,
+        Semicolon,
 
         // Processed values
         Word,

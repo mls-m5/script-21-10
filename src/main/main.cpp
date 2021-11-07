@@ -71,7 +71,11 @@ int handleLlvm(filesystem::path out, filesystem::path filename) {
 
 void printErrorInformation(const Token &token, std::string_view message) {
     std::cerr << token.locationString() << ": " << message << "\n";
-    std::cerr << token.buffer->getLineAt(token.content) << "\n";
+    auto errStr = std::string{token.buffer->getLineAt(token.content)};
+    for (auto &c : errStr) {
+        c = (c == '\t') ? ' ' : c;
+    }
+    std::cerr << errStr << "\n";
     for (int i = 0; i + 1 < token.loc.col; ++i) {
         std::cerr << " ";
     }
@@ -97,17 +101,19 @@ int importCpp(cpp::Context &context,
         // Todo: Only do shallow parsing (no function bodies) for imports
         groupStandard(ast, true);
         try {
-            log("importing ", file);
+            dlog("importing ", file);
             cpp::importModule(ast, context, file.stem() == "builtin");
         }
         catch (SyntaxError &e) {
-            log(ast);
+            err(ast);
             printErrorInformation(e.token, e.what());
             return 1;
         }
         catch (InternalError &e) {
-            log(ast);
-            context.dumpCpp(std::cout);
+            err(ast);
+            if (shouldOutputDebugInfo) {
+                context.dumpCpp(std::cerr);
+            }
             printErrorInformation(e.token, e.what());
             return 1;
         }
@@ -120,19 +126,21 @@ bool inputModule(filesystem::path path, cpp::Context &context) {
 
     groupStandard(ast, true);
 
-    log(ast);
+    dlog(ast);
     try {
         cpp::generateModule(ast, context);
-        context.dumpCpp(std::cout);
+        if (shouldOutputDebugInfo) {
+            context.dumpCpp(std::cout);
+        }
     }
     catch (SyntaxError &e) {
-        log(ast);
+        err(ast);
         printErrorInformation(e.token, e.what());
         return 1;
     }
     catch (InternalError &e) {
-        log(ast);
-        context.dumpCpp(std::cout);
+        err(ast);
+        context.dumpCpp(std::cerr);
         printErrorInformation(e.token, e.what());
         return 1;
     }
@@ -170,11 +178,23 @@ int handleCpp(filesystem::path out, std::string moduleName) {
 int main(int argc, char **argv) {
     std::ios::sync_with_stdio(false);
 
-    if (argc < 2) {
+    auto args = std::vector<std::string_view>{argv + 1, argv + argc};
+
+    if (args.size() < 1) {
         fatal("to few arguments, please specify file");
     }
 
     auto modulename = std::string{argv[1]};
+
+    for (auto arg : args) {
+        if (arg == "--debug") {
+            shouldOutputDebugInfo = true;
+        }
+        else {
+            modulename = arg;
+        }
+    }
+
     auto out = filesystem::path{modulename + ".o"};
 
     if (false) {

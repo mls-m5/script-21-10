@@ -133,6 +133,9 @@ Tokens splitBufferIntoRawTokens(std::shared_ptr<Buffer> buffer) {
             currentType = tokens.back().type;
             continue;
         }
+        else if (c == ';') {
+            type = Token::Semicolon;
+        }
         else {
             type = Token::Other;
         }

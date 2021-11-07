@@ -1,5 +1,5 @@
 #include "struct.h"
-#include <iostream>
+#include "log.h"
 
 namespace cpp {
 
@@ -41,7 +41,7 @@ void generateStructDeclaration(const Ast &ast, Context &context) {
     lines.push_back("};");
 
     if (s.name == "str") {
-        std::cout << "skipping output of built in struct str\n";
+        dlog("skipping output of built in struct str");
     }
     else {
         for (auto &line : lines) {

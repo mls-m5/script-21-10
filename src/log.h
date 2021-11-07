@@ -2,9 +2,18 @@
 
 #include <iostream>
 
+inline bool shouldOutputDebugInfo = false;
+
 template <typename... Args>
 void log(Args &&...args) {
     ((std::cout << std::forward<Args>(args)), ...) << "\n";
+}
+
+template <typename... Args>
+void dlog(Args &&...args) {
+    if (shouldOutputDebugInfo) {
+        ((std::cout << std::forward<Args>(args)), ...) << "\n";
+    }
 }
 
 template <typename... Args>

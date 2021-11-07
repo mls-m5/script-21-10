@@ -35,21 +35,21 @@ void cpp::writeOutputFile(Context &context, std::filesystem::path path) {
         context.dumpCpp(file);
     }
 
-    log("Generating file");
+    dlog("Generating file");
     {
         auto command =
             "g++ -o " + path.string() + " -c -x c++ " + tmpPath.string();
-        std::cout << command << std::endl;
+        dlog(command);
         std::system(command.c_str());
     }
 
     {
-        std::cout << "linking..." << std::endl;
+        dlog("linking...");
         auto nativeLib = " scripts/lib.cpp ";
         auto command = "g++ -o " + (path.parent_path() / path.stem()).string() +
                        " " + nativeLib + path.string();
 
-        std::cout << command << std::endl;
+        dlog(command);
         system(command.c_str());
     }
 }

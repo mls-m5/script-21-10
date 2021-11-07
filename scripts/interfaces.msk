@@ -17,7 +17,9 @@ func moveSomethingMovable(thing Movable &, x int) {
 }
 
 func main() {
-    let elevator = Elevator{0}
+    let elevator = Elevator{
+       height = 0
+    }
 
     moveSomethingMovable(elevator)
 

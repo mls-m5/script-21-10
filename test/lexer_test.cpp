@@ -88,4 +88,11 @@ TEST_CASE("source location") {
     EXPECT_EQ(tokens.back().loc.col, 3);
 }
 
+TEST_CASE("semicolon") {
+    auto tokens = tokenize("hello;");
+
+    EXPECT_EQ(tokens.size(), 2);
+    EXPECT_EQ(tokens.back().type, Token::Semicolon);
+}
+
 TEST_SUIT_END
