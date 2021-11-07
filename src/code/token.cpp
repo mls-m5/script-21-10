@@ -78,6 +78,12 @@ std::string_view name(Token::Type t) {
 
 std::string Token::locationString() const {
     auto ss = std::ostringstream{};
-    ss << buffer->path().string() << ":" << loc.row << ":" << loc.col;
+    if (buffer) {
+        ss << buffer->path().string();
+    }
+    else {
+        ss << "no filename";
+    }
+    ss << ":" << loc.row << ":" << loc.col;
     return ss.str();
 }
