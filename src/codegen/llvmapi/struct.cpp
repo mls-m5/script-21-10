@@ -1,3 +1,5 @@
+#ifdef ENABLE_LLVM
+
 #include "struct.h"
 #include "code/parser.h"
 #include "expression.h"
@@ -149,3 +151,5 @@ llvm::Value *generateMemberAccessor(Ast &ast, CodegenContext &context) {
 }
 
 } // namespace llvmapi
+
+#endif

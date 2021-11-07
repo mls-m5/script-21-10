@@ -1,3 +1,5 @@
+#ifdef ENABLE_LLVM
+
 #include "codegen.h"
 #include "context.h"
 #include "function.h"
@@ -35,3 +37,5 @@ void generateModuleCode(Ast &ast, CodegenContext &context) {
 }
 
 } // namespace llvmapi
+
+#endif

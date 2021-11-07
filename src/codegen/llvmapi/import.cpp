@@ -1,3 +1,5 @@
+#ifdef ENABLE_LLVM
+
 #include "import.h"
 #include "function.h"
 #include "struct.h"
@@ -80,3 +82,5 @@ void importModule(Ast &ast, CodegenContext &context, bool toGlobal) {
 }
 
 } // namespace llvmapi
+
+#endif

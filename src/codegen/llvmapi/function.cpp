@@ -1,3 +1,5 @@
+#ifdef ENABLE_LLVM
+
 #include "function.h"
 #include "code/parser.h"
 #include "expression.h"
@@ -132,3 +134,5 @@ llvm::Function *generateExternFunction(Ast &ast, CodegenContext &context) {
 }
 
 } // namespace llvmapi
+
+#endif

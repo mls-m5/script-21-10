@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef ENABLE_LLVM
+
 #include "code/token.h"
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
@@ -107,3 +109,4 @@ llvm::AllocaInst *createEntryBlockAlloca(llvm::Function &function,
                                          llvm::Type *type);
 
 } // namespace llvmapi
+#endif

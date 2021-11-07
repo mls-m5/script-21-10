@@ -1,3 +1,5 @@
+#ifdef ENABLE_LLVM
+
 #include "expression.h"
 #include "code/parser.h"
 #include "log.h"
@@ -271,3 +273,5 @@ llvm::Value *generateExpression(Ast &ast, CodegenContext &context) {
 }
 
 } // namespace llvmapi
+
+#endif

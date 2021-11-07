@@ -13,7 +13,7 @@ void err(Args &&...args) {
 }
 
 template <typename... Args>
-void fatal(Args &&...args) {
+[[noreturn]] void fatal(Args &&...args) {
     ((std::cerr << std::forward<Args>(args)), ...) << "\n";
 
     exit(1);

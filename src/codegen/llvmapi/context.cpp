@@ -1,3 +1,5 @@
+#ifdef ENABLE_LLVM
+
 #include "context.h"
 #include <algorithm>
 #include <llvm/IR/Function.h>
@@ -29,3 +31,5 @@ void Scope::setStruct(std::string_view name, Struct s) {
 }
 
 } // namespace llvmapi
+
+#endif

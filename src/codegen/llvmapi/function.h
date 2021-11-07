@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef ENABLE_LLVM
+
 #include "code/ast.h"
 #include "codegen.h"
 #include "context.h"
@@ -14,3 +16,5 @@ llvm::Function *generateFunction(Ast &ast, CodegenContext &context);
 llvm::Function *generateExternFunction(Ast &ast, CodegenContext &context);
 
 } // namespace llvmapi
+
+#endif

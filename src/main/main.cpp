@@ -2,13 +2,16 @@
 #include "codegen/cpp/import.h"
 #include "codegen/cpp/module.h"
 #include "codegen/cpp/writeoutputfile.h"
-#include "codegen/llvmapi/codegen.h"
-#include "codegen/llvmapi/import.h"
-#include "codegen/llvmapi/writeobjectfile.h"
 #include "log.h"
 #include "modules/modules.h"
 #include <filesystem>
 #include <iostream>
+
+#ifdef ENABLE_LLVM
+#include "codegen/llvmapi/codegen.h"
+#include "codegen/llvmapi/import.h"
+#include "codegen/llvmapi/writeobjectfile.h"
+#endif
 
 namespace filesystem = std::filesystem;
 
@@ -26,6 +29,7 @@ Ast loadAstFromFile(filesystem::path filename) {
 int handleLlvm(filesystem::path out,
                filesystem::path filename,
                const std::vector<filesystem::path> &files) {
+#ifdef ENABLE_LLVM
     log("generating code");
 
     std::cout.flush();
@@ -61,6 +65,12 @@ int handleLlvm(filesystem::path out,
     writeObjectFile(context, out);
 
     return 0;
+#else
+    (void)out;
+    (void)filename;
+    (void)files;
+    fatal("llvm is not enabled");
+#endif
 };
 
 int handleCpp(filesystem::path out,

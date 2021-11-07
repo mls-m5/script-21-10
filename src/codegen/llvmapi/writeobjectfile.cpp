@@ -1,5 +1,6 @@
-#include "writeobjectfile.h"
+#ifdef ENABLE_LLVM
 
+#include "writeobjectfile.h"
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/Optional.h>
 #include <llvm/ADT/STLExtras.h>
@@ -78,3 +79,5 @@ void writeObjectFile(CodegenContext &context, std::filesystem::path path) {
 }
 
 } // namespace llvmapi
+
+#endif

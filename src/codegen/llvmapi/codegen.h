@@ -1,3 +1,5 @@
+#ifdef ENABLE_LLVM
+
 #pragma once
 
 #include "code/ast.h"
@@ -11,3 +13,5 @@ namespace llvmapi {
 void generateModuleCode(Ast &, CodegenContext &context);
 
 } // namespace llvmapi
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef ENABLE_LLVM
+
 #include "types.h"
 #include "scriptexceptions.h"
 
@@ -49,3 +51,5 @@ Struct *getStructFromType(llvm::Type *type, Scope &scope) {
 }
 
 } // namespace llvmapi
+
+#endif
