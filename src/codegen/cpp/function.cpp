@@ -56,6 +56,12 @@ FunctionPrototype::FunctionPrototype(const Ast &ast,
 
     name = prototypeAst.get(Token::Name).token.toString();
 
+    auto isMain = name == "main";
+
+    if (isMain) {
+        returnTypeName = "int";
+    }
+
     auto astArgs = [&] {
         auto &astParentheses = prototypeAst.get(Token::FunctionArguments);
         //        groupStandard(astParentheses);
@@ -84,13 +90,7 @@ std::string FunctionPrototype::signature() {
         }
     }
 
-    // Todo: Implement return type
-    if (isMain) {
-        ss << "int ";
-    }
-    else {
-        ss << returnTypeName << " ";
-    }
+    ss << returnTypeName << " ";
 
     ss << mangledName();
 
@@ -154,7 +154,7 @@ void generateFunctionDeclaration(const Ast &ast,
     auto &body = ast.getRecursive(Token::FunctionBody);
 
     for (auto &arg : function.args) {
-        context.pushVariable(Variable{arg.name});
+        context.pushVariable(Variable{arg.name, {context.getType(arg.type)}});
     }
 
     auto lastResult = Value{};
@@ -251,7 +251,7 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
 
             auto id = call(function, target.token);
 
-            return {id};
+            return {id, function.returnType(context)};
         }
     }
 
@@ -269,7 +269,7 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
 
             auto id = call(function, target.token);
 
-            return {id};
+            return {id, function.returnType(context)};
         }
     }
     throw InternalError{target.token,

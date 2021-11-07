@@ -1,4 +1,5 @@
 #include "expression.h"
+#include <algorithm>
 
 using namespace cpp;
 
@@ -16,8 +17,8 @@ Value generateBinaryOperation(const Ast &ast, Context &context) {
     auto rhs = generateExpression(ast.back(), context);
 
     auto id = context.generateId("bin");
-    auto text = "auto " + id + " = " + lhs.name + ast.at(1).token.toString() +
-                rhs.name + ";";
+    auto text = lhs.type.type->name + " " + id + " = " + lhs.name +
+                ast.at(1).token.toString() + rhs.name + ";";
     context.insert({text, ast.token});
 
     if (lhs.type.type != rhs.type.type) {
@@ -171,13 +172,31 @@ Value generateAssignment(const Ast &ast, Context &context) {
 }
 
 Value generateValueMemberAccessor(const Ast &ast, Context &context) {
-    auto &lhs = ast.front();
-    auto &rhs = ast.back();
+    auto &lhsAst = ast.front();
+    auto &rhsAst = ast.back();
 
     // Todo: Figure out this type
 
-    return {generateExpression(lhs, context).name + "." +
-            generateExpression(rhs, context).name};
+    auto lhs = generateExpression(lhsAst, context);
+    auto rhs = rhsAst.token.toString();
+
+    auto *s = lhs.type.type->structPtr;
+    if (!s) {
+        throw InternalError{lhsAst.token,
+                            "not a struct" + lhsAst.token.toString()};
+    }
+
+    if (auto f =
+            std::find_if(s->members.begin(),
+                         s->members.end(),
+                         [&rhs](auto &&member) { return member.name == rhs; });
+        f != s->members.end()) {
+        return {lhs.name + "." + rhs, f->type};
+    }
+
+    throw InternalError{rhsAst.token,
+                        " could not find member " + rhs + " on struct " +
+                            lhs.type.type->name};
 }
 
 Value generateStringLiteral(const Ast &ast, Context &context) {

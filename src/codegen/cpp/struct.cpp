@@ -21,7 +21,7 @@ Struct::Struct(const Ast &ast, Context &context) {
                                 "could not find member type of name " +
                                     typeAst.token.toString()};
         }
-        member.type = type;
+        member.type = {type};
 
         member.name = memberAst.getRecursive(Token::Name).token.toString();
         member.pointerLevels = memberAst.type == Token::PointerTypedVariable;
@@ -35,7 +35,8 @@ void generateStructDeclaration(const Ast &ast, Context &context) {
 
     lines.push_back("struct " + s.name + "{");
     for (auto &member : s.members) {
-        lines.push_back("  " + member.type->name + " " + member.name + ";");
+        lines.push_back("  " + member.type.type->name + " " + member.name +
+                        ";");
     }
 
     lines.push_back("};");

@@ -9,7 +9,7 @@ namespace cpp {
 struct Struct {
     struct Member {
         std::string name;
-        struct Type *type;
+        SpecificType type;
         int pointerLevels = 0;
     };
 
