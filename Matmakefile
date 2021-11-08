@@ -35,8 +35,8 @@ main
   src =
     src/main/*.cpp
   command = [exe]
-  ldflags =
-    `llvm-config --ldflags --libs core`
+#  ldflags =
+#    `llvm-config --ldflags --libs core`
 
 all
   in =
@@ -55,9 +55,9 @@ all
   includes =
     include
     src
-  sysincludes =
-    /usr/include/llvm-14
-    /usr/include/llvm-c-14
+#  sysincludes =
+#    /usr/include/llvm-14
+#    /usr/include/llvm-c-14
   copy =
     scripts
   eflags =
