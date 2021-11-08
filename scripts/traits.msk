@@ -5,9 +5,11 @@ trait Movable {
     func move(x int)
 }
 
-struct Elevator impl Movable {
+struct Elevator {
     height int
+}
 
+impl Movable for Elevator {
     impl func move(x int) {
         height = x
     }

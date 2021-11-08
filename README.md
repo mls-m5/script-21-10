@@ -1,10 +1,17 @@
 # Script 21-10
 Somtimes a man just needs to create a programming language.
 
-The goal would be something like this:
+The ambision is to create a functional (but probably somewhat crappy) language
+that that is a combination of go and rust.
+
+Note though. That the more I work on it, the more it just starts to look like
+rust.. So I guess when finishing this projekt, I will probably just start using
+rust.
 
 Btw. Don't look in this repository for hints on how to code. The code is a mess
 and has degraded the latest commits.
+
+The goal would be something like this:
 
 ```c++
 
@@ -47,20 +54,25 @@ struct Apa: impl Movable {
 
 struct Bepa: impl Movable {
    apa Apa // Will reduce the need for ever inheriting
+}
 
+impl Bepa {
+   // This is a function that is not associated to a interface
+   func somethingEntirelyDifferent() {
+      log.print("just some other behaviour")
+   }
+}
+
+impl Movable for Bepa {
    // Just just call interfaced functions on apa instead of implementing them
    impl Movable -> apa 
    
    // Alternative syntax
    // Forward a single function to apa
    // If the above statement is present this would not be needed
-   impl func move -> apa
-   
-   // This is a function that is not associated to a interface
-   func somethingEntirelyDifferent() {
-      log.print("just some other behaviour")
-   }
+   func move -> apa
 }
+
 
 // Possible out of line way to define member variables
 func somethingEvenMoreDifferent(self Bepa) {
