@@ -4,6 +4,7 @@
 #include "filelookup.h"
 #include "function.h"
 #include "struct.h"
+#include "trait.h"
 #include "type.h"
 #include "value.h"
 #include <filesystem>
@@ -95,6 +96,10 @@ struct Context {
 
     // Set and return the old point
     InsertPoint setInsertPoint(InsertPoint it);
+
+    // insert block, return it, set the insert point to it and the old insert
+    // point for resetting later
+    InsertPoint insertBlock(Block block);
 
     std::string generateId(std::string base = "");
 

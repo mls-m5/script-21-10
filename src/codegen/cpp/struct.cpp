@@ -1,4 +1,5 @@
 #include "struct.h"
+#include "context.h"
 #include "log.h"
 
 namespace cpp {

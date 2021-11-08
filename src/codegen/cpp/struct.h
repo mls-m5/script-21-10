@@ -1,10 +1,12 @@
 #pragma once
 #include "code/ast.h"
-#include "context.h"
+#include "type.h"
 #include <string>
 #include <vector>
 
 namespace cpp {
+
+struct Context;
 
 struct Struct {
     struct Member {

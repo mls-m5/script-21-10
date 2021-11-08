@@ -1,0 +1,8 @@
+
+module os
+
+export struct Os {
+    args str[]
+}
+
+export let os: Os

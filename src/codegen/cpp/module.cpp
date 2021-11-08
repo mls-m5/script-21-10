@@ -1,6 +1,7 @@
 #include "module.h"
 #include "import.h"
 #include "struct.h"
+#include "trait.h"
 
 using namespace cpp;
 
@@ -51,6 +52,10 @@ void generateRootNode(const Ast &ast, Context &context) {
 
     case Token::StructDeclaration:
         generateStructDeclaration(ast, context);
+        break;
+
+    case Token::TraitDeclaration:
+        generateTraitDeclaration(ast, context, false);
         break;
 
     case Token::ExternStatement:

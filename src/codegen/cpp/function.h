@@ -27,11 +27,15 @@ struct FunctionPrototype {
     FunctionPrototype(const Ast &ast,
                       std::string_view moduleName,
                       bool shouldExport,
-                      bool shouldDisableMangling);
+                      bool shouldDisableMangling,
+                      bool isMethod);
 
     std::string signature(Context &context);
+    std::string methodSignature(Context &context,
+                                std::string_view parentName,
+                                bool functionPointer = false);
 
-    std::string mangledName();
+    std::string mangledName(std::string_view parentName = {});
 
     //! When a function is part of the current translation module or if a module
     //! is imported without module name
@@ -46,6 +50,7 @@ struct FunctionPrototype {
     std::string returnTypeName = "void";
 
     bool shouldExport = false;
+    bool isMethod = false;
 
     SpecificType returnType(Context &context);
 
@@ -56,7 +61,8 @@ private:
 FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
                                             bool shouldExport,
-                                            bool shouldDisableMangling = false);
+                                            bool shouldDisableMangling = false,
+                                            bool isMethod = false);
 
 void generateFunctionDeclaration(const Ast &ast,
                                  Context &context,

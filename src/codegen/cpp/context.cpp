@@ -96,6 +96,12 @@ Context::InsertPoint Context::setInsertPoint(InsertPoint it) {
     return std::exchange(_insertPoint, it);
 }
 
+Context::InsertPoint Context::insertBlock(Block block) {
+    auto it = insert(std::move(block));
+    auto oldInsertPoint = setInsertPoint({&*it.it, it.it->lines.begin()});
+    return oldInsertPoint;
+}
+
 std::string Context::generateId(std::string base) {
     if (base.empty()) {
         return "tmp" + std::to_string(_lastId++);

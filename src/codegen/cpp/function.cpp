@@ -38,10 +38,12 @@ namespace cpp {
 FunctionPrototype::FunctionPrototype(const Ast &ast,
                                      std::string_view moduleName,
                                      bool shouldExport,
-                                     bool shouldDisableMangling)
+                                     bool shouldDisableMangling,
+                                     bool isMethod)
     : shouldDisableMangling(shouldDisableMangling)
     , moduleName(moduleName)
-    , shouldExport(shouldExport) {
+    , shouldExport(shouldExport)
+    , isMethod(isMethod) {
 
     if (shouldDisableMangling) {
         this->moduleName = "";
@@ -65,7 +67,6 @@ FunctionPrototype::FunctionPrototype(const Ast &ast,
 
     auto astArgs = [&] {
         auto &astParentheses = prototypeAst.get(Token::FunctionArguments);
-        //        groupStandard(astParentheses);
         return astParentheses.empty() ? std::vector<const Ast *>{}
                                       : flattenList(astParentheses.front());
     }();
@@ -105,11 +106,35 @@ std::string FunctionPrototype::signature(Context &context) {
     return ss.str();
 }
 
-std::string FunctionPrototype::mangledName() {
+std::string FunctionPrototype::methodSignature(Context &context,
+                                               std::string_view parentName,
+                                               bool functionPointer) {
+    auto ss = std::ostringstream{};
+
+    ss << returnTypeName << " ";
+
+    if (functionPointer) {
+        ss << "(*" << mangledName(parentName) << ")";
+    }
+    else {
+        ss << mangledName(parentName);
+    }
+
+    ss << "(" << parentName << "*"
+       << "self" << join(args, ' ', context) << ")";
+
+    return ss.str();
+}
+
+std::string FunctionPrototype::mangledName(std::string_view parentName) {
     auto ss = std::ostringstream{};
 
     if (!shouldDisableMangling && !moduleName.empty() && name != "main") {
         ss << moduleName << "_";
+    }
+
+    if (!parentName.empty()) {
+        ss << parentName << "_";
     }
 
     ss << name;
@@ -132,9 +157,10 @@ SpecificType FunctionPrototype::returnType(Context &context) {
 FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
                                             bool shouldExport,
-                                            bool shouldDisableMangling) {
+                                            bool shouldDisableMangling,
+                                            bool isMethod) {
     auto function = FunctionPrototype{
-        ast, context.moduleName, shouldExport, shouldDisableMangling};
+        ast, context.moduleName, shouldExport, shouldDisableMangling, isMethod};
 
     context.functions.emplace(function.localName(), function);
 
@@ -146,15 +172,17 @@ void generateFunctionDeclaration(const Ast &ast,
                                  bool shouldExport) {
     auto function = generateFunctionPrototype(ast, context, shouldExport);
 
-    std::ostringstream ss;
+    auto ss = std::ostringstream{};
 
     ss << function.signature(context);
 
-    auto block = Block{ss.str(), function.location, ast.token.buffer};
-    auto it = context.insert(std::move(block));
+    //    auto block = Block{ss.str(), function.location, ast.token.buffer};
+    //    auto it = context.insert(std::move(block));
+    //    auto oldInsertPoint =
+    //        context.setInsertPoint({&*it.it, it.it->lines.begin()});
 
     auto oldInsertPoint =
-        context.setInsertPoint({&*it.it, it.it->lines.begin()});
+        context.insertBlock({ss.str(), function.location, ast.token.buffer});
 
     // Todo: Sometime in the far future, optimize this statement
     auto &body = ast.getRecursive(Token::FunctionBody);
@@ -193,8 +221,6 @@ void generateFunctionDeclaration(const Ast &ast,
          ++rit) {
         context.popVariable(rit->name);
     }
-
-    (void)it;
 }
 
 Value generateFunctionCall(const Ast &ast, Context &context) {

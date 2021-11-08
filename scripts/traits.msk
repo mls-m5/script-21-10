@@ -1,4 +1,5 @@
 
+module traits
 
 trait Movable {
     func move(x int)
