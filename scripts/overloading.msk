@@ -1,0 +1,24 @@
+
+module overloading
+
+struct Apa {
+}
+
+struct Bepa {
+}
+
+func print(apa Apa) {
+    log.print("got a Apa")
+}
+
+func print(apa Bepa) {
+    log.print("got a Bepa")
+}
+
+func main() {
+    let apa = Apa{}
+    let bepa = Bepa{}
+
+    print(apa)
+    print(bepa)
+}

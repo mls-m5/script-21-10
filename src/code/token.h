@@ -40,6 +40,7 @@ struct Token {
         ModuleKeyword,
         LetKeyword,
         StructKeyword,
+        TraitKeyword,
         ExternKeyword,
 
         Parentheses,
@@ -60,6 +61,8 @@ struct Token {
         FunctionBody,
         StructDeclaration,
         StructBody,
+        TraitDeclaration,
+        TraitBody,
         ImportStatement,
         ExportStatement,
         ModuleStatement,

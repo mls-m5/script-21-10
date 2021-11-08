@@ -28,7 +28,7 @@ Or a more convoluted example:
 
 import os
 
-interface Movable {
+trait Movable {
    func move(x int, y int) mut
 }
 
@@ -38,10 +38,10 @@ struct Apa: impl Movable {
    
    // override specifies that this function must be implemented
    // by a interface
-   impl func move(x int, y int) mut {
+   impl func move(vx int, vy int) mut {
       log.print("Moved")
-      self.x += x // Underscore separates member variables
-      self.y += y
+      x += vx
+      y += vy
    }
 }
 
@@ -75,8 +75,8 @@ func doStuff(mut Movable &m, len int) {
 
 func main() {
    let apa = Apa{
-      .x = 10,
-      .y = 20,
+      x = 10,
+      y = 20,
    }
    
    // These two statements should be eqvivalent

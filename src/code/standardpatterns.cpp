@@ -81,6 +81,11 @@ const Patterns &getStandardPatterns() {
             {Token::Keep, Token::Name, Token::StructBody},
         },
         {
+            {Token::TraitKeyword, Token::Word, Token::Braces},
+            Token::TraitDeclaration,
+            {Token::Keep, Token::Name, Token::TraitBody},
+        },
+        {
             {Token::ExternKeyword, Token::FunctionPrototype},
             Token::ExternStatement,
         },

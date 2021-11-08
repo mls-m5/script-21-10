@@ -46,6 +46,7 @@ Token::Type getKeyword(std::string_view str) {
         {"module", Token::ModuleKeyword},
         {"let", Token::LetKeyword},
         {"struct", Token::StructKeyword},
+        {"trait", Token::TraitKeyword},
         {"extern", Token::ExternKeyword},
     };
 

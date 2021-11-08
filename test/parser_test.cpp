@@ -324,4 +324,17 @@ TEST_CASE("function return type") {
     }
 }
 
+TEST_CASE("trait") {
+    {
+        auto ast = parse(R"_(
+            trait Movable {
+                func move()
+            }
+        )_");
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::TraitDeclaration);
+    }
+}
+
 TEST_SUIT_END
