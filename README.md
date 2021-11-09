@@ -39,10 +39,12 @@ trait Movable {
    func move(x int, y int) mut
 }
 
-struct Apa: impl Movable {
+struct Apa {
    x int
    y int
-   
+}
+
+impl Movable for Apa {
    // override specifies that this function must be implemented
    // by a interface
    impl func move(vx int, vy int) mut {

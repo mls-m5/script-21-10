@@ -42,6 +42,8 @@ struct Token {
         StructKeyword,
         TraitKeyword,
         ExternKeyword,
+        ImplKeyword,
+        ForKeyword,
 
         Parentheses,
         Brackets,
@@ -63,6 +65,9 @@ struct Token {
         StructBody,
         TraitDeclaration,
         TraitBody,
+        ImplDeclaration,
+        ImplForDeclaration,
+        ImplBody,
         ImportStatement,
         ExportStatement,
         ModuleStatement,

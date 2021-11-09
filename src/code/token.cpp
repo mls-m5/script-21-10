@@ -34,6 +34,8 @@ std::string_view name(Token::Type t) {
         CASE(StructKeyword)
         CASE(TraitKeyword)
         CASE(ExternKeyword)
+        CASE(ImplKeyword)
+        CASE(ForKeyword)
 
         CASE(Parentheses)
         CASE(Brackets)
@@ -54,6 +56,9 @@ std::string_view name(Token::Type t) {
         CASE(StructBody)
         CASE(TraitDeclaration)
         CASE(TraitBody)
+        CASE(ImplDeclaration)
+        CASE(ImplForDeclaration)
+        CASE(ImplBody)
         CASE(ImportStatement)
         CASE(ExportStatement)
         CASE(ModuleStatement)

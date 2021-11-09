@@ -337,4 +337,24 @@ TEST_CASE("trait") {
     }
 }
 
+TEST_CASE("impl statement") {
+    {
+        auto ast = parse("impl Bepa {}");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::ImplDeclaration);
+    }
+
+    {
+        auto ast = parse("impl Bepa for Apa {}");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::ImplForDeclaration);
+    }
+}
+
 TEST_SUIT_END

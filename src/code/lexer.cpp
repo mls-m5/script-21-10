@@ -48,6 +48,8 @@ Token::Type getKeyword(std::string_view str) {
         {"struct", Token::StructKeyword},
         {"trait", Token::TraitKeyword},
         {"extern", Token::ExternKeyword},
+        {"impl", Token::ImplKeyword},
+        {"for", Token::ForKeyword},
     };
 
     if (auto f = keywords.find(str); f != keywords.end()) {

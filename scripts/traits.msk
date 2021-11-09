@@ -10,7 +10,7 @@ struct Elevator {
 }
 
 impl Movable for Elevator {
-    impl func move(x int) {
+    impl func move(self mut Movable&, x int) {
         height = x
     }
 }
