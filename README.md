@@ -35,9 +35,11 @@ Or a more convoluted example:
 
 import os
 
-trait Movable {
+export trait Movable {
    func move(x int, y int) mut
 }
+
+//////////////////////////////////////////////////
 
 struct Apa {
    x int
@@ -47,14 +49,16 @@ struct Apa {
 impl Movable for Apa {
    // override specifies that this function must be implemented
    // by a interface
-   impl func move(vx int, vy int) mut {
+   func move(vx int, vy int) mut {
       log.print("Moved")
       x += vx
       y += vy
    }
 }
 
-struct Bepa: impl Movable {
+////////////////////////////////////////////////
+
+struct Bepa {
    apa Apa // Will reduce the need for ever inheriting
 }
 
@@ -67,14 +71,15 @@ impl Bepa {
 
 impl Movable for Bepa {
    // Just just call interfaced functions on apa instead of implementing them
-   impl Movable -> apa 
+   Movable -> apa 
    
    // Alternative syntax
    // Forward a single function to apa
    // If the above statement is present this would not be needed
-   func move -> apa
+   move -> apa
 }
 
+/////////////////////////////////////////////////
 
 // Possible out of line way to define member variables
 func somethingEvenMoreDifferent(self Bepa) {
