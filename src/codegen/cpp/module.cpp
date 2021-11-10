@@ -70,6 +70,10 @@ void generateRootNode(const Ast &ast, Context &context) {
         generateRootExport(ast.back(), context);
         break;
 
+    case Token::ImplForDeclaration:
+        generateImplForDeclaration(ast, context, false);
+        break;
+
     default:
         throw InternalError{
             ast.token, "Invalid root element " + std::string{name(ast.type)}};

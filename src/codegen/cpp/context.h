@@ -91,6 +91,7 @@ struct Context {
     SpecificType getType(const Ast &ast);
     void setType(Type type);
     void setStruct(Struct s);
+    void setTrait(Trait t);
     Variable *getVariable(std::string_view name);
     void setVariable(std::string name, Variable);
 
@@ -108,6 +109,7 @@ struct Context {
     // ALways do this in the reverse order
     void popVariable(std::string name);
 
+    // Todo: make private
     std::map<std::string, FunctionPrototype> functions;
 
     FileLookup fileLookup;
@@ -121,6 +123,7 @@ private:
     std::list<Type> _types;
     size_t _lastId = 0;
     std::map<std::string, Struct> _structs;
+    std::map<std::string, Trait> _traits;
 };
 
 } // namespace cpp

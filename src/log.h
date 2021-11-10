@@ -12,7 +12,7 @@ void log(Args &&...args) {
 template <typename... Args>
 void dlog(Args &&...args) {
     if (shouldOutputDebugInfo) {
-        ((std::cout << std::forward<Args>(args)), ...) << "\n";
+        ((std::cout << std::forward<Args>(args)), ...) << std::endl;
     }
 }
 

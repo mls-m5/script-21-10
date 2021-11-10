@@ -22,4 +22,8 @@ void generateTraitDeclaration(const Ast &ast,
                               Context &context,
                               bool shouldExport);
 
+void generateImplForDeclaration(const Ast &ast,
+                                Context &context,
+                                bool shouldExport);
+
 } // namespace cpp

@@ -10,13 +10,13 @@ struct Elevator {
 }
 
 impl Movable for Elevator {
-    impl func move(self mut Movable&, x int) {
+    func move(x int) {
         height = x
     }
 }
 
-func moveSomethingMovable(thing Movable &, x int) {
-    thing.move(x)
+func moveSomethingMovable(thing Movable *, x int) {
+    thing->move(x)
 }
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
        height = 0
     }
 
-    moveSomethingMovable(elevator)
+    moveSomethingMovable(elevator, 10)
 
-    elevator.x
+    elevator.height
 }

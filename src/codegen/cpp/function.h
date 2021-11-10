@@ -34,6 +34,7 @@ struct FunctionPrototype {
     std::string methodSignature(Context &context,
                                 std::string_view parentName,
                                 bool functionPointer = false);
+    std::string lambdaSignature(Context &context);
 
     std::string mangledName(std::string_view parentName = {});
 

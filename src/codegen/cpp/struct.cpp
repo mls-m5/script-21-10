@@ -31,27 +31,22 @@ Struct::Struct(const Ast &ast, Context &context) {
 
 void generateStructDeclaration(const Ast &ast, Context &context) {
     auto s = Struct(ast, context);
-
-    auto lines = std::vector<std::string>{};
-
-    lines.push_back("struct " + s.name + "{");
-    for (auto &member : s.members) {
-        lines.push_back("  " + member.type.type->name + " " + member.name +
-                        ";");
-    }
-
-    lines.push_back("};");
-
+    context.setStruct(s);
     if (s.name == "str") {
         dlog("skipping output of built in struct str");
-    }
-    else {
-        for (auto &line : lines) {
-            context.insert({std::move(line), ast.front().token});
-        }
+        return;
     }
 
-    context.setStruct(s);
+    auto oldInsertPoint = context.insertBlock({"struct " + s.name, ast.token});
+
+    for (auto &member : s.members) {
+        context.insert(
+            {member.type.type->name + " " + member.name + ";", ast.token});
+    }
+
+    context.setInsertPoint(oldInsertPoint);
+
+    context.insert({";", ast.token});
 }
 
 } // namespace cpp

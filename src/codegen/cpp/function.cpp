@@ -120,8 +120,21 @@ std::string FunctionPrototype::methodSignature(Context &context,
         ss << mangledName(parentName);
     }
 
-    ss << "(" << parentName << "*"
-       << "self" << join(args, ' ', context) << ")";
+    ss << "("
+       << "void*"
+       << "self, " << join(args, ' ', context) << ")";
+
+    return ss.str();
+}
+
+std::string FunctionPrototype::lambdaSignature(Context &context) {
+    auto ss = std::ostringstream{};
+
+    ss << "[]";
+
+    ss << "(" << join(args, ' ', context) << ")";
+
+    ss << "->" << returnTypeName;
 
     return ss.str();
 }
@@ -176,11 +189,6 @@ void generateFunctionDeclaration(const Ast &ast,
 
     ss << function.signature(context);
 
-    //    auto block = Block{ss.str(), function.location, ast.token.buffer};
-    //    auto it = context.insert(std::move(block));
-    //    auto oldInsertPoint =
-    //        context.setInsertPoint({&*it.it, it.it->lines.begin()});
-
     auto oldInsertPoint =
         context.insertBlock({ss.str(), function.location, ast.token.buffer});
 
@@ -229,7 +237,6 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
     auto &astArgs = ast.get(Token::FunctionArguments);
 
     if (!astArgs.empty()) {
-        //        groupStandard(astArgs);
 
         auto list = flattenList(astArgs.front());
         for (auto *arg : list) {
@@ -240,18 +247,25 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
     auto &target = ast.front();
 
     auto call = [&context, &ast, &astArgs, &args](FunctionPrototype &function,
-                                                  const Token &loc) {
+                                                  const Token &loc,
+                                                  std::string namePrefix = "",
+                                                  std::string selfArgument =
+                                                      "") {
         if (function.args.size() != args.size()) {
             throw InternalError{ast.token,
                                 "trying to call function " +
                                     std::string{function.name} + " with " +
                                     std::to_string(astArgs.size()) +
-                                    " arguments, but it only has " +
+                                    " arguments, but it expects " +
                                     std::to_string(function.args.size())};
         }
         auto id = context.generateId("fnc");
 
         auto ss = std::ostringstream{};
+
+        if (!selfArgument.empty()) {
+            ss << selfArgument << ",";
+        }
 
         for (auto &arg : args) {
             ss << arg.name << ",";
@@ -265,7 +279,8 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
 
         if (function.returnTypeName == "void") {
             context.insert(
-                {function.mangledName() + "(" + argsString + ");", loc});
+                {namePrefix + function.mangledName() + "(" + argsString + ");",
+                 loc});
             return std::string{};
         }
 
@@ -289,21 +304,58 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
         }
     }
 
-    if (target.type == Token::ValueMemberAccessor) {
-        //        auto value = generateExpression(target, context);
+    if (target.type == Token::ValueMemberAccessor ||
+        target.type == Token::PointerMemberAccessor) {
 
-        auto &name = target.back();
+        auto &firstAst = target.front();
 
-        // Todo: Actually handle the namespacing/module part of this
+        auto first = generateExpression(firstAst, context);
+        auto type = first.type;
 
-        if (auto f = context.functions.find(name.token.toString());
-            f != context.functions.end()) {
+        auto &nameAst = target.back();
 
-            auto &function = f->second;
+        // Trait function calls
+        if (auto trait = type.type->traitPtr) {
+            auto ss = std::ostringstream{};
 
-            auto id = call(function, target.token);
+            //            ss << first.name;
+            //            ss << target.at(1); // "." or "->"
+            //            ss << "vtable->";
+            //            ss << nameAst.token.content;
+            //            ss << first.name << "->ptr";
 
-            return {id, function.returnType(context)};
+            if (auto f = trait->methods.find(nameAst.token.toString());
+                f != trait->methods.end()) {
+
+                auto &function = f->second;
+
+                auto id = call(function,
+                               target.token,
+                               first.name + "->vtable->",
+                               first.name + "->ptr");
+
+                return {id, function.returnType(context)};
+            }
+            else {
+                throw InternalError{nameAst.token,
+                                    "Could not find function " +
+                                        nameAst.token.toString() +
+                                        " on trait " + trait->name};
+            }
+        }
+        else {
+
+            // Todo: Actually handle the namespacing/module part of this
+
+            if (auto f = context.functions.find(nameAst.token.toString());
+                f != context.functions.end()) {
+
+                auto &function = f->second;
+
+                auto id = call(function, target.token);
+
+                return {id, function.returnType(context)};
+            }
         }
     }
     throw InternalError{target.token,

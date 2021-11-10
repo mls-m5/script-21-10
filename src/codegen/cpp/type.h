@@ -8,6 +8,7 @@ struct Type {
     std::string name;
 
     struct Struct *structPtr = nullptr;
+    struct Trait *traitPtr = nullptr;
 };
 
 // Same as type but also contains pointer level

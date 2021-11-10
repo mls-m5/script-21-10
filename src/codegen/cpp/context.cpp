@@ -81,7 +81,19 @@ void Context::setType(Type type) {
 void Context::setStruct(Struct s) {
     auto name = s.name;
     auto &sref = _structs[name] = std::move(s);
-    _types.push_back(Type{name, &sref});
+    _types.push_back(Type{
+        .name = name,
+        .structPtr = &sref,
+    });
+}
+
+void Context::setTrait(Trait t) {
+    auto name = t.name;
+    auto pair = _traits.insert({t.name, std::move(t)});
+    _types.push_back(Type{
+        .name = name,
+        .traitPtr = &pair.first->second,
+    });
 }
 
 Variable *Context::getVariable(std::string_view name) {
