@@ -33,8 +33,6 @@ func main() {
 Or a more convoluted example:
 ```c++
 
-import os
-
 export trait Movable {
    func move(x int, y int) mut
 }
@@ -81,11 +79,6 @@ impl Movable for Bepa {
 
 /////////////////////////////////////////////////
 
-// Possible out of line way to define member variables
-func somethingEvenMoreDifferent(self Bepa) {
-   apa.y = 20;
-}
-
 // Fat pointer dynamic dispatching
 // References const by default
 func doStuff(mut Movable &m, len int) {
@@ -104,8 +97,18 @@ func main() {
    
    let bepa = Bepa{}
    bepa.doSomethingEntirelyDifferent()
-   doSomethingEntirelyDifferent(bepa) // Possible more simplistic
    
+}
+
+```
+
+## Control flow:
+
+```c++
+
+import os
+
+func main() {
    log.print("Arguments to main:")
    for (let arg: os.args) {
       log.print(arg)
@@ -129,6 +132,7 @@ func main() {
    }
 }
 ```
+
 
 ## Requirements
 
