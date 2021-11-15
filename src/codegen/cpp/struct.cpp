@@ -1,8 +1,20 @@
 #include "struct.h"
 #include "context.h"
 #include "log.h"
+#include <algorithm>
 
 namespace cpp {
+
+Struct::Member *Struct::getMember(std::string_view name) {
+    if (auto f = std::find_if(members.begin(),
+                              members.end(),
+                              [&name](auto &m) { return m.name == name; });
+        f != members.end()) {
+        return f.base();
+    }
+
+    return nullptr;
+}
 
 Struct::Struct(const Ast &ast, Context &context) {
     auto &nameAst = ast.get(Token::Name);

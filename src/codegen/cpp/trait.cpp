@@ -83,18 +83,25 @@ void generateImplForDeclaration(const Ast &ast,
                                 " is not a struct"};
     }
 
-    auto ss = std::ostringstream{};
+    auto methodNames = std::vector<std::string>{};
 
+    auto &traitBody = ast.get(Token::ImplBody);
+
+    for (auto &functionAst : traitBody) {
+        auto function =
+            generateFunctionDeclaration(functionAst, context, false);
+        methodNames.push_back(function.mangledName(traitType->name));
+    }
+
+    auto ss = std::ostringstream{};
     ss << "constexpr auto " << traitType->traitPtr->name << "_for_"
        << structType->name << " = " << traitType->traitPtr->name;
 
     auto oldInsertPoint =
         context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});
 
-    auto &traitBody = ast.get(Token::ImplBody);
-
-    for (auto &function : traitBody) {
-        generateFunctionDeclaration(function, context, false);
+    for (auto &name : methodNames) {
+        context.insert({name + ",", ast.token});
     }
 
     context.setInsertPoint(oldInsertPoint);

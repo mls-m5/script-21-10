@@ -41,6 +41,14 @@ Context::Context(std::filesystem::path filename)
     _types.push_back({"size_t"});
 }
 
+Context::InsertPoint Context::insert(InsertPoint insertPoint, Block block) {
+    auto it =
+        _insertPoint.block->lines.insert(insertPoint.it, std::move(block));
+    insertPoint.it = it;
+    ++_insertPoint.it;
+    return {insertPoint.block, it};
+}
+
 Context::InsertPoint Context::insert(Block line) {
     auto it =
         _insertPoint.block->lines.insert(_insertPoint.it, std::move(line));

@@ -65,9 +65,11 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             bool shouldDisableMangling = false,
                                             bool isMethod = false);
 
-void generateFunctionDeclaration(const Ast &ast,
-                                 Context &context,
-                                 bool shouldExport);
+//! Returns the function prototype, you do not need no use it, but you could if
+//! you need to know some information about it
+FunctionPrototype generateFunctionDeclaration(const Ast &ast,
+                                              Context &context,
+                                              bool shouldExport);
 
 Value generateFunctionCall(const Ast &ast, Context &context);
 

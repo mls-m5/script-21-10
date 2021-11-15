@@ -32,8 +32,16 @@ Value generateBinaryOperation(const Ast &ast, Context &context) {
 }
 
 Value generateVariableExpression(const Ast &ast, Context &context) {
-    if (auto variable = context.getVariable(ast.token.toString())) {
+    auto name = ast.token.toString();
+    if (auto variable = context.getVariable(name)) {
         return {variable->name, {variable->type}};
+    }
+    else if (auto variable = context.getVariable("self")) {
+        if (auto s = variable->type.type->structPtr) {
+            if (auto member = s->getMember(name)) {
+                return {"self." + name, member->type};
+            }
+        }
     }
     throw InternalError{
         ast.token, "Variable with name " + ast.token.toString() + " not found"};
@@ -119,16 +127,6 @@ Value generateAssignment(const Ast &ast, Context &context) {
     }
 
     auto lhs = generateExpression(lhsAst, context);
-
-    //    if (lhsAst.type != Token::MemberName) {
-    //        throw InternalError{ast.token,
-    //                            "can only assign to variables specified by
-    //                            name " +
-    //                                std::string{name(ast.type)}};
-    //    }
-
-    //    auto variable =
-    //    context.getVariable(std::string{lhsAst.token.content});
 
     auto value = generateExpression(ast.back(), context);
 

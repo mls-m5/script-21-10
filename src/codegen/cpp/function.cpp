@@ -101,7 +101,7 @@ std::string FunctionPrototype::signature(Context &context) {
 
     ss << mangledName();
 
-    ss << "(" << join(args, ' ', context) << ")";
+    ss << "(" << join(args, ',', context) << ")";
 
     return ss.str();
 }
@@ -122,7 +122,7 @@ std::string FunctionPrototype::methodSignature(Context &context,
 
     ss << "("
        << "void*"
-       << "self, " << join(args, ' ', context) << ")";
+       << "self, " << join(args, ',', context) << ")";
 
     return ss.str();
 }
@@ -132,7 +132,7 @@ std::string FunctionPrototype::lambdaSignature(Context &context) {
 
     ss << "[]";
 
-    ss << "(" << join(args, ' ', context) << ")";
+    ss << "(" << join(args, ',', context) << ")";
 
     ss << "->" << returnTypeName;
 
@@ -180,9 +180,9 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
     return function;
 }
 
-void generateFunctionDeclaration(const Ast &ast,
-                                 Context &context,
-                                 bool shouldExport) {
+FunctionPrototype generateFunctionDeclaration(const Ast &ast,
+                                              Context &context,
+                                              bool shouldExport) {
     auto function = generateFunctionPrototype(ast, context, shouldExport);
 
     auto ss = std::ostringstream{};
@@ -229,6 +229,8 @@ void generateFunctionDeclaration(const Ast &ast,
          ++rit) {
         context.popVariable(rit->name);
     }
+
+    return function;
 }
 
 Value generateFunctionCall(const Ast &ast, Context &context) {
@@ -317,12 +319,6 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
         // Trait function calls
         if (auto trait = type.type->traitPtr) {
             auto ss = std::ostringstream{};
-
-            //            ss << first.name;
-            //            ss << target.at(1); // "." or "->"
-            //            ss << "vtable->";
-            //            ss << nameAst.token.content;
-            //            ss << first.name << "->ptr";
 
             if (auto f = trait->methods.find(nameAst.token.toString());
                 f != trait->methods.end()) {

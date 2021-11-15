@@ -16,6 +16,7 @@ struct Type {
 struct SpecificType {
     Type *type = nullptr;
     int pointerDepth = 0;
+    bool isReference = false;
 
     std::string toString() const;
 

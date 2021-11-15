@@ -81,7 +81,15 @@ struct Context {
 
     std::string generateName(std::string_view base);
 
+    // Insert stuff at point specified by user, and return the line after
+    InsertPoint insert(InsertPoint, Block);
+
+    // Insert att the current insertion point
     InsertPoint insert(Block);
+
+    // insert block, return it, set the insert point to it and the old insert
+    // point for resetting later
+    InsertPoint insertBlock(Block block);
 
     void dumpCpp(std::ostream &stream, bool removeLines = false) const;
 
@@ -97,10 +105,6 @@ struct Context {
 
     // Set and return the old point
     InsertPoint setInsertPoint(InsertPoint it);
-
-    // insert block, return it, set the insert point to it and the old insert
-    // point for resetting later
-    InsertPoint insertBlock(Block block);
 
     std::string generateId(std::string base = "");
 

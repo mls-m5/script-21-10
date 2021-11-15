@@ -19,6 +19,8 @@ struct Struct {
 
     std::vector<Member> members;
 
+    Member *getMember(std::string_view name);
+
     Struct() = default;
 
     Struct(const Ast &ast, Context &context);

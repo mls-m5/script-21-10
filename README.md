@@ -44,10 +44,15 @@ struct Apa {
    y int
 }
 
-impl Movable for Apa {
+impl Apa {
+   trait Movable
+   
+   func x(int) { ... }
+   func y(int) { ... }
+
    // override specifies that this function must be implemented
    // by a interface
-   func move(vx int, vy int) mut {
+   impl func move(vx int, vy int) mut {
       log.print("Moved")
       x += vx
       y += vy
@@ -61,20 +66,20 @@ struct Bepa {
 }
 
 impl Bepa {
-   // This is a function that is not associated to a interface
-   func somethingEntirelyDifferent() {
-      log.print("just some other behaviour")
-   }
-}
-
-impl Movable for Bepa {
    // Just just call interfaced functions on apa instead of implementing them
+   trait Movable -> apa
+
    Movable -> apa 
    
    // Alternative syntax
    // Forward a single function to apa
    // If the above statement is present this would not be needed
+   
    move -> apa
+   // This is a function that is not associated to a interface
+   func somethingEntirelyDifferent() {
+      log.print("just some other behaviour")
+   }
 }
 
 /////////////////////////////////////////////////
@@ -133,10 +138,126 @@ func main() {
 }
 ```
 
+Possible alternative syntax
+```c++
+
+trait Movable {
+    func move(x int)
+}
+
+struct Apa {
+    trait Movable
+    
+    x int
+    
+    func reset() {
+        x = 0
+    }
+    
+    impl func move(x int) {
+        height = x
+    }
+}
+
+struct Bepa {
+     trait Movable -> apa
+     
+     apa Apa
+}
+
+
+```
+
+```c++
+
+trait Movable {
+    func move(x int)
+}
+
+struct Apa {
+    x int
+}
+
+impl Apa {
+    impl trait Movable
+    
+    impl func move(x int) {
+        height = x
+    }
+    
+    func reset() {
+        height = 0
+    }
+}
+
+struct Bepa {
+     apa Apa
+}
+
+impl Bepa {
+     trait Movable -> apa
+     
+     func justDoSomethingElse() {
+         log.print("just do something unrelated to the trait")
+     }
+}
+```
+
+Old syntax
+```cpp
+
+//////////////////////////////////////////////////
+
+struct Apa {
+   x int
+   y int
+}
+
+impl Apa {
+   func x(int) { ... }
+   func y(int) { ... }
+}
+
+impl Movable for Apa {
+   // override specifies that this function must be implemented
+   // by a interface
+   func move(vx int, vy int) mut {
+      log.print("Moved")
+      x += vx
+      y += vy
+   }
+}
+
+////////////////////////////////////////////////
+
+struct Bepa {
+   apa Apa // Will reduce the need for ever inheriting
+}
+
+impl Bepa {
+   // This is a function that is not associated to a interface
+   func somethingEntirelyDifferent() {
+      log.print("just some other behaviour")
+   }
+}
+
+impl Movable for Bepa {
+   // Just just call interfaced functions on apa instead of implementing them
+   Movable -> apa 
+   
+   // Alternative syntax
+   // Forward a single function to apa
+   // If the above statement is present this would not be needed
+   move -> apa
+}
+
+/////////////////////////////////////////////////
+
+```
 
 ## Requirements
 
-* llvm-14
+* llvm-14 (not any more)
 
 ## References
 
