@@ -51,24 +51,24 @@ void generateTraitDeclaration(const Ast &ast,
     context.setTrait(trait);
 }
 
-void generateImplForDeclaration(const Ast &ast,
-                                Context &context,
-                                bool shouldExport) {
-    auto &traitNameAst = ast.get(Token::Name);
-    auto &structNameAst = ast.get(Token::Word);
+void generateImplDeclaration(const Ast &ast,
+                             Context &context,
+                             bool shouldExport) {
+    //    auto &traitNameAst = ast.get(Token::Name);
+    auto &structNameAst = ast.get(Token::Name);
 
-    auto *traitType = context.getType(traitNameAst.token.content);
-    if (!traitType) {
-        throw InternalError{traitNameAst.token,
-                            "Trait " + traitNameAst.token.toString() +
-                                " is not defined"};
-    }
+    //    auto *traitType = context.getType(traitNameAst.token.content);
+    //    if (!traitType) {
+    //        throw InternalError{traitNameAst.token,
+    //                            "Trait " + traitNameAst.token.toString() +
+    //                                " is not defined"};
+    //    }
 
-    if (!traitType->traitPtr) {
-        throw InternalError{traitNameAst.token,
-                            "Type " + traitNameAst.token.toString() +
-                                " is not a trait"};
-    }
+    //    if (!traitType->traitPtr) {
+    //        throw InternalError{traitNameAst.token,
+    //                            "Type " + traitNameAst.token.toString() +
+    //                                " is not a trait"};
+    //    }
 
     auto *structType = context.getType(structNameAst.token.toString());
     if (!structType) {
@@ -87,24 +87,37 @@ void generateImplForDeclaration(const Ast &ast,
 
     auto &traitBody = ast.get(Token::ImplBody);
 
+    context.pushVariable({
+        // Todo: Handle with selfpointer instead
+        "self",
+        {structType} // Put some real type here
+    });
+    auto oldSelf = context.selfStruct(structType->structPtr);
+
     for (auto &functionAst : traitBody) {
-        auto function =
-            generateFunctionDeclaration(functionAst, context, false);
-        methodNames.push_back(function.mangledName(traitType->name));
+        // Extend to do other stuff than functions
+        auto function = generateFunctionDeclaration(
+            functionAst, context, shouldExport, false, true);
+        //        methodNames.push_back(function.mangledName(structType->name));
+        context.insert(
+            {function.methodSignature(context, structType->name), ast.token});
     }
 
-    auto ss = std::ostringstream{};
-    ss << "constexpr auto " << traitType->traitPtr->name << "_for_"
-       << structType->name << " = " << traitType->traitPtr->name;
+    context.popVariable("self");
+    context.selfStruct(oldSelf);
 
-    auto oldInsertPoint =
-        context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});
+    //    auto ss = std::ostringstream{};
+    //    ss << "constexpr auto " << traitType->traitPtr->name << "_for_"
+    //       << structType->name << " = " << traitType->traitPtr->name;
 
-    for (auto &name : methodNames) {
-        context.insert({name + ",", ast.token});
-    }
+    //    auto oldInsertPoint =
+    //        context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});
 
-    context.setInsertPoint(oldInsertPoint);
+    //    for (auto &name : methodNames) {
+    //        context.insert({name + ",", ast.token});
+    //    }
+
+    //    context.setInsertPoint(oldInsertPoint);
 
     context.insert({";", ast.token});
 }

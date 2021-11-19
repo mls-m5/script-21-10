@@ -37,13 +37,15 @@ namespace cpp {
 
 FunctionPrototype::FunctionPrototype(const Ast &ast,
                                      std::string_view moduleName,
+                                     Struct *self,
                                      bool shouldExport,
                                      bool shouldDisableMangling,
                                      bool isMethod)
     : shouldDisableMangling(shouldDisableMangling)
     , moduleName(moduleName)
     , shouldExport(shouldExport)
-    , isMethod(isMethod) {
+    , isMethod(isMethod)
+    , _selfPtr{self} {
 
     if (shouldDisableMangling) {
         this->moduleName = "";
@@ -101,7 +103,13 @@ std::string FunctionPrototype::signature(Context &context) {
 
     ss << mangledName();
 
-    ss << "(" << join(args, ',', context) << ")";
+    ss << "(";
+
+    if (_selfPtr) {
+        ss << _selfPtr->name << " * self";
+    }
+
+    ss << join(args, ',', context) << ")";
 
     return ss.str();
 }
@@ -120,24 +128,29 @@ std::string FunctionPrototype::methodSignature(Context &context,
         ss << mangledName(parentName);
     }
 
-    ss << "("
-       << "void*"
-       << "self, " << join(args, ',', context) << ")";
+    ss << "(void * self";
+
+    if (args.empty()) {
+        ss << ")";
+    }
+    else {
+        ss << ", " << join(args, ',', context) << ")";
+    }
 
     return ss.str();
 }
 
-std::string FunctionPrototype::lambdaSignature(Context &context) {
-    auto ss = std::ostringstream{};
+// std::string FunctionPrototype::lambdaSignature(Context &context) {
+//     auto ss = std::ostringstream{};
 
-    ss << "[]";
+//    ss << "[]";
 
-    ss << "(" << join(args, ',', context) << ")";
+//    ss << "(" << join(args, ',', context) << ")";
 
-    ss << "->" << returnTypeName;
+//    ss << "->" << returnTypeName;
 
-    return ss.str();
-}
+//    return ss.str();
+//}
 
 std::string FunctionPrototype::mangledName(std::string_view parentName) {
     auto ss = std::ostringstream{};
@@ -146,8 +159,12 @@ std::string FunctionPrototype::mangledName(std::string_view parentName) {
         ss << moduleName << "_";
     }
 
-    if (!parentName.empty()) {
-        ss << parentName << "_";
+    //    if (!parentName.empty()) {
+    //        ss << parentName << "_";
+    //    }
+
+    if (_selfPtr) {
+        ss << _selfPtr->name << "_";
     }
 
     ss << name;
@@ -172,8 +189,12 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             bool shouldExport,
                                             bool shouldDisableMangling,
                                             bool isMethod) {
-    auto function = FunctionPrototype{
-        ast, context.moduleName, shouldExport, shouldDisableMangling, isMethod};
+    auto function = FunctionPrototype{ast,
+                                      context.moduleName,
+                                      context.selfStruct(),
+                                      shouldExport,
+                                      shouldDisableMangling,
+                                      isMethod};
 
     context.functions.emplace(function.localName(), function);
 
@@ -182,8 +203,11 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
 
 FunctionPrototype generateFunctionDeclaration(const Ast &ast,
                                               Context &context,
-                                              bool shouldExport) {
-    auto function = generateFunctionPrototype(ast, context, shouldExport);
+                                              bool shouldExport,
+                                              bool shouldDisableMangling,
+                                              bool isMethod) {
+    auto function = generateFunctionPrototype(
+        ast, context, shouldExport, shouldDisableMangling, isMethod);
 
     auto ss = std::ostringstream{};
 

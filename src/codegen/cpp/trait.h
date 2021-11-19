@@ -22,7 +22,7 @@ void generateTraitDeclaration(const Ast &ast,
                               Context &context,
                               bool shouldExport);
 
-void generateImplForDeclaration(const Ast &ast,
+void generateImplDeclaration(const Ast &ast,
                                 Context &context,
                                 bool shouldExport);
 

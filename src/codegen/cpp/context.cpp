@@ -10,10 +10,10 @@ void Block::dump(std::ostream &stream, int indentSize, bool removeLines) const {
         return stream;
     };
 
-    if (buffer && !removeLines) {
-        indent(indentSize) << "#line " << loc.row << " " << buffer->path()
-                           << "\n";
-    }
+    //    if (buffer && !removeLines) {
+    //        indent(indentSize) << "#line " << loc.row << " " << buffer->path()
+    //                           << "\n";
+    //    }
     indent(indentSize) << content << "\n";
 
     if (!lines.empty()) {
@@ -110,6 +110,14 @@ Variable *Context::getVariable(std::string_view name) {
     }
 
     return nullptr;
+}
+
+Struct *Context::selfStruct(Struct *self) {
+    return std::exchange(_selfStruct, self);
+}
+
+Struct *Context::selfStruct() {
+    return _selfStruct;
 }
 
 Context::InsertPoint Context::setInsertPoint(InsertPoint it) {

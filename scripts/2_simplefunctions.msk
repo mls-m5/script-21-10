@@ -1,11 +1,11 @@
 
 module simplefunctions
 
-func add(x int, y int) {
+func add(x int, y int) -> int {
    x + y
 }
 
-func addtwo() {
+func addtwo() -> int {
    8 + 2
 }
 

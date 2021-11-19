@@ -36,11 +36,16 @@ Value generateVariableExpression(const Ast &ast, Context &context) {
     if (auto variable = context.getVariable(name)) {
         return {variable->name, {variable->type}};
     }
-    else if (auto variable = context.getVariable("self")) {
-        if (auto s = variable->type.type->structPtr) {
-            if (auto member = s->getMember(name)) {
-                return {"self." + name, member->type};
-            }
+    //    else if (auto variable = context.getVariable("self")) {
+    //        if (auto s = variable->type.type->structPtr) {
+    //            if (auto member = s->getMember(name)) {
+    //                return {"self." + name, member->type};
+    //            }
+    //        }
+    //    }
+    else if (auto self = context.selfStruct()) {
+        if (auto member = self->getMember(name)) {
+            return {"self->" + name, member->type};
         }
     }
     throw InternalError{

@@ -6,22 +6,22 @@ struct Vec2 {
     y float
 }
 
-impl Vec2 {
-    func abs() -> float() {
-       return math.sqrt(x * x + y * y)
-    }
+func fake_sqrt(x float) -> float {
+    x
+}
 
-    operator+(Vec2 v) {
-       return Vec2{v.x + x, v.y + y}
+impl Vec2 {
+    func abs() -> float {
+       fake_sqrt(x * x + y * y)
     }
 }
 
-func main() {
+func main() -> int {
     let vec1 = Vec2{2, 3}
     let vec2 = Vec2{4, 5}
 
-    let vec3 = vec1 + vec2
+    let vec3 = Vec2{vec1.x + vec2.x, vec1.y + vec2.y}
     let abs = vec3.abs()
 
-    log.print("length {}", abs)
+    0
 }

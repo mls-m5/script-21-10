@@ -26,6 +26,7 @@ struct FunctionPrototype {
     // @param moduleName is not used if shouldDisableMangling is true
     FunctionPrototype(const Ast &ast,
                       std::string_view moduleName,
+                      Struct *self,
                       bool shouldExport,
                       bool shouldDisableMangling,
                       bool isMethod);
@@ -34,7 +35,7 @@ struct FunctionPrototype {
     std::string methodSignature(Context &context,
                                 std::string_view parentName,
                                 bool functionPointer = false);
-    std::string lambdaSignature(Context &context);
+    //    std::string lambdaSignature(Context &context);
 
     std::string mangledName(std::string_view parentName = {});
 
@@ -57,6 +58,7 @@ struct FunctionPrototype {
 
 private:
     SpecificType _returnType;
+    Struct *_selfPtr;
 };
 
 FunctionPrototype generateFunctionPrototype(const Ast &ast,
@@ -67,9 +69,12 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
 
 //! Returns the function prototype, you do not need no use it, but you could if
 //! you need to know some information about it
-FunctionPrototype generateFunctionDeclaration(const Ast &ast,
-                                              Context &context,
-                                              bool shouldExport);
+FunctionPrototype generateFunctionDeclaration(
+    const Ast &ast,
+    Context &context,
+    bool shouldExport,
+    bool shouldDisableMangling = false,
+    bool isMethod = false);
 
 Value generateFunctionCall(const Ast &ast, Context &context);
 

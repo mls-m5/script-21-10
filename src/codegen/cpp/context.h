@@ -103,6 +103,10 @@ struct Context {
     Variable *getVariable(std::string_view name);
     void setVariable(std::string name, Variable);
 
+    // Set selfstruct and return the old value
+    Struct *selfStruct(Struct *);
+    Struct *selfStruct();
+
     // Set and return the old point
     InsertPoint setInsertPoint(InsertPoint it);
 
@@ -128,6 +132,7 @@ private:
     size_t _lastId = 0;
     std::map<std::string, Struct> _structs;
     std::map<std::string, Trait> _traits;
+    Struct *_selfStruct = nullptr;
 };
 
 } // namespace cpp
