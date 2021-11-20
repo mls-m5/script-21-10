@@ -14,6 +14,20 @@ impl Elevator {
 
     func move(x int) {
         height = x
+        print("moved elevator")
+    }
+}
+
+struct Car {
+    x int
+}
+
+impl Car {
+    trait Movable
+
+    func move(nx int) {
+        x = nx
+        print("moved car")
     }
 }
 
@@ -26,7 +40,12 @@ func main() {
        height = 0
     }
 
-    moveSomethingMovable(&elevator, 10)
+    let car = Car {
+        x = 10
+    }
+
+    moveSomethingMovable((&elevator) as Movable, 10)
+    moveSomethingMovable((&car) as Movable, 12)
 
     elevator.height
 }

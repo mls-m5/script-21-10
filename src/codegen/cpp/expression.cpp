@@ -17,15 +17,15 @@ Value generateBinaryOperation(const Ast &ast, Context &context) {
     auto rhs = generateExpression(ast.back(), context);
 
     auto id = context.generateId("bin");
-    auto text = lhs.type.type->name + " " + id + " = " + lhs.name +
+    auto text = lhs.type.type()->name + " " + id + " = " + lhs.name +
                 ast.at(1).token.toString() + rhs.name + ";";
     context.insert({text, ast.token});
 
-    if (lhs.type.type != rhs.type.type) {
+    if (lhs.type.type() != rhs.type.type()) {
         throw InternalError{ast.token,
                             "could not operato on different types " +
-                                lhs.type.type->name + " and " +
-                                rhs.type.type->name};
+                                lhs.type.type()->name + " and " +
+                                rhs.type.type()->name};
     }
 
     return {id, lhs.type};
@@ -58,9 +58,10 @@ Value generateVariableDeclaration(const Ast &ast,
 
     auto name = nameAst->token.toString();
 
-    if (!type.type) {
+    if (!type.type()) {
         auto &typeAst = ast.back().getRecursive(Token::TypeName);
-        type.type = context.getType(typeAst.token.content);
+        //        type.type() = context.getType(typeAst.token.content);
+        type = {context.getType(typeAst.token.content)};
     }
 
     auto variable = Variable{name, {type}};
@@ -106,7 +107,7 @@ Value generateStructInitializer(const Ast &ast, Context &context) {
         return {ss.str(), {type}};
     }
 
-    return {"{}", {}};
+    return {"{}", {context.getType("void")}};
 }
 
 Value generateAssignment(const Ast &ast, Context &context) {
@@ -147,7 +148,7 @@ Value generateMemberAccessor(const Ast &ast, Context &context) {
     auto lhs = generateExpression(lhsAst, context);
     auto rhs = rhsAst.token.toString();
 
-    auto *s = lhs.type.type->structPtr;
+    auto *s = lhs.type.type()->structPtr;
     if (!s) {
         throw InternalError{lhsAst.token,
                             "not a struct" + lhsAst.token.toString()};
@@ -160,7 +161,7 @@ Value generateMemberAccessor(const Ast &ast, Context &context) {
 
     throw InternalError{rhsAst.token,
                         " could not find member " + rhs + " on struct " +
-                            lhs.type.type->name};
+                            lhs.type.type()->name};
 }
 
 Value generateStringLiteral(const Ast &ast, Context &context) {
@@ -170,8 +171,8 @@ Value generateStringLiteral(const Ast &ast, Context &context) {
 Value generateReferencingStatement(const Ast &ast, Context &context) {
     auto value = generateExpression(ast.back(), context);
     auto type = value.type;
-    type.pointerDepth += 1;
-    return {"&" + value.name, type};
+    return {"&" + value.name,
+            {type.type(), type.pointerDepth() + 1, type.isReference()}};
 }
 
 Value generateCastStatement(const Ast &ast, Context &context) {
@@ -183,19 +184,51 @@ Value generateCastStatement(const Ast &ast, Context &context) {
 
     auto type = context.getType(ast.back());
 
-    if (!type.type) {
+    if (!type.type()) {
         throw InternalError{ast.back().token,
                             "Could not find type " +
                                 ast.back().token.toString()};
     }
 
     auto id = context.generateId("cast");
+    if (auto trait = type.type()->traitPtr) {
+        auto fromStruct = value.type.type()->structPtr;
+        if (!fromStruct->hasTrait(trait)) {
+            throw InternalError{ast.token,
+                                " Type " + value.type.toString() +
+                                    " does not implement trait " + trait->name +
+                                    ". Did you miss to add 'trait " +
+                                    trait->name + "' to your impl statement?"};
+        }
 
-    context.insert({"auto " + id + " = static_cast<" + type.toString() + ">(" +
-                        value.name + ");",
-                    ast.token});
+        context.insert(
+            {"auto " + id + " = " + type.toString() + "{" + value.name + ", &" +
+                 trait->vtableNameForStruct(*value.type.type()->structPtr) +
+                 "};",
+             ast.token});
 
-    return {id, type};
+        return {id, type};
+    }
+    else {
+
+        context.insert({"auto " + id + " = static_cast<" + type.toString() +
+                            ">(" + value.name + ");",
+                        ast.token});
+
+        return {id, type};
+    }
+}
+
+Value generateParenthesesStatement(const Ast &ast, Context &context) {
+    if (ast.empty()) {
+        return {"()", {context.getType("void")}};
+    }
+    if (ast.size() > 1) {
+        throw InternalError{ast.at(1).token, "Unexpected token"};
+    }
+
+    auto value = generateExpression(ast.front(), context);
+    return {"(" + value.name + ")", value.type};
 }
 
 } // namespace
@@ -226,10 +259,10 @@ Value generateExpression(const Ast &ast, Context &context) {
         return {ast.token.toString(), {}};
     case Token::ReferencingStatement:
         return generateReferencingStatement(ast, context);
-        break;
     case Token::AsStatement:
         return generateCastStatement(ast, context);
-        break;
+    case Token::Parentheses:
+        return generateParenthesesStatement(ast, context);
 
     default:
         throw InternalError{ast.token,

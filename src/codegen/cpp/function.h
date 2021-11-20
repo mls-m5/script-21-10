@@ -15,7 +15,7 @@ struct FunctionPrototype {
         std::string _typeName;
         int pointer;
 
-        SpecificType type = {};
+        SpecificType type;
 
         SpecificType getType(Context &context);
 

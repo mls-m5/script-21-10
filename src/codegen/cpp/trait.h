@@ -16,6 +16,7 @@ struct Trait {
 
     std::string mangledName();
     std::string vtableName();
+    std::string vtableNameForStruct(Struct &);
 
     bool shouldExport = false;
 };

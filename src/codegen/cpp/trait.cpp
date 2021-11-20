@@ -35,6 +35,10 @@ std::string Trait::vtableName() {
     return name + "_vtable";
 }
 
+std::string Trait::vtableNameForStruct(Struct &s) {
+    return name + "_for_" + s.name + "_vtable";
+}
+
 void generateTraitDeclaration(const Ast &ast,
                               Context &context,
                               bool shouldExport) {
@@ -67,7 +71,8 @@ void generateTraitDeclaration(const Ast &ast,
             context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});
 
         context.insert({"void * ptr;", ast.token});
-        context.insert({trait.vtableName() + " * vtable;", ast.token});
+        context.insert(
+            {"const " + trait.vtableName() + " * vtable;", ast.token});
 
         context.setInsertPoint(oldInsertPoint);
         context.insert({";", ast.token});
@@ -121,8 +126,9 @@ void generateImplDeclaration(const Ast &ast,
 
     for (auto trait : structType->structPtr->traits) {
         auto ss = std::ostringstream{};
-        ss << "constexpr auto " << trait->name << "_for_" << structType->name
-           << " = " << trait->vtableName();
+        ss << "constexpr auto "
+           << trait->vtableNameForStruct(*structType->structPtr) << " = "
+           << trait->vtableName();
 
         auto oldInsertPoint =
             context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});

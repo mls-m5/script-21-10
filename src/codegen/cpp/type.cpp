@@ -1,10 +1,18 @@
 #include "type.h"
 
 std::string cpp::SpecificType::toString() const {
-    // Todo: Also handlen pointers
-    auto str = type->name;
+    if (!_type) {
+        return "void";
+    }
 
-    for (int i = 0; i < pointerDepth; ++i) {
+    // Todo: Also handlen pointers
+    auto str = _type->name;
+
+    if (isReference()) {
+        str += "&";
+    }
+
+    for (int i = 0; i < pointerDepth(); ++i) {
         str += "*";
     }
 

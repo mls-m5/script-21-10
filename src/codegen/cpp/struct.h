@@ -8,6 +8,7 @@ namespace cpp {
 
 struct Context;
 struct FunctionPrototype;
+struct Trait;
 
 struct Struct {
     struct Member {
@@ -26,6 +27,7 @@ struct Struct {
     auto getMethod(std::string_view name) -> FunctionPrototype *;
 
     bool hasTrait(std::string_view name);
+    bool hasTrait(Trait *trait);
     void addTrait(Trait *trait);
 
     Struct() = default;

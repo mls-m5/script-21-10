@@ -81,7 +81,7 @@ FunctionPrototype::FunctionPrototype(const Ast &ast,
             pointer = 1;
         }
         args.push_back(
-            {nameAst.token.toString(), typeAst.token.toString(), pointer});
+            {nameAst.token.toString(), typeAst.token.toString(), pointer, {}});
     }
 }
 
@@ -164,8 +164,8 @@ std::string FunctionPrototype::localName() {
 }
 
 SpecificType FunctionPrototype::returnType(Context &context) {
-    if (!_returnType.type) {
-        _returnType.type = context.getType(returnTypeName);
+    if (!_returnType.type()) {
+        _returnType = {context.getType(returnTypeName)};
     }
 
     return _returnType;
@@ -243,12 +243,12 @@ FunctionPrototype generateFunctionDeclaration(const Ast &ast,
     if (function.returnTypeName != "void") {
         if (!lastResult.name.empty()) {
             auto returnType = function.returnType(context);
-            if (lastResult.type.type != returnType.type) {
+            if (lastResult.type.type() != returnType.type()) {
                 throw InternalError(
                     *lastToken,
                     "return statement does not match function type: " +
-                        lastResult.type.type->name + " is not equal to " +
-                        returnType.type->name);
+                        lastResult.type.type()->name + " is not equal to " +
+                        returnType.type()->name);
             }
             else {
                 generateReturnExpression(lastResult, context, *lastToken);
@@ -284,7 +284,8 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
                     FunctionPrototype &function,
                     const Token &loc,
                     std::string namePrefix = "",
-                    std::string selfArgument = "") {
+                    std::string selfArgument = "",
+                    bool isTraitFunc = false) {
         if (function.args.size() != args.size()) {
             throw InternalError{ast.token,
                                 "trying to call function " +
@@ -316,17 +317,18 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
             argsString.pop_back();
         }
 
+        auto funcName = isTraitFunc ? function.name : function.mangledName();
+
         if (function.returnTypeName == "void") {
             context.insert(
-                {namePrefix + function.mangledName() + "(" + argsString + ");",
-                 loc});
+                {namePrefix + funcName + "(" + argsString + ");", loc});
             return std::string{};
         }
 
         else {
-            context.insert({"auto " + id + " = " + function.mangledName() +
-                                "(" + argsString + ");",
-                            loc});
+            context.insert(
+                {"auto " + id + " = " + funcName + "(" + argsString + ");",
+                 loc});
             return id;
         }
     };
@@ -353,7 +355,7 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
 
         auto &nameAst = target.back();
 
-        if (auto trait = type.type->traitPtr) {
+        if (auto trait = type.type()->traitPtr) {
             // Trait function calls
             auto ss = std::ostringstream{};
 
@@ -364,8 +366,9 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
 
                 auto id = call(function,
                                target.token,
-                               first.name + "->vtable->",
-                               first.name + "->ptr");
+                               first.name + ".vtable->",
+                               first.name + ".ptr",
+                               true);
 
                 return {id, function.returnType(context)};
             }
@@ -376,7 +379,7 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
                                         " on trait " + trait->name};
             }
         }
-        else if (auto s = type.type->structPtr) {
+        else if (auto s = type.type()->structPtr) {
             // Struct function calls
 
             if (auto method = s->getMethod(nameAst.token.toString())) {
@@ -413,7 +416,7 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
 }
 
 SpecificType FunctionPrototype::Arg::getType(Context &context) {
-    if (type.type) {
+    if (type.type()) {
         return type;
     }
 

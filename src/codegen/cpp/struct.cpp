@@ -38,6 +38,10 @@ bool Struct::hasTrait(std::string_view name) {
     return false;
 }
 
+bool Struct::hasTrait(Trait *trait) {
+    return std::find(traits.begin(), traits.end(), trait) != traits.end();
+}
+
 void Struct::addTrait(Trait *trait) {
     traits.push_back(trait);
 }
@@ -79,7 +83,7 @@ void generateStructDeclaration(const Ast &ast, Context &context) {
 
     for (auto &member : s.members) {
         context.insert(
-            {member.type.type->name + " " + member.name + ";", ast.token});
+            {member.type.type()->name + " " + member.name + ";", ast.token});
     }
 
     context.setInsertPoint(oldInsertPoint);
