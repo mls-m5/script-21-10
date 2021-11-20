@@ -106,7 +106,7 @@ std::string FunctionPrototype::signature(Context &context) {
     ss << "(";
 
     if (_selfPtr) {
-        ss << _selfPtr->name << " * self";
+        ss << _selfPtr->name << " & self";
     }
 
     ss << join(args, ',', context) << ")";
@@ -115,17 +115,16 @@ std::string FunctionPrototype::signature(Context &context) {
 }
 
 std::string FunctionPrototype::methodSignature(Context &context,
-                                               std::string_view parentName,
                                                bool functionPointer) {
     auto ss = std::ostringstream{};
 
     ss << returnTypeName << " ";
 
     if (functionPointer) {
-        ss << "(*" << mangledName(parentName) << ")";
+        ss << "(*" << mangledName() << ")";
     }
     else {
-        ss << mangledName(parentName);
+        ss << mangledName();
     }
 
     ss << "(void * self";
@@ -140,28 +139,12 @@ std::string FunctionPrototype::methodSignature(Context &context,
     return ss.str();
 }
 
-// std::string FunctionPrototype::lambdaSignature(Context &context) {
-//     auto ss = std::ostringstream{};
-
-//    ss << "[]";
-
-//    ss << "(" << join(args, ',', context) << ")";
-
-//    ss << "->" << returnTypeName;
-
-//    return ss.str();
-//}
-
-std::string FunctionPrototype::mangledName(std::string_view parentName) {
+std::string FunctionPrototype::mangledName() {
     auto ss = std::ostringstream{};
 
     if (!shouldDisableMangling && !moduleName.empty() && name != "main") {
         ss << moduleName << "_";
     }
-
-    //    if (!parentName.empty()) {
-    //        ss << parentName << "_";
-    //    }
 
     if (_selfPtr) {
         ss << _selfPtr->name << "_";
@@ -196,7 +179,11 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                       shouldDisableMangling,
                                       isMethod};
 
-    context.functions.emplace(function.localName(), function);
+    auto pair = context.functions.emplace(function.localName(), function);
+
+    if (auto s = context.selfStruct()) {
+        s->methods.push_back(&pair.first->second);
+    }
 
     return function;
 }
@@ -257,13 +244,12 @@ FunctionPrototype generateFunctionDeclaration(const Ast &ast,
     return function;
 }
 
-Value generateFunctionCall(const Ast &ast, Context &context) {
+Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
     std::vector<Value> args;
 
     auto &astArgs = ast.get(Token::FunctionArguments);
 
     if (!astArgs.empty()) {
-
         auto list = flattenList(astArgs.front());
         for (auto *arg : list) {
             args.push_back(generateExpression(*arg, context));
@@ -272,11 +258,11 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
 
     auto &target = ast.front();
 
-    auto call = [&context, &ast, &astArgs, &args](FunctionPrototype &function,
-                                                  const Token &loc,
-                                                  std::string namePrefix = "",
-                                                  std::string selfArgument =
-                                                      "") {
+    auto call = [&context, &ast, &astArgs, &args, &owner](
+                    FunctionPrototype &function,
+                    const Token &loc,
+                    std::string namePrefix = "",
+                    std::string selfArgument = "") {
         if (function.args.size() != args.size()) {
             throw InternalError{ast.token,
                                 "trying to call function " +
@@ -293,12 +279,17 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
             ss << selfArgument << ",";
         }
 
+        if (!owner.name.empty()) {
+            ss << owner.name << ", ";
+        }
+
         for (auto &arg : args) {
             ss << arg.name << ",";
         }
 
         auto argsString = ss.str();
 
+        // Pop last ','
         if (!argsString.empty()) {
             argsString.pop_back();
         }
@@ -340,8 +331,8 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
 
         auto &nameAst = target.back();
 
-        // Trait function calls
         if (auto trait = type.type->traitPtr) {
+            // Trait function calls
             auto ss = std::ostringstream{};
 
             if (auto f = trait->methods.find(nameAst.token.toString());
@@ -363,9 +354,25 @@ Value generateFunctionCall(const Ast &ast, Context &context) {
                                         " on trait " + trait->name};
             }
         }
+        else if (auto s = type.type->structPtr) {
+            // Struct function calls
+
+            if (auto method = s->getMethod(nameAst.token.toString())) {
+
+                auto id = call(*method, target.token, "", first.name);
+
+                return {id, method->returnType(context)};
+            }
+            else {
+                throw InternalError{nameAst.token,
+                                    "Could not find method " +
+                                        nameAst.token.toString() +
+                                        "() on struct " + s->name};
+            }
+        }
         else {
 
-            // Todo: Actually handle the namespacing/module part of this
+            // Todo: Actually handle the namespacing/module/struct part of this
 
             if (auto f = context.functions.find(nameAst.token.toString());
                 f != context.functions.end()) {

@@ -18,8 +18,10 @@ struct Struct {
     std::string name;
 
     std::vector<Member> members;
+    std::vector<class FunctionPrototype *> methods;
 
     Member *getMember(std::string_view name);
+    class FunctionPrototype *getMethod(std::string_view name);
 
     Struct() = default;
 

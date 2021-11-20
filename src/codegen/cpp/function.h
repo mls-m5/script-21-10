@@ -32,12 +32,10 @@ struct FunctionPrototype {
                       bool isMethod);
 
     std::string signature(Context &context);
-    std::string methodSignature(Context &context,
-                                std::string_view parentName,
-                                bool functionPointer = false);
+    std::string methodSignature(Context &context, bool functionPointer = false);
     //    std::string lambdaSignature(Context &context);
 
-    std::string mangledName(std::string_view parentName = {});
+    std::string mangledName();
 
     //! When a function is part of the current translation module or if a module
     //! is imported without module name
@@ -76,6 +74,8 @@ FunctionPrototype generateFunctionDeclaration(
     bool shouldDisableMangling = false,
     bool isMethod = false);
 
-Value generateFunctionCall(const Ast &ast, Context &context);
+//! @param ownerName: If called to a struct method, the named the variable with
+//! the method called
+Value generateFunctionCall(const Ast &ast, Context &context, Value owner = {});
 
 } // namespace cpp

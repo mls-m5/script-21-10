@@ -9,6 +9,7 @@ struct Type {
 
     struct Struct *structPtr = nullptr;
     struct Trait *traitPtr = nullptr;
+    struct Function *functionPtr = nullptr;
 };
 
 // Same as type but also contains pointer level

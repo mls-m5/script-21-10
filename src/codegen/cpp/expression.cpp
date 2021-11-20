@@ -45,7 +45,7 @@ Value generateVariableExpression(const Ast &ast, Context &context) {
     //    }
     else if (auto self = context.selfStruct()) {
         if (auto member = self->getMember(name)) {
-            return {"self->" + name, member->type};
+            return {"self." + name, member->type};
         }
     }
     throw InternalError{
@@ -162,11 +162,13 @@ Value generateMemberAccessor(const Ast &ast, Context &context) {
                             "not a struct" + lhsAst.token.toString()};
     }
 
-    if (auto f =
-            std::find_if(s->members.begin(),
-                         s->members.end(),
-                         [&rhs](auto &&member) { return member.name == rhs; });
-        f != s->members.end()) {
+    if (auto f = s->getMember(rhs)) {
+        //    if (auto f =
+        //            std::find_if(s->members.begin(),
+        //                         s->members.end(),
+        //                         [&rhs](auto &&member) { return member.name ==
+        //                         rhs; });
+        //        f != s->members.end()) {
         auto op = ast.type == Token::PointerMemberAccessor ? "->" : ".";
         return {lhs.name + op + rhs, f->type};
     }

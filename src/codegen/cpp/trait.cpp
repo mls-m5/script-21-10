@@ -40,8 +40,7 @@ void generateTraitDeclaration(const Ast &ast,
 
     for (auto &method : trait.methods) {
         context.insert(
-            {method.second.methodSignature(context, trait.name, true) +
-                 " = nullptr;",
+            {method.second.methodSignature(context, true) + " = nullptr;",
              ast.token});
     }
 
@@ -87,23 +86,16 @@ void generateImplDeclaration(const Ast &ast,
 
     auto &traitBody = ast.get(Token::ImplBody);
 
-    context.pushVariable({
-        // Todo: Handle with selfpointer instead
-        "self",
-        {structType} // Put some real type here
-    });
     auto oldSelf = context.selfStruct(structType->structPtr);
 
     for (auto &functionAst : traitBody) {
         // Extend to do other stuff than functions
         auto function = generateFunctionDeclaration(
             functionAst, context, shouldExport, false, true);
-        //        methodNames.push_back(function.mangledName(structType->name));
-        context.insert(
-            {function.methodSignature(context, structType->name), ast.token});
+        //        context.insert({function.methodSignature(context),
+        //        ast.token});
     }
 
-    context.popVariable("self");
     context.selfStruct(oldSelf);
 
     //    auto ss = std::ostringstream{};

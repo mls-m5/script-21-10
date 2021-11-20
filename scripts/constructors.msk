@@ -1,0 +1,11 @@
+
+module constructors
+
+struct Apa {
+    x int
+    y int
+}
+
+impl Apa {
+    func Apa(x, y) // Implicit initialize all values named the same as member
+}

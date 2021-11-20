@@ -1,0 +1,7 @@
+
+module game
+
+trait canvas {
+    func drawCircle(pos Vec2, radius float);
+    func fillRect(pos Vec2, dims Vec2);
+}
