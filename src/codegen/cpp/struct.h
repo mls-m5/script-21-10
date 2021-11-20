@@ -7,6 +7,7 @@
 namespace cpp {
 
 struct Context;
+struct FunctionPrototype;
 
 struct Struct {
     struct Member {
@@ -18,10 +19,14 @@ struct Struct {
     std::string name;
 
     std::vector<Member> members;
-    std::vector<class FunctionPrototype *> methods;
+    std::vector<FunctionPrototype *> methods;
+    std::vector<Trait *> traits;
 
-    Member *getMember(std::string_view name);
-    class FunctionPrototype *getMethod(std::string_view name);
+    auto getMember(std::string_view name) -> Member *;
+    auto getMethod(std::string_view name) -> FunctionPrototype *;
+
+    bool hasTrait(std::string_view name);
+    void addTrait(Trait *trait);
 
     Struct() = default;
 

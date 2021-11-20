@@ -41,6 +41,10 @@ bool isAsterisk(const Ast &ast) {
     return ast.token.content == "*";
 }
 
+bool isNotAsStatement(const Ast &ast) {
+    return ast.type != Token::AsStatement;
+}
+
 std::function<bool(const Ast &ast)> isNot(Token::Type type) {
     return [type](const Ast &ast) {
         return ast.type != type; //
@@ -104,8 +108,8 @@ const Patterns &getStandardPatterns() {
             {Token::Keep, Token::Name, Token::RightArrow, Token::Keep},
         },
         {
-            // impl Apa
-            {Token::ImplKeyword, Token::Word},
+            // trait Apa
+            {Token::TraitKeyword, Token::Word},
             Token::ImplInsideDeclaration,
             {Token::Keep, Token::Name},
         },
@@ -147,6 +151,12 @@ const Patterns &getStandardPatterns() {
                 {Token::TypeName, Token::InitializerList},
             },
         }},
+        {
+            // x as int
+            {{isNotAsStatement}, Token::AsKeyword, Token::Any},
+            Token::AsStatement,
+            {Token::Keep, Token::Keep, Token::TypeName},
+        },
         {
             // x int
             {Token::Word, Token::Word},
@@ -206,11 +216,6 @@ const Patterns &getStandardPatterns() {
             Token::Assignment,
             {Token::Keep, Token::Assignment, Token::Keep},
         },
-        {
-            // x, y, z
-            {Token::Any, {isComa}, Token::Any},
-            Token::List,
-        },
         EqualPriorityPatterns{{
             {
                 // x&
@@ -218,6 +223,11 @@ const Patterns &getStandardPatterns() {
                 Token::ReferencingStatement,
             },
         }},
+        {
+            // x, y, z
+            {Token::Any, {isComa}, Token::Any},
+            Token::List,
+        },
     };
 
     return patterns;

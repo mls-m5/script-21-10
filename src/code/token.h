@@ -44,6 +44,7 @@ struct Token {
         ExternKeyword,
         ImplKeyword,
         ForKeyword,
+        AsKeyword,
 
         Parentheses,
         Brackets,
@@ -83,6 +84,7 @@ struct Token {
         InitializerList,
         ExternStatement,
         ReferencingStatement,
+        AsStatement,
 
         Module,
 

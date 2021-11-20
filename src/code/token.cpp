@@ -36,6 +36,7 @@ std::string_view name(Token::Type t) {
         CASE(ExternKeyword)
         CASE(ImplKeyword)
         CASE(ForKeyword)
+        CASE(AsKeyword)
 
         CASE(Parentheses)
         CASE(Brackets)
@@ -74,6 +75,7 @@ std::string_view name(Token::Type t) {
         CASE(InitializerList)
         CASE(ExternStatement)
         CASE(ReferencingStatement)
+        CASE(AsStatement)
 
         CASE(Module)
 

@@ -31,9 +31,13 @@ struct FunctionPrototype {
                       bool shouldDisableMangling,
                       bool isMethod);
 
+    FunctionPrototype(const FunctionPrototype &) = default;
+    FunctionPrototype &operator=(const FunctionPrototype &) = default;
+    FunctionPrototype(FunctionPrototype &&) = default;
+    FunctionPrototype &operator=(FunctionPrototype &&) = default;
+
     std::string signature(Context &context);
     std::string methodSignature(Context &context, bool functionPointer = false);
-    //    std::string lambdaSignature(Context &context);
 
     std::string mangledName();
 
@@ -53,6 +57,8 @@ struct FunctionPrototype {
     bool isMethod = false;
 
     SpecificType returnType(Context &context);
+
+    Struct *self();
 
 private:
     SpecificType _returnType;

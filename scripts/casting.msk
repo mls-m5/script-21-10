@@ -1,0 +1,7 @@
+
+module casting
+
+func main() -> int {
+     let x = 10 as float
+     x as int
+}

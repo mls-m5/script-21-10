@@ -36,13 +36,6 @@ Value generateVariableExpression(const Ast &ast, Context &context) {
     if (auto variable = context.getVariable(name)) {
         return {variable->name, {variable->type}};
     }
-    //    else if (auto variable = context.getVariable("self")) {
-    //        if (auto s = variable->type.type->structPtr) {
-    //            if (auto member = s->getMember(name)) {
-    //                return {"self." + name, member->type};
-    //            }
-    //        }
-    //    }
     else if (auto self = context.selfStruct()) {
         if (auto member = self->getMember(name)) {
             return {"self." + name, member->type};
@@ -151,8 +144,6 @@ Value generateMemberAccessor(const Ast &ast, Context &context) {
     auto &lhsAst = ast.front();
     auto &rhsAst = ast.back();
 
-    // Todo: Figure out this type
-
     auto lhs = generateExpression(lhsAst, context);
     auto rhs = rhsAst.token.toString();
 
@@ -163,12 +154,6 @@ Value generateMemberAccessor(const Ast &ast, Context &context) {
     }
 
     if (auto f = s->getMember(rhs)) {
-        //    if (auto f =
-        //            std::find_if(s->members.begin(),
-        //                         s->members.end(),
-        //                         [&rhs](auto &&member) { return member.name ==
-        //                         rhs; });
-        //        f != s->members.end()) {
         auto op = ast.type == Token::PointerMemberAccessor ? "->" : ".";
         return {lhs.name + op + rhs, f->type};
     }
@@ -187,6 +172,30 @@ Value generateReferencingStatement(const Ast &ast, Context &context) {
     auto type = value.type;
     type.pointerDepth += 1;
     return {"&" + value.name, type};
+}
+
+Value generateCastStatement(const Ast &ast, Context &context) {
+    auto value = generateExpression(ast.front(), context);
+
+    if (ast.back().type != Token::TypeName) {
+        throw InternalError{ast.token, "Expected word describing type"};
+    }
+
+    auto type = context.getType(ast.back());
+
+    if (!type.type) {
+        throw InternalError{ast.back().token,
+                            "Could not find type " +
+                                ast.back().token.toString()};
+    }
+
+    auto id = context.generateId("cast");
+
+    context.insert({"auto " + id + " = static_cast<" + type.toString() + ">(" +
+                        value.name + ");",
+                    ast.token});
+
+    return {id, type};
 }
 
 } // namespace
@@ -217,6 +226,9 @@ Value generateExpression(const Ast &ast, Context &context) {
         return {ast.token.toString(), {}};
     case Token::ReferencingStatement:
         return generateReferencingStatement(ast, context);
+        break;
+    case Token::AsStatement:
+        return generateCastStatement(ast, context);
         break;
 
     default:

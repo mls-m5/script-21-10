@@ -27,47 +27,57 @@ Trait::Trait(const Ast &ast, Context &context, bool shouldExport)
     }
 }
 
+std::string Trait::mangledName() {
+    return name;
+}
+
+std::string Trait::vtableName() {
+    return name + "_vtable";
+}
+
 void generateTraitDeclaration(const Ast &ast,
                               Context &context,
                               bool shouldExport) {
 
     auto trait = Trait{ast, context, shouldExport};
 
-    auto ss = std::ostringstream{};
-    ss << "struct " << trait.name;
-    auto oldInsertPoint =
-        context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});
+    {
+        auto ss = std::ostringstream{};
+        ss << "struct " << trait.vtableName();
+        auto oldInsertPoint =
+            context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});
 
-    for (auto &method : trait.methods) {
-        context.insert(
-            {method.second.methodSignature(context, true) + " = nullptr;",
-             ast.token});
+        for (auto &method : trait.methods) {
+            context.insert(
+                {method.second.methodSignature(context, true) + " = nullptr;",
+                 ast.token});
+        }
+
+        context.setInsertPoint(oldInsertPoint);
+        context.insert({";", ast.token});
+
+        context.setTrait(trait);
     }
 
-    context.setInsertPoint(oldInsertPoint);
-    context.insert({";", ast.token});
+    {
+        // Define thick pointer
+        auto ss = std::ostringstream{};
+        ss << "struct " << trait.mangledName();
+        auto oldInsertPoint =
+            context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});
 
-    context.setTrait(trait);
+        context.insert({"void * ptr;", ast.token});
+        context.insert({trait.vtableName() + " * vtable;", ast.token});
+
+        context.setInsertPoint(oldInsertPoint);
+        context.insert({";", ast.token});
+    }
 }
 
 void generateImplDeclaration(const Ast &ast,
                              Context &context,
                              bool shouldExport) {
-    //    auto &traitNameAst = ast.get(Token::Name);
     auto &structNameAst = ast.get(Token::Name);
-
-    //    auto *traitType = context.getType(traitNameAst.token.content);
-    //    if (!traitType) {
-    //        throw InternalError{traitNameAst.token,
-    //                            "Trait " + traitNameAst.token.toString() +
-    //                                " is not defined"};
-    //    }
-
-    //    if (!traitType->traitPtr) {
-    //        throw InternalError{traitNameAst.token,
-    //                            "Type " + traitNameAst.token.toString() +
-    //                                " is not a trait"};
-    //    }
 
     auto *structType = context.getType(structNameAst.token.toString());
     if (!structType) {
@@ -88,28 +98,54 @@ void generateImplDeclaration(const Ast &ast,
 
     auto oldSelf = context.selfStruct(structType->structPtr);
 
-    for (auto &functionAst : traitBody) {
-        // Extend to do other stuff than functions
-        auto function = generateFunctionDeclaration(
-            functionAst, context, shouldExport, false, true);
-        //        context.insert({function.methodSignature(context),
-        //        ast.token});
+    for (auto &childAst : traitBody) {
+        if (childAst.type == Token::ImplInsideDeclaration) {
+            auto &traitNameAst = childAst.get(Token::Name);
+            auto type = context.getType(traitNameAst.token.content);
+            if (type->traitPtr) {
+                structType->structPtr->addTrait(type->traitPtr);
+            }
+            else {
+                throw InternalError{childAst.token,
+                                    "Could not find trait " +
+                                        traitNameAst.token.toString()};
+            }
+        }
+        else {
+            generateFunctionDeclaration(
+                childAst, context, shouldExport, false, true);
+        }
     }
 
     context.selfStruct(oldSelf);
 
-    //    auto ss = std::ostringstream{};
-    //    ss << "constexpr auto " << traitType->traitPtr->name << "_for_"
-    //       << structType->name << " = " << traitType->traitPtr->name;
+    for (auto trait : structType->structPtr->traits) {
+        auto ss = std::ostringstream{};
+        ss << "constexpr auto " << trait->name << "_for_" << structType->name
+           << " = " << trait->vtableName();
 
-    //    auto oldInsertPoint =
-    //        context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});
+        auto oldInsertPoint =
+            context.insertBlock({ss.str(), ast.token.loc, ast.token.buffer});
 
-    //    for (auto &name : methodNames) {
-    //        context.insert({name + ",", ast.token});
-    //    }
+        for (auto &it : trait->methods) {
+            auto name = it.first;
+            auto method = structType->structPtr->getMethod(name);
+            if (method) {
+                context.insert(
+                    {"." + name + " = " + method->mangledName() + ",",
+                     ast.token});
+            }
+            else {
+                throw InternalError{
+                    ast.token,
+                    "Struct " + structType->structPtr->name +
+                        " should implement trait " + trait->name +
+                        " but does not implement method " + name + "()"};
+            }
+        }
 
-    //    context.setInsertPoint(oldInsertPoint);
+        context.setInsertPoint(oldInsertPoint);
+    }
 
     context.insert({";", ast.token});
 }

@@ -50,6 +50,7 @@ Token::Type getKeyword(std::string_view str) {
         {"extern", Token::ExternKeyword},
         {"impl", Token::ImplKeyword},
         {"for", Token::ForKeyword},
+        {"as", Token::AsKeyword},
     };
 
     if (auto f = keywords.find(str); f != keywords.end()) {

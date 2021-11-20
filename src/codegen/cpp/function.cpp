@@ -106,7 +106,11 @@ std::string FunctionPrototype::signature(Context &context) {
     ss << "(";
 
     if (_selfPtr) {
-        ss << _selfPtr->name << " & self";
+        //        ss << _selfPtr->name << " & self";
+        ss << "void * _self";
+        if (!args.empty()) {
+            ss << ", ";
+        }
     }
 
     ss << join(args, ',', context) << ")";
@@ -121,13 +125,13 @@ std::string FunctionPrototype::methodSignature(Context &context,
     ss << returnTypeName << " ";
 
     if (functionPointer) {
-        ss << "(*" << mangledName() << ")";
+        ss << "(*" << name << ")";
     }
     else {
         ss << mangledName();
     }
 
-    ss << "(void * self";
+    ss << "(void * _self";
 
     if (args.empty()) {
         ss << ")";
@@ -167,6 +171,10 @@ SpecificType FunctionPrototype::returnType(Context &context) {
     return _returnType;
 }
 
+Struct *FunctionPrototype::self() {
+    return _selfPtr;
+}
+
 FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
                                             bool shouldExport,
@@ -179,10 +187,18 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                       shouldDisableMangling,
                                       isMethod};
 
-    auto pair = context.functions.emplace(function.localName(), function);
-
     if (auto s = context.selfStruct()) {
-        s->methods.push_back(&pair.first->second);
+        auto it = context.functions.insert(
+            make_pair(function.mangledName(), function));
+
+        if (!it.second) {
+            throw InternalError{ast.token, "Could not create function"};
+        }
+
+        s->methods.push_back(&it.first->second);
+    }
+    else {
+        context.functions.emplace(function.localName(), function);
     }
 
     return function;
@@ -202,6 +218,12 @@ FunctionPrototype generateFunctionDeclaration(const Ast &ast,
 
     auto oldInsertPoint =
         context.insertBlock({ss.str(), function.location, ast.token.buffer});
+
+    if (auto self = function.self()) {
+        context.insert(
+            {"auto &self = *static_cast<" + self->name + "*>(_self);",
+             ast.token});
+    }
 
     // Todo: Sometime in the far future, optimize this statement
     auto &body = ast.getRecursive(Token::FunctionBody);

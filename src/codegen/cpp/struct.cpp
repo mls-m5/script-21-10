@@ -27,6 +27,21 @@ FunctionPrototype *Struct::getMethod(std::string_view name) {
     return nullptr;
 }
 
+bool Struct::hasTrait(std::string_view name) {
+    if (auto f = std::find_if(traits.begin(),
+                              traits.end(),
+                              [&name](auto &m) { return m->name == name; });
+        f != traits.end()) {
+        return true;
+    }
+
+    return false;
+}
+
+void Struct::addTrait(Trait *trait) {
+    traits.push_back(trait);
+}
+
 Struct::Struct(const Ast &ast, Context &context) {
     auto &nameAst = ast.get(Token::Name);
 

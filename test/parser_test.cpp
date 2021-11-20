@@ -357,12 +357,23 @@ TEST_CASE("impl statement") {
     }
 
     {
-        auto ast = parse("impl Bepa");
+        auto ast = parse("trait Bepa");
 
         std::cout << ast << std::endl;
 
         EXPECT_EQ(ast.size(), 1);
         EXPECT_EQ(ast.front().type, Token::ImplInsideDeclaration);
+    }
+}
+
+TEST_CASE("casting") {
+    {
+        auto ast = parse("x as int");
+
+        std::cout << ast << std::endl;
+
+        EXPECT_EQ(ast.size(), 1);
+        EXPECT_EQ(ast.front().type, Token::AsStatement);
     }
 }
 
