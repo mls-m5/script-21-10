@@ -149,7 +149,7 @@ bool inputModule(filesystem::path path, cpp::Context &context) {
 
 int handleCpp(filesystem::path out, std::string moduleName) {
 
-    auto context = cpp::Context{moduleName};
+    auto context = cpp::Context{};
 
     if (importCpp(context, standardImports(context))) {
         return 1;

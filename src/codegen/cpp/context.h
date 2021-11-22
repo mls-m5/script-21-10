@@ -67,17 +67,13 @@ struct Context {
         Block::ListT::iterator it = {};
     };
 
-    std::filesystem::path filename;
-
-    // Used to add prefixes to function and type names
-    std::string moduleName;
-
-    Block root;
-
-    Context(std::filesystem::path filename);
+    Context();
 
     Context(Context &) = delete;
     Context &operator=(Context &) = delete;
+
+    std::string_view moduleName();
+    void moduleName(std::string);
 
     std::string generateName(std::string_view base);
 
@@ -103,6 +99,10 @@ struct Context {
     Variable *getVariable(std::string_view name);
     void setVariable(std::string name, Variable);
 
+    // Set function and return pointer to it if insert was successful
+    FunctionPrototype *function(std::string name, FunctionPrototype function);
+    FunctionPrototype *function(std::string name);
+
     // Set selfstruct and return the old value
     Struct *selfStruct(Struct *);
     Struct *selfStruct();
@@ -117,13 +117,15 @@ struct Context {
     // ALways do this in the reverse order
     void popVariable(std::string name);
 
-    // Todo: make private
-    std::map<std::string, FunctionPrototype> functions;
-
     FileLookup fileLookup;
 
 private:
-    InsertPoint _insertPoint = InsertPoint{&root, root.lines.end()};
+    Block _root;
+    InsertPoint _insertPoint = InsertPoint{&_root, _root.lines.end()};
+    // Used to add prefixes to function and type names
+    std::string _moduleName;
+    // Todo: make private
+    std::map<std::string, FunctionPrototype> _functions;
 
     std::vector<Type> _builtInTypes;
     std::map<std::string, Variable> _variables;

@@ -55,7 +55,7 @@ void importModule(const Ast &ast, Context &context, bool toGlobal) {
     // static auto &x = othermodule_x;
     (void)toGlobal;
 
-    context.moduleName = moduleName;
+    context.moduleName(moduleName);
 
     for (auto &child : ast) {
         switch (child.type) {
@@ -72,7 +72,7 @@ void importModule(const Ast &ast, Context &context, bool toGlobal) {
         }
     }
 
-    context.moduleName = "";
+    context.moduleName("");
 }
 
 void handleImport(const Ast &importStatement, Context &context) {

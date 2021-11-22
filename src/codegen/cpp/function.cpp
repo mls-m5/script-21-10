@@ -181,24 +181,31 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             bool shouldDisableMangling,
                                             bool isMethod) {
     auto function = FunctionPrototype{ast,
-                                      context.moduleName,
+                                      context.moduleName(),
                                       context.selfStruct(),
                                       shouldExport,
                                       shouldDisableMangling,
                                       isMethod};
 
     if (auto s = context.selfStruct()) {
-        auto it = context.functions.insert(
-            make_pair(function.mangledName(), function));
+        auto f = context.function(function.mangledName(), function);
+        //        auto it = context.functions.insert(
+        //            make_pair(function.mangledName(), function));
 
-        if (!it.second) {
+        //        if (!it.second) {
+        if (!f) {
             throw InternalError{ast.token, "Could not create function"};
         }
 
-        s->methods.push_back(&it.first->second);
+        s->methods.push_back(f);
     }
     else {
-        context.functions.emplace(function.localName(), function);
+        auto f = context.function(function.mangledName(), function);
+
+        if (!f) {
+            throw InternalError{ast.token, "Could not create function"};
+        }
+        //        context.functions.emplace(function.localName(), function);
     }
 
     return function;
@@ -335,13 +342,10 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
 
     if (target.type == Token::Word) {
         auto &name = target;
-        if (auto f = context.functions.find(name.token.toString());
-            f != context.functions.end()) {
-            auto &function = f->second;
+        if (auto function = context.function(name.token.toString())) {
+            auto id = call(*function, target.token);
 
-            auto id = call(function, target.token);
-
-            return {id, function.returnType(context)};
+            return {id, function->returnType(context)};
         }
     }
 
@@ -399,14 +403,10 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
 
             // Todo: Actually handle the namespacing/module/struct part of this
 
-            if (auto f = context.functions.find(nameAst.token.toString());
-                f != context.functions.end()) {
+            if (auto function = context.function(nameAst.token.toString())) {
+                auto id = call(*function, target.token);
 
-                auto &function = f->second;
-
-                auto id = call(function, target.token);
-
-                return {id, function.returnType(context)};
+                return {id, function->returnType(context)};
             }
         }
     }

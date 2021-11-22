@@ -94,7 +94,7 @@ void generateModule(const Ast &ast, Context &context) {
     auto &moduleStatement = ast.front();
     auto &moduleName = moduleStatement.get(Token::Name);
 
-    context.moduleName = moduleName.token.content;
+    context.moduleName(std::string{moduleName.token.content});
 
     for (auto &child : ast) {
         generateRootNode(child, context);

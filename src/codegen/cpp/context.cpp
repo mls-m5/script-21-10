@@ -29,9 +29,8 @@ void Block::dump(std::ostream &stream, int indentSize, bool removeLines) const {
     }
 }
 
-Context::Context(std::filesystem::path filename)
-    : filename(filename)
-    , root{Token{}} {
+Context::Context()
+    : _root{Token{}} {
 
     // Built in types
     _types.push_back({"void"});
@@ -39,6 +38,14 @@ Context::Context(std::filesystem::path filename)
     _types.push_back({"float"});
     _types.push_back({"uint8"});
     _types.push_back({"size_t"});
+}
+
+std::string_view Context::moduleName() {
+    return _moduleName;
+}
+
+void Context::moduleName(std::string name) {
+    _moduleName = std::move(name);
 }
 
 Context::InsertPoint Context::insert(InsertPoint insertPoint, Block block) {
@@ -58,7 +65,7 @@ Context::InsertPoint Context::insert(Block line) {
 }
 
 void Context::dumpCpp(std::ostream &stream, bool removeLines) const {
-    root.dump(stream, removeLines);
+    _root.dump(stream, removeLines);
 }
 
 Type *Context::getType(std::string_view name) {
@@ -109,6 +116,22 @@ Variable *Context::getVariable(std::string_view name) {
         return &f->second;
     }
 
+    return nullptr;
+}
+
+FunctionPrototype *Context::function(std::string name,
+                                     FunctionPrototype function) {
+    auto it = _functions.insert(std::make_pair(name, std::move(function)));
+    if (!it.second) {
+        return nullptr;
+    }
+    return &it.first->second;
+}
+
+FunctionPrototype *Context::function(std::string name) {
+    if (auto f = _functions.find(name); f != _functions.end()) {
+        return &f->second;
+    }
     return nullptr;
 }
 
