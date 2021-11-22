@@ -44,21 +44,23 @@ struct FunctionPrototype {
     //! is imported without module name
     std::string localName();
 
-    bool shouldDisableMangling = false;
-    std::string name;
-    TokenLocation location;
-    std::vector<Arg> args;
-    std::string moduleName;
-
-    std::string returnTypeName = "void";
-
-    bool shouldExport = false;
+    TokenLocation location() const;
+    std::string_view returnTypeName() const;
+    std::string_view name() const;
+    const std::vector<Arg> &args() const;
 
     SpecificType returnType(Context &context);
 
     Struct *self();
 
 private:
+    bool _shouldDisableMangling = false;
+    std::string _moduleName;
+    std::vector<Arg> _args;
+    bool _shouldExport = false;
+    std::string _returnTypeName = "void";
+    TokenLocation _location;
+    std::string _name;
     SpecificType _returnType;
     Struct *_selfPtr;
 };

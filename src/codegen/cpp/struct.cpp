@@ -19,7 +19,7 @@ Struct::Member *Struct::getMember(std::string_view name) {
 FunctionPrototype *Struct::getMethod(std::string_view name) {
     if (auto f = std::find_if(methods.begin(),
                               methods.end(),
-                              [&name](auto &m) { return m->name == name; });
+                              [&name](auto &m) { return m->name() == name; });
         f != methods.end()) {
         return *f;
     }

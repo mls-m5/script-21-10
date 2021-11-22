@@ -40,29 +40,29 @@ FunctionPrototype::FunctionPrototype(const Ast &ast,
                                      Struct *self,
                                      bool shouldExport,
                                      bool shouldDisableMangling)
-    : shouldDisableMangling(shouldDisableMangling)
-    , moduleName(moduleName)
-    , shouldExport(shouldExport)
+    : _shouldDisableMangling(shouldDisableMangling)
+    , _moduleName(moduleName)
+    , _shouldExport(shouldExport)
     , _selfPtr{self} {
 
     if (shouldDisableMangling) {
-        this->moduleName = "";
+        this->_moduleName = "";
     }
 
     auto returnTypeAst = getFunctionReturnType(ast);
 
     if (returnTypeAst) {
-        returnTypeName = returnTypeAst->token.toString();
+        _returnTypeName = returnTypeAst->token.toString();
     }
 
     auto &prototypeAst = ast.getRecursive(Token::FunctionPrototype);
 
-    name = prototypeAst.get(Token::Name).token.toString();
+    _name = prototypeAst.get(Token::Name).token.toString();
 
-    auto isMain = name == "main";
+    auto isMain = _name == "main";
 
     if (isMain) {
-        returnTypeName = "int";
+        _returnTypeName = "int";
     }
 
     auto astArgs = [&] {
@@ -78,7 +78,7 @@ FunctionPrototype::FunctionPrototype(const Ast &ast,
         if (astArg->type == Token::PointerTypedVariable) {
             pointer = 1;
         }
-        args.push_back(
+        _args.push_back(
             {nameAst.token.toString(), typeAst.token.toString(), pointer, {}});
     }
 }
@@ -86,32 +86,31 @@ FunctionPrototype::FunctionPrototype(const Ast &ast,
 std::string FunctionPrototype::signature(Context &context) {
     auto ss = std::ostringstream{};
 
-    auto isMain = name == "main";
+    auto isMain = _name == "main";
 
     if (!isMain) {
-        if (shouldDisableMangling) {
+        if (_shouldDisableMangling) {
             ss << "extern \"C\" ";
         }
-        else if (!shouldExport) {
+        else if (!_shouldExport) {
             ss << "static ";
         }
     }
 
-    ss << returnTypeName << " ";
+    ss << _returnTypeName << " ";
 
     ss << mangledName();
 
     ss << "(";
 
     if (_selfPtr) {
-        //        ss << _selfPtr->name << " & self";
         ss << "void * _self";
-        if (!args.empty()) {
+        if (!_args.empty()) {
             ss << ", ";
         }
     }
 
-    ss << join(args, ',', context) << ")";
+    ss << join(_args, ',', context) << ")";
 
     return ss.str();
 }
@@ -120,10 +119,10 @@ std::string FunctionPrototype::methodSignature(Context &context,
                                                bool functionPointer) {
     auto ss = std::ostringstream{};
 
-    ss << returnTypeName << " ";
+    ss << _returnTypeName << " ";
 
     if (functionPointer) {
-        ss << "(*" << name << ")";
+        ss << "(*" << _name << ")";
     }
     else {
         ss << mangledName();
@@ -131,11 +130,11 @@ std::string FunctionPrototype::methodSignature(Context &context,
 
     ss << "(void * _self";
 
-    if (args.empty()) {
+    if (_args.empty()) {
         ss << ")";
     }
     else {
-        ss << ", " << join(args, ',', context) << ")";
+        ss << ", " << join(_args, ',', context) << ")";
     }
 
     return ss.str();
@@ -144,26 +143,42 @@ std::string FunctionPrototype::methodSignature(Context &context,
 std::string FunctionPrototype::mangledName() {
     auto ss = std::ostringstream{};
 
-    if (!shouldDisableMangling && !moduleName.empty() && name != "main") {
-        ss << moduleName << "_";
+    if (!_shouldDisableMangling && !_moduleName.empty() && _name != "main") {
+        ss << _moduleName << "_";
     }
 
     if (_selfPtr) {
         ss << _selfPtr->name << "_";
     }
 
-    ss << name;
+    ss << _name;
 
     return ss.str();
 }
 
 std::string FunctionPrototype::localName() {
-    return name;
+    return _name;
+}
+
+TokenLocation FunctionPrototype::location() const {
+    return _location;
+}
+
+std::string_view FunctionPrototype::returnTypeName() const {
+    return _returnTypeName;
+}
+
+std::string_view FunctionPrototype::name() const {
+    return _name;
+}
+
+const std::vector<FunctionPrototype::Arg> &FunctionPrototype::args() const {
+    return _args;
 }
 
 SpecificType FunctionPrototype::returnType(Context &context) {
     if (!_returnType.type()) {
-        _returnType = {context.getType(returnTypeName)};
+        _returnType = {context.getType(_returnTypeName)};
     }
 
     return _returnType;
@@ -192,13 +207,7 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
         s->methods.push_back(f);
     }
     else {
-        //        auto f =
         context.function(function.localName(), function);
-
-        //        if (!f) {
-        //            throw InternalError{ast.token, "Could not create
-        //            function"};
-        //        }
     }
 
     return function;
@@ -216,7 +225,7 @@ FunctionPrototype generateFunctionDeclaration(const Ast &ast,
     ss << function.signature(context);
 
     auto oldInsertPoint =
-        context.insertBlock({ss.str(), function.location, ast.token.buffer});
+        context.insertBlock({ss.str(), function.location(), ast.token.buffer});
 
     if (auto self = function.self()) {
         context.insert(
@@ -227,7 +236,7 @@ FunctionPrototype generateFunctionDeclaration(const Ast &ast,
     // Todo: Sometime in the far future, optimize this statement
     auto &body = ast.getRecursive(Token::FunctionBody);
 
-    for (auto &arg : function.args) {
+    for (auto &arg : function.args()) {
         context.pushVariable(Variable{arg.name, {arg.getType(context)}});
     }
 
@@ -239,7 +248,7 @@ FunctionPrototype generateFunctionDeclaration(const Ast &ast,
         lastToken = &child.token;
     }
 
-    if (function.returnTypeName != "void") {
+    if (function.returnTypeName() != "void") {
         if (!lastResult.name.empty()) {
             auto returnType = function.returnType(context);
             if (lastResult.type.type() != returnType.type()) {
@@ -257,7 +266,7 @@ FunctionPrototype generateFunctionDeclaration(const Ast &ast,
 
     context.setInsertPoint(oldInsertPoint);
 
-    for (auto rit = function.args.rbegin(); rit != function.args.rend();
+    for (auto rit = function.args().rbegin(); rit != function.args().rend();
          ++rit) {
         context.popVariable(rit->name);
     }
@@ -285,13 +294,13 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
                     std::string namePrefix = "",
                     std::string selfArgument = "",
                     bool isTraitFunc = false) {
-        if (function.args.size() != args.size()) {
+        if (function.args().size() != args.size()) {
             throw InternalError{ast.token,
                                 "trying to call function " +
-                                    std::string{function.name} + " with " +
-                                    std::to_string(astArgs.size()) +
+                                    std::string{function.localName()} +
+                                    " with " + std::to_string(astArgs.size()) +
                                     " arguments, but it expects " +
-                                    std::to_string(function.args.size())};
+                                    std::to_string(function.args().size())};
         }
         auto id = context.generateId("fnc");
 
@@ -316,9 +325,10 @@ Value generateFunctionCall(const Ast &ast, Context &context, Value owner) {
             argsString.pop_back();
         }
 
-        auto funcName = isTraitFunc ? function.name : function.mangledName();
+        auto funcName =
+            isTraitFunc ? function.localName() : function.mangledName();
 
-        if (function.returnTypeName == "void") {
+        if (function.returnTypeName() == "void") {
             context.insert(
                 {namePrefix + funcName + "(" + argsString + ");", loc});
             return std::string{};
