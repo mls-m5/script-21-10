@@ -28,8 +28,7 @@ struct FunctionPrototype {
                       std::string_view moduleName,
                       Struct *self,
                       bool shouldExport,
-                      bool shouldDisableMangling,
-                      bool isMethod);
+                      bool shouldDisableMangling);
 
     FunctionPrototype(const FunctionPrototype &) = default;
     FunctionPrototype &operator=(const FunctionPrototype &) = default;
@@ -54,7 +53,6 @@ struct FunctionPrototype {
     std::string returnTypeName = "void";
 
     bool shouldExport = false;
-    bool isMethod = false;
 
     SpecificType returnType(Context &context);
 
@@ -68,8 +66,7 @@ private:
 FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
                                             bool shouldExport,
-                                            bool shouldDisableMangling = false,
-                                            bool isMethod = false);
+                                            bool shouldDisableMangling = false);
 
 //! Returns the function prototype, you do not need no use it, but you could if
 //! you need to know some information about it
@@ -77,8 +74,7 @@ FunctionPrototype generateFunctionDeclaration(
     const Ast &ast,
     Context &context,
     bool shouldExport,
-    bool shouldDisableMangling = false,
-    bool isMethod = false);
+    bool shouldDisableMangling = false);
 
 //! @param ownerName: If called to a struct method, the named the variable with
 //! the method called

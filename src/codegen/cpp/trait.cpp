@@ -21,7 +21,7 @@ Trait::Trait(const Ast &ast, Context &context, bool shouldExport)
         auto &nameAst = memberAst.getRecursive(Token::Name);
         auto pair = decltype(Trait::methods)::value_type{
             nameAst.token.toString(),
-            generateFunctionPrototype(ast, context, shouldExport, false, true)};
+            generateFunctionPrototype(ast, context, shouldExport, false)};
 
         methods.emplace(std::move(pair));
     }
@@ -117,8 +117,7 @@ void generateImplDeclaration(const Ast &ast,
             }
         }
         else {
-            generateFunctionDeclaration(
-                childAst, context, shouldExport, false, true);
+            generateFunctionDeclaration(childAst, context, shouldExport, false);
         }
     }
 

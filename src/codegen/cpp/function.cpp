@@ -39,12 +39,10 @@ FunctionPrototype::FunctionPrototype(const Ast &ast,
                                      std::string_view moduleName,
                                      Struct *self,
                                      bool shouldExport,
-                                     bool shouldDisableMangling,
-                                     bool isMethod)
+                                     bool shouldDisableMangling)
     : shouldDisableMangling(shouldDisableMangling)
     , moduleName(moduleName)
     , shouldExport(shouldExport)
-    , isMethod(isMethod)
     , _selfPtr{self} {
 
     if (shouldDisableMangling) {
@@ -178,21 +176,15 @@ Struct *FunctionPrototype::self() {
 FunctionPrototype generateFunctionPrototype(const Ast &ast,
                                             Context &context,
                                             bool shouldExport,
-                                            bool shouldDisableMangling,
-                                            bool isMethod) {
+                                            bool shouldDisableMangling) {
     auto function = FunctionPrototype{ast,
                                       context.moduleName(),
                                       context.selfStruct(),
                                       shouldExport,
-                                      shouldDisableMangling,
-                                      isMethod};
+                                      shouldDisableMangling};
 
     if (auto s = context.selfStruct()) {
         auto f = context.function(function.mangledName(), function);
-        //        auto it = context.functions.insert(
-        //            make_pair(function.mangledName(), function));
-
-        //        if (!it.second) {
         if (!f) {
             throw InternalError{ast.token, "Could not create function"};
         }
@@ -200,12 +192,13 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
         s->methods.push_back(f);
     }
     else {
-        auto f = context.function(function.mangledName(), function);
+        //        auto f =
+        context.function(function.localName(), function);
 
-        if (!f) {
-            throw InternalError{ast.token, "Could not create function"};
-        }
-        //        context.functions.emplace(function.localName(), function);
+        //        if (!f) {
+        //            throw InternalError{ast.token, "Could not create
+        //            function"};
+        //        }
     }
 
     return function;
@@ -214,10 +207,9 @@ FunctionPrototype generateFunctionPrototype(const Ast &ast,
 FunctionPrototype generateFunctionDeclaration(const Ast &ast,
                                               Context &context,
                                               bool shouldExport,
-                                              bool shouldDisableMangling,
-                                              bool isMethod) {
+                                              bool shouldDisableMangling) {
     auto function = generateFunctionPrototype(
-        ast, context, shouldExport, shouldDisableMangling, isMethod);
+        ast, context, shouldExport, shouldDisableMangling);
 
     auto ss = std::ostringstream{};
 
