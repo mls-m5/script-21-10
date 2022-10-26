@@ -1,7 +1,7 @@
 # Script 21-10
 Somtimes a man just needs to create a programming language.
 
-The ambision is to create a functional (but probably somewhat crappy) language
+The ambition is to create a functional (but probably somewhat crappy) language
 that that is a combination of go and rust.
 
 Note though. That the more I work on it, the more it just starts to look like
